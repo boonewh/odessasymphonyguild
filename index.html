@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Odessa Symphony Guild | Supporting the Arts in West Texas Since 1958</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tangerine:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            line-height: 1.7;
+            color: #2c2c2c;
+            background-color: #fdfcfb;
+        }
+
+        .fixed-logo {
+            width: 80px;
+            height: 80px;
+            z-index: 1000;
+            background: white;
+            padding: 8px;
+            margin-right: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .fixed-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .fixed-logo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d3748 100%);
+            color: #f7f7f7;
+            padding: 1.5rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: #f7f7f7;
+            text-decoration: none;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            transition: color 0.3s ease;
+            font-family: 'Arial', sans-serif;
+        }
+
+        nav a:hover {
+            color: #d4af37;
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: #f7f7f7;
+            font-size: 1.8rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            z-index: 101;
+        }
+
+        .mobile-menu-toggle:hover {
+            color: #d4af37;
+        }
+
+        .hero {
+            background: linear-gradient(rgba(26, 26, 46, 0.9), rgba(26, 26, 46, 0.75)),
+                        url('hero-orchestra.jpg');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 8rem 2rem 6rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            letter-spacing: 3px;
+            font-family: 'Tangerine', cursive;
+            font-size: 7.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #f7f7f7;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.6);
+        }
+
+        .hero .tagline {
+            font-size: 1.3rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            color: #d4af37;
+            margin-bottom: 2rem;
+        }
+
+        .hero p {
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: #d4af37;
+            color: #1a1a2e;
+            padding: 1rem 2.5rem;
+            text-decoration: none;
+            border-radius: 3px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            font-family: 'Arial', sans-serif;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .cta-button:hover {
+            background-color: #c19b2e;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        section {
+            padding: 5rem 0;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+            color: #1a1a2e;
+            letter-spacing: 2px;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: #666;
+            max-width: 700px;
+            margin: 0 auto 3rem;
+            font-size: 1.1rem;
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            margin-top: 3rem;
+        }
+
+        .about-text p {
+            margin-bottom: 1.5rem;
+            text-align: justify;
+        }
+
+        .heritage-box {
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d3748 100%);
+            color: white;
+            padding: 3rem;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .heritage-box h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: #d4af37;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        .heritage-box p {
+            line-height: 1.8;
+        }
+
+        .heritage-img {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .programs {
+            background-color: #f9f9f9;
+        }
+
+        .program-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+            margin-top: 3rem;
+        }
+
+        .program-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .program-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .program-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #1a1a2e;
+            font-weight: 400;
+        }
+
+        .program-card p {
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .program-icon {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1.5rem;
+            object-fit: contain;
+        }
+
+        .belle-beaux {
+            background: linear-gradient(135deg, #2d3748 0%, #1a1a2e 100%);
+            color: white;
+        }
+
+        .belle-beaux .section-title,
+        .belle-beaux .section-subtitle {
+            color: white;
+        }
+
+        .belle-beaux .section-subtitle {
+            color: #d4af37;
+        }
+
+        .belle-feature {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            margin-top: 3rem;
+            align-items: center;
+        }
+
+        .belle-text h3 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: #d4af37;
+            font-weight: 300;
+        }
+
+        .belle-text ul {
+            list-style: none;
+            margin-top: 2rem;
+        }
+
+        .belle-text li {
+            padding: 0.8rem 0;
+            padding-left: 2rem;
+            position: relative;
+        }
+
+        .belle-text li:before {
+            content: "♦";
+            position: absolute;
+            left: 0;
+            color: #d4af37;
+            font-size: 1.2rem;
+        }
+
+        .stats-box {
+            background: rgba(255,255,255,0.1);
+            padding: 2rem;
+            border-radius: 8px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .stats-box h4 {
+            color: #d4af37;
+            font-size: 3rem;
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+        }
+
+        .stats-box p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .belle-img {
+            width: 100%;
+            max-width: 550px;
+            height: auto;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .gala {
+            background-color: #fdfcfb;
+        }
+
+        .gala-info {
+            text-align: center;
+            max-width: 800px;
+            margin: 3rem auto;
+            padding: 3rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .gala-info h3 {
+            font-size: 2rem;
+            color: #1a1a2e;
+            margin-bottom: 1.5rem;
+            font-weight: 300;
+        }
+
+        .gala-info p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+
+        .gala-img {
+            width: 100%;
+            max-width: 900px;
+            height: 500px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin: 3rem auto;
+            display: block;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+        }
+
+        .contact {
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d3748 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .contact .section-title {
+            color: white;
+        }
+
+        .contact-info {
+            margin-top: 3rem;
+        }
+
+        .contact-info a {
+            color: #d4af37;
+            text-decoration: none;
+            font-size: 1.2rem;
+            transition: color 0.3s ease;
+        }
+
+        .contact-info a:hover {
+            color: #e6c855;
+        }
+
+        footer {
+            background-color: #0f0f1e;
+            color: #999;
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.9rem;
+        }
+
+        footer p {
+            margin: 0.5rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .fixed-logo {
+                width: 60px;
+                height: 60px;
+                top: 15px;
+                left: 15px;
+            }
+
+            .header-content {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+
+            .logo {
+                font-size: 1.2rem;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            nav {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 280px;
+                height: 100vh;
+                background: linear-gradient(135deg, #1a1a2e 0%, #2d3748 100%);
+                padding: 5rem 2rem 2rem;
+                transition: right 0.3s ease;
+                box-shadow: -5px 0 15px rgba(0,0,0,0.3);
+                z-index: 99;
+            }
+
+            nav.active {
+                right: 0;
+            }
+
+            nav ul {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            nav li {
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+            }
+
+            nav a {
+                display: block;
+                padding: 1.2rem 0;
+                font-size: 1.1rem;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero .tagline {
+                font-size: 1rem;
+            }
+
+            .about-content,
+            .belle-feature {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .program-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+
+    <header>
+        <div class="header-content">
+            <div class="fixed-logo">
+                <a href="/index.html"><img src="osg-logo.png" alt="Odessa Symphony Guild Logo"></a>
+            </div>
+            <div class="logo">ODESSA <span class="highlight">SYMPHONY GUILD</span></div>
+            <button class="mobile-menu-toggle" id="menuToggle" aria-label="Toggle menu">
+                <span id="menuIcon">☰</span>
+            </button>
+            <nav id="mainNav">
+                <ul>
+                    <li><a href="#about" class="nav-link">About</a></li>
+                    <li><a href="#programs" class="nav-link">Programs</a></li>
+                    <li><a href="#belle-beaux" class="nav-link">Belles & Beaux</a></li>
+                    <li><a href="#gala" class="nav-link">Gala</a></li>
+                    <li><a href="#contact" class="nav-link">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1 class="heading">Odessa Symphony Guild</h1>
+        <p class="tagline">Enriching West Texas Through Music Since 1958</p>
+        <p>For over six decades, we have supported the Midland-Odessa Symphony & Chorale, bringing world-class music, culture, and educational opportunities to our community through dedicated volunteer service and financial support.</p>
+        <a href="#contact" class="cta-button">Join Our Mission</a>
+    </section>
+
+    <section id="about">
+        <div class="container">
+            <h2 class="section-title">Our Heritage</h2>
+            <p class="section-subtitle">A legacy of dedication to the arts and our community</p>
+            
+            <div class="about-content">
+                <div class="about-text">
+                    <p>The Odessa Symphony Guild was founded in 1958 by a visionary group of women determined to bring fine arts and culture to West Texas. What began as a passionate effort to support local musicians has grown into a thriving non-profit organization that continues to honor the spirit of its founding members.</p>
+                    
+                    <p>Through more than sixty-five years of service, the Guild has raised thousands of dollars and contributed countless volunteer hours to support the Midland-Odessa Symphony & Chorale. This partnership enables the symphony to provide our community with exceptional educational programs and world-class concerts that enrich the cultural fabric of West Texas.</p>
+                    
+                    <p>Our commitment extends beyond financial support. We actively engage in promoting concerts, selling memberships, ushering at performances, hosting receptions, serving musicians, and ensuring every concert is a memorable experience for our community.</p>
+                </div>
+                
+                <div class="heritage-box">
+                    <h3>Our Mission</h3>
+                    <p>To provide unwavering support to the Midland-Odessa Symphony & Chorale through volunteer service and financial contributions, ensuring that exceptional music education and performances remain accessible to current and future generations of West Texans.</p>
+                    <p style="margin-top: 1.5rem; font-style: italic; color: #d4af37;">We believe in the transformative power of music and its ability to unite and inspire our community.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="programs" class="programs">
+        <div class="container">
+            <h2 class="section-title">How We Serve</h2>
+            <p class="section-subtitle">Supporting the symphony through dedicated volunteer programs</p>
+            
+            <div class="program-grid">
+                <div class="program-card">
+                    <img src="active-members-icon.jpg" alt="Active Members" class="program-icon">
+                    <h3>Active Members</h3>
+                    <p>Our active members form the backbone of the Guild, volunteering their time to promote concerts, usher performances, host receptions, and serve musicians. They ensure every symphony event runs smoothly and every guest feels welcomed.</p>
+                </div>
+                
+                <div class="program-card">
+                    <img src="patron-support-icon.jpg" alt="Patron Support" class="program-icon">
+                    <h3>Patron Support</h3>
+                    <p>Patrons provide vital financial support to the Guild and the Midland-Odessa Symphony & Chorale. Their generous contributions help fund educational programs, concert productions, and operational needs that make our mission possible.</p>
+                </div>
+                
+                <div class="program-card">
+                    <img src="soundbites-icon.jpg" alt="Symphony SoundBites" class="program-icon">
+                    <h3>Symphony SoundBites</h3>
+                    <p>Our volunteers work tirelessly to prepare and execute Symphony SoundBites events, creating intimate musical experiences that bring our community closer to the artistry of the symphony and its talented musicians.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="belle-beaux" class="belle-beaux">
+        <div class="container">
+            <h2 class="section-title">Belles & Beaux Program</h2>
+            <p class="section-subtitle">Developing tomorrow's leaders through service and appreciation of the arts</p>
+            
+            <div class="belle-feature">
+                <div class="belle-text">
+                    <h3>Cultivating Future Leaders</h3>
+                    <p>The Odessa Symphony Guild proudly sponsors the Belles and Beaux program for young men and women in grades 9-12. This distinguished program introduces students to the arts while instilling the values of community service and leadership.</p>
+                    
+                    <ul>
+                        <li>Four years of meaningful service to the community</li>
+                        <li>Hands-on experience supporting symphony events and concerts</li>
+                        <li>Development of leadership skills and social grace</li>
+                        <li>Cultivation of lifelong appreciation for the performing arts</li>
+                        <li>Recognition and celebration at the annual Symphony Gala Ball</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <img src="belles-beaux-group.jpg" alt="Belles and Beaux at a symphony event" class="belle-img">
+                </div>
+            </div>
+            
+            <div class="stats-box" style="margin-top: 4rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+                <h4>65+</h4>
+                <p><strong>Years of Supporting Excellence</strong></p>
+                <p style="margin-top: 2rem;">Our Belles and Beaux program shapes young leaders who carry forward the Guild's mission, ensuring that appreciation for the arts and commitment to service continue for generations to come.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="gala" class="gala">
+        <div class="container">
+            <h2 class="section-title">Annual Symphony Gala Ball</h2>
+            <p class="section-subtitle">An elegant evening celebrating service, achievement, and the arts</p>
+            
+            <div class="gala-info">
+                <h3>A Night to Remember</h3>
+                <p>Our annual Symphony Gala Ball is the highlight of the social season, honoring our dedicated Belles and Beaux while raising vital funds to support the Midland-Odessa Symphony & Chorale.</p>
+                
+                <p>The evening features the formal presentation of our freshman, sophomore, and junior Belles and Beaux, culminating in a special recognition of our seniors and their four years of exemplary service to the Guild and our community.</p>
+                
+                <p>This elegant affair brings together Guild members, patrons, families, and symphony supporters for an unforgettable celebration of music, service, and community.</p>
+                
+                <a href="#contact" class="cta-button">Learn About Upcoming Events</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="contact">
+        <div class="container">
+            <h2 class="section-title">Join Us</h2>
+            <p style="max-width: 700px; margin: 2rem auto; font-size: 1.1rem; line-height: 1.8;">Whether you're interested in becoming a member, supporting as a patron, or enrolling a student in our Belles and Beaux program, we welcome you to be part of our mission to bring exceptional music to West Texas.</p>
+            
+            <div class="contact-info">
+                <p style="font-size: 1.2rem; margin: 2rem 0;">Connect with us on social media:</p>
+                <p><a href="https://www.facebook.com/odessasymphonyguild/" target="_blank">Facebook: Odessa Symphony Guild</a></p>
+                <p style="margin-top: 3rem; font-size: 1.1rem;">For membership inquiries and more information about supporting the Guild, please reach out through our Facebook page.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Odessa Symphony Guild. All rights reserved.</p>
+            <p>Supporting the Midland-Odessa Symphony & Chorale since 1958</p>
+            <p style="margin-top: 1rem; font-size: 0.85rem; color: #666;">A 501(c)(3) Non-Profit Organization</p>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const mainNav = document.getElementById('mainNav');
+        const menuIcon = document.getElementById('menuIcon');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        menuToggle.addEventListener('click', function() {
+            mainNav.classList.toggle('active');
+            menuIcon.textContent = mainNav.classList.contains('active') ? '✕' : '☰';
+        });
+
+        // Close menu when clicking on a link
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                mainNav.classList.remove('active');
+                menuIcon.textContent = '☰';
+            });
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!mainNav.contains(event.target) && !menuToggle.contains(event.target)) {
+                mainNav.classList.remove('active');
+                menuIcon.textContent = '☰';
+            }
+        });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add subtle fade-in animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.program-card, .about-content, .belle-feature').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
