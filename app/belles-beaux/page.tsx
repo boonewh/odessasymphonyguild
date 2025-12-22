@@ -71,7 +71,7 @@ export default function BellesBeaux() {
           {classes.map((item, index) => (
             <div key={index} className="flex flex-col gap-10">
               {/* Image Container */}
-              <div className="relative w-3/4 mx-auto rounded-xl overflow-hidden shadow-2xl bg-gray-200">
+              <div className="relative w-full md:w-3/4 mx-auto rounded-xl overflow-hidden shadow-2xl bg-gray-200">
                 <Image
                   src={item.image}
                   alt={item.title}

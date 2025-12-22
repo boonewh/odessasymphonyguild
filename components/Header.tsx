@@ -12,7 +12,7 @@ export default function Header() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-white rounded-lg shadow-xl p-2 hover:scale-105 transition-transform">
+            <a href="/" className="w-16 h-16 bg-white rounded-lg shadow-xl p-2 hover:scale-105 transition-transform">
               <Image
                 src="/images/osg-logo.png"
                 alt="Odessa Symphony Guild Logo"
@@ -20,7 +20,7 @@ export default function Header() {
                 height={64}
                 className="w-full h-full object-contain"
               />
-            </div>
+            </a>
             <a href="/" className="hidden md:block text-sm font-light tracking-[0.2em] uppercase hover:text-[#d4af37] transition-colors">
               Odessa <span className="text-[#d4af37]">Symphony Guild</span>
             </a>
