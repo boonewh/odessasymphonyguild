@@ -46,12 +46,12 @@ export default function Header() {
             >
               GALA
             </a>
-            <a
+            {/*<a
               href="/membership"
               className="text-sm tracking-wider hover:text-[#d4af37] transition-colors font-light"
             >
               MEMBERSHIP
-            </a>
+            </a>*/}
             <a
               href="/#contact"
               className="text-sm tracking-wider hover:text-[#d4af37] transition-colors font-light"
