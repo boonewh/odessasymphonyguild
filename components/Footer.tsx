@@ -11,6 +11,18 @@ export default function Footer() {
         <p className="text-xs text-gray-500">
           A 501(c)(3) Non-Profit Organization
         </p>
+        <p className="text-xs text-gray-600 mt-4">
+          webpage by:{' '}
+          <a
+            href="https://pathsixsolutions.com/web-design"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-gray-400 transition-colors"
+            style={{ fontFamily: 'Arial, sans-serif', fontWeight: 700 }}
+          >
+            Path<span className="text-amber-500">Six</span> Solutions
+          </a>
+        </p>
       </div>
     </footer>
   );
