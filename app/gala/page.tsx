@@ -1,8 +1,12 @@
+"use client";
+import { useState } from "react";
 import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import MediaReleaseModal from "@/components/MediaReleaseModal";
 
 export default function GalaPage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const timelineEvents = [
     {
       date: "Week of Jan 19",
@@ -194,19 +198,33 @@ export default function GalaPage() {
             For membership inquiries and more information about supporting the
             Guild.
           </p>
-          <a
-            href="https://www.facebook.com/odessasymphonyguild/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-3 px-8 py-3 bg-emerald-800 hover:bg-emerald-700 text-white rounded-full transition-all duration-300 border border-emerald-600 hover:border-amber-400 shadow-lg hover:shadow-amber-400/20"
-          >
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-            </svg>
-            Connect on Facebook
-          </a>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <a
+              href="https://www.facebook.com/odessasymphonyguild/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 px-8 py-3 bg-emerald-800 hover:bg-emerald-700 text-white rounded-full transition-all duration-300 border border-emerald-600 hover:border-amber-400 shadow-lg hover:shadow-amber-400/20"
+            >
+              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+              </svg>
+              Connect on Facebook
+            </a>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="inline-flex items-center gap-3 px-8 py-3 bg-transparent hover:bg-amber-400/10 text-amber-400 rounded-full transition-all duration-300 border border-amber-400/50 hover:border-amber-400 shadow-lg"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Student Photo Release Form
+            </button>
+          </div>
         </div>
       </section>
+
+      {/* Media Release Modal */}
+      <MediaReleaseModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
 
       <Footer />
     </div>
