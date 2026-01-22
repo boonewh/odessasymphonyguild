@@ -82,14 +82,19 @@ export default function MediaReleaseModal({ isOpen, onClose }: MediaReleaseModal
     };
 
     try {
+      const body = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        body.append(key, String(value));
+      });
+
+
       const response = await fetch("https://formspree.io/f/xjgggwqb", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Accept": "application/json",
         },
-        body: JSON.stringify(formData),
+        body,
       });
-
       if (response.ok) {
         setSubmitStatus("success");
       } else {
