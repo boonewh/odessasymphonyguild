@@ -182,7 +182,7 @@ export default function Home() {
                 </h4>
                 <div className="h-1 w-20 bg-[#d4af37] mx-auto" />
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-3 max-w-4xl mx-auto text-center">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-3 max-w-4xl mx-auto text-center">
                 {[
                   "Dana Ashton",
                   "Lois Ballard",
