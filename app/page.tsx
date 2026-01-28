@@ -174,6 +174,46 @@ export default function Home() {
               </div>
             </div>
 
+            {/* 2025 Patrons List */}
+            <div className="mt-16 pt-16 pb-16 border-t border-gray-200">
+              <div className="text-center mb-10">
+                <h4 className="text-2xl sm:text-3xl font-light text-[#1a1a2e] tracking-wide mb-2">
+                  2025 Guild Patrons
+                </h4>
+                <div className="h-1 w-20 bg-[#d4af37] mx-auto" />
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-3 max-w-4xl mx-auto text-center">
+                {[
+                  "Dana Ashton",
+                  "Lois Ballard",
+                  "Erin Berridge",
+                  "Kathy Bobbitt",
+                  "Susie Davis",
+                  "Cary Dobbs",
+                  "Vanessa Dunn",
+                  "Sondra Eoff",
+                  "Rhonda Gilliam",
+                  "Amanda George",
+                  "Jacqui Gore",
+                  "Carla Haston",
+                  "Carolina Keith",
+                  "Stephanie Latimer",
+                  "JoLynn Logan",
+                  "Anne Mackey",
+                  "Carla Pradon",
+                  "Libby Sibert",
+                  "Ann Volker",
+                ].map((name) => (
+                  <p key={name} className="text-gray-700 text-base">
+                    {name}
+                  </p>
+                ))}
+              </div>
+              <p className="text-center text-sm text-gray-500 mt-8 italic">
+                With gratitude for their generous support
+              </p>
+            </div>
+
             {/* Symphony SoundBites - Image Left */}
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
               {/* Image Container - No fixed height, lets image size itself */}
