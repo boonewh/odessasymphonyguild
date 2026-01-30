@@ -175,7 +175,7 @@ export default function Home() {
             </div>
 
             {/* 2025 Patrons List */}
-            <div className="mt-16 pt-16 pb-16 border-t border-gray-200">
+            <div className="mt-16 pt-16 border-t border-gray-200">
               <div className="text-center mb-10">
                 <h4 className="text-2xl sm:text-3xl font-light text-[#1a1a2e] tracking-wide mb-2">
                   2025 Guild Patrons
@@ -213,6 +213,101 @@ export default function Home() {
                 With gratitude for their generous support
               </p>
             </div>
+
+            {/* START: President's Letter Section */}
+            <div className="max-w-4xl mx-auto mt-16 mb-24 pb-16">
+              <div className="bg-slate-50 p-8 sm:p-12 rounded-lg shadow-sm border-l-4 border-[#d4af37] relative">
+                
+                {/* Decorative Quotation Mark Background */}
+                <div className="absolute top-4 right-6 text-9xl text-[#d4af37]/10 font-serif leading-none select-none">
+                  &rdquo;
+                </div>
+
+                <h4 className="text-3xl font-light text-[#1a1a2e] mb-8 tracking-wide border-b border-gray-200 pb-4">
+                  A Message from the President
+                </h4>
+
+                <div className="space-y-6 text-lg text-gray-700 leading-relaxed font-serif">
+                  <p>
+                    The Odessa Symphony Guild has supported and promoted the arts in
+                    the Permian Basin for 67 years. What began as a small group of
+                    dedicated music supporters has grown into an organization that
+                    partners with families, students, musicians, and community
+                    leaders to keep live symphonic music thriving in West Texas.
+                    Each season, the Guild focuses on both financial support and
+                    hands-on service so the West Texas Symphony can continue
+                    presenting high-quality performances and educational programs.
+                  </p>
+
+                  <p>
+                    During the 2024–2025 season, the Guild donated $33,000 to the
+                    West Texas Symphony. In addition to this financial support, our
+                    108 Belles and Beaux collectively volunteered 1,246 hours of
+                    service to the symphony and the Guild. The Guild co-sponsored
+                    the first concert of the season with the Midland Symphony Guild
+                    and provided meals for the directors and musicians during events
+                    throughout the year, helping to support the musicians who bring
+                    this music to our community. We are already planning to increase
+                    our annual contribution to the West Texas Symphony to $35,000 in
+                    the coming season.
+                  </p>
+
+                  <p>
+                    The Guild also invested in arts education and outreach across
+                    the region. We donated $10,000 to support arts initiatives
+                    throughout West Texas and awarded six $2,500 scholarships to
+                    graduating senior Belles and Beaux. Beginning next season, we
+                    plan to increase our contributions to arts initiatives to
+                    $15,000 and to expand our scholarship program to support eight
+                    graduating seniors. We are proud to continue this opportunity to
+                    recognize our outgoing seniors and thank them for their years of
+                    service.
+                  </p>
+
+                  <p>
+                    On February 7, 2026, we will host our annual fundraising event,
+                    The Symphony Ball. This year’s theme is “Wicked / Emerald City.”
+                    At this event, we will honor the Belles and Beaux who have
+                    served during the 2025–2026 season. Our ball chair, Hali Jolley,
+                    and the ball committee have been hard at work planning a
+                    beautiful and memorable evening.
+                  </p>
+
+                  <p className="font-medium text-[#1a1a2e]">
+                    We invite you to continue your support of the Guild through a
+                    patron membership. As a patron, you receive all the privileges
+                    of active membership except the ability to hold office or vote.
+                    Patron dues for the 2025–2026 year are $100. Please submit your
+                    dues payment to our treasurer, Britni Veretto, by January 12,
+                    2026. Please note “PATRON” on any form of payment.
+                  </p>
+
+                  <p>
+                    Our patron liaisons, Elizabeth Ulate and Connie Drager, are
+                    planning a patron event this spring, so please watch for an
+                    invitation. As president, I sincerely appreciate your continued
+                    support of the Guild, which allows us to serve the West Texas
+                    Symphony and the arts across our community.
+                  </p>
+                </div>
+
+                <div className="mt-10 pt-6">
+                  <p className="text-gray-700 font-serif">Sincerely,</p>
+                  <div className="mt-4">
+                    {/* Using your specific title font for the signature */}
+                    <p className="font-tangerine text-5xl text-[#d4af37] mb-2">
+                      Regan Weaver
+                    </p>
+                    <p className="text-sm uppercase tracking-widest text-gray-500 font-sans">
+                      Odessa Symphony Guild President
+                      <br />
+                      2025-2026
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* END: President's Letter Section */}
 
             {/* Symphony SoundBites - Image Left */}
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
