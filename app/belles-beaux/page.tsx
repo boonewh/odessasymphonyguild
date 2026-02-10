@@ -109,7 +109,18 @@ export default function BellesBeaux() {
               </div>
             ))}
           </div>
-          
+
+          {/* Senior Group Photo */}
+          <div className="relative w-full md:w-3/4 mx-auto rounded-xl overflow-hidden shadow-2xl bg-gray-200 mt-16">
+            <Image
+              src="/images/seniors-25-26.jpg"
+              alt="Senior Class of 2026"
+              width={1400}
+              height={800}
+              className="w-full h-auto object-cover"
+            />
+          </div>
+
         </div>
       </section>
 
