@@ -71,7 +71,6 @@ export default function GalaPage() {
         
         {/* BACKGROUND LAYERS */}
         <div className="absolute inset-0 z-0">
-          {/* 1. Base Image */}
           <div className="absolute inset-0">
             <Image
               src="/images/emerald-city-bg.png"
@@ -81,40 +80,24 @@ export default function GalaPage() {
               priority
             />
           </div>
-
-          {/* 2. Flat Dimmer: Lowers overall brightness so text isn't fighting the pixels */}
           <div className="absolute inset-0 bg-black/40" />
-
-          {/* 3. Gradient Mask: The Magic Fix 
-              - Top (from-black/80): Very dark behind the header text
-              - Middle (via-transparent): Clear so the Road/City shines through
-              - Bottom (to-[#051a12]): Blends seamlessly into the next section
-          */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/95 via-transparent to-[#051a12]" />
-          
-          {/* 4. Texture: Optional stardust */}
           <div className="absolute inset-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]" />
         </div>
 
         {/* CONTENT */}
         <div className="relative z-10 text-center px-4 max-w-5xl mx-auto mt-16">
           <div className="animate-fade-in-up">
-            {/* Added 'drop-shadow-md' to small text */}
             <span className="block text-emerald-400 font-bold tracking-[0.3em] uppercase mb-4 text-sm sm:text-base drop-shadow-md">
               Follow the Yellow Brick Road to the
             </span>
-            
-            {/* Added heavier drop-shadow to main title */}
             <h1 className="font-tangerine text-7xl sm:text-8xl md:text-9xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-b from-[#fbbf24] to-[#d97706] drop-shadow-[0_4px_4px_rgba(0,0,0,1)]">
               Annual Symphony Gala
             </h1>
-            
-            {/* Changed to pure white + heavier shadow for readability */}
             <h2 className="text-2xl sm:text-4xl font-light text-white italic opacity-100 mb-8 drop-shadow-lg">
               "One Short Day in the Emerald City"
             </h2>
             
-            {/* Darkened the background of this box (bg-black/70) so it's readable over the road */}
             <div className="inline-block border border-amber-400/50 bg-black/70 backdrop-blur-md rounded-xl p-6 md:p-8 mt-4 transform hover:scale-105 transition-transform duration-300 shadow-2xl">
               <p className="text-amber-400 font-bold tracking-widest text-sm uppercase mb-2">
                 Urgent Reminder
@@ -188,6 +171,37 @@ export default function GalaPage() {
         </div>
       </section>
 
+      {/* --- SPONSORS SECTION (Added Here) --- */}
+      <section className="py-16 bg-[#0f382a]">
+        <div className="max-w-3xl mx-auto px-6 text-center">
+          {/* Subtle Lead-in Header */}
+          <h2 className="text-5xl md:text-6xl font-tangerine text-amber-300 mb-10 drop-shadow-md">
+             With Gratitude
+          </h2>
+          
+          {/* Image Container with Magic Glow Effects */}
+          <div className="relative group">
+            {/* The Gold Glow Background (Blur) */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-amber-500 to-yellow-300 rounded-lg blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+            
+            {/* The Image Itself */}
+            <div className="relative rounded-lg overflow-hidden border-2 border-amber-500/50 shadow-2xl">
+              <Image 
+                src="/images/gala-sponsors.jpg" 
+                alt="Thank You to Our Sponsors" 
+                width={800} 
+                height={1200}
+                className="w-full h-auto object-cover"
+                priority={false}
+              />
+            </div>
+            
+            {/* Optional: Decorative bottom reflection/shine */}
+            <div className="absolute -bottom-4 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-500/50 to-transparent blur-sm"></div>
+          </div>
+        </div>
+      </section>
+
       {/* --- FOOTER CTA --- */}
       <section className="py-16 bg-emerald-950 border-t border-emerald-900 text-center">
         <div className="max-w-4xl mx-auto px-6">
@@ -231,7 +245,7 @@ export default function GalaPage() {
   );
 }
 
-// --- NEW COMPONENT WITH WINDING ROAD LOGIC ---
+// --- TIMELINE COMPONENT (Unchanged) ---
 function TimelineItem({
   date,
   title,
@@ -243,7 +257,6 @@ function TimelineItem({
   isLast,
 }: any) {
   const isRight = align === "right";
-  // Determine if this segment should curve left or right based on index
   const curveDirection = index % 2 === 0 ? "right" : "left";
 
   return (
@@ -252,9 +265,6 @@ function TimelineItem({
         isRight ? "md:flex-row-reverse" : ""
       }`}
     >
-      {/* 
-         THE WINDING ROAD SVG
-      */}
       {!isLast && (
         <div className="absolute left-1/2 -translate-x-1/2 top-8 bottom-[-2rem] w-32 -z-0 hidden md:block overflow-visible pointer-events-none">
           <svg
@@ -300,14 +310,10 @@ function TimelineItem({
         </div>
       )}
 
-      {/* 
-         MOBILE LINE
-      */}
       {!isLast && (
         <div className="absolute md:hidden left-1/2 -translate-x-1/2 top-8 bottom-[-2rem] w-1 bg-gradient-to-b from-yellow-400 to-amber-600 z-0 opacity-50 border-l-2 border-dashed border-amber-300"></div>
       )}
 
-      {/* Content Box */}
       <div
         className={`w-full md:w-5/12 mb-8 md:mb-0 ${
           isRight ? "md:text-left" : "md:text-right"
@@ -329,7 +335,6 @@ function TimelineItem({
         </div>
       </div>
 
-      {/* The Icon (Road Stop) - Formatted with backticks to prevent string errors */}
       <div className={`
         relative z-10 flex items-center justify-center 
         w-12 h-12 md:w-16 md:h-16 shrink-0 mx-auto md:mx-0

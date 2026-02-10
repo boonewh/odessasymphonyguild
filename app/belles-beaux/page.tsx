@@ -5,10 +5,13 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 export default function BellesBeaux() {
+  // Create an array of 18 items [1, 2, ... 18]
+  const seniorIds = Array.from({ length: 18 }, (_, i) => i + 1);
+
   const classes = [
     {
       title: "Junior Class",
-      image: "/images/juniors-25-26.jpg", // Black & White formal
+      image: "/images/juniors-25-26.jpg", 
       rows: [
         { label: "Left to Right", names: "DeLanie Sparks, Holly Forrest, Emma Bradley, Madilynn Moon, Audra Wilson, Jalie Lankford, Presley Williams, Ellie Molinar, Sofia Pulido, Blaire Capellini, Holden Madison, Braxton White, Cooper Veretto, Kasen Smart, Javid Payne, Tiago Contreras, Moses Williams, Addison Grisham, Kinley Weaver, Addysen Nelson, Audrina Olivas, Catalina Martinez, Anali Ruiz, Ava Branecky, Rylee Watson, Payton Reed, Madelyn Lopez, Natalie Wilson" },
         { label: "Not Pictured", names: "Brady Colley, Landree Colley, Ethan Henager, John Johnson, Ellie Mourning" }
@@ -16,7 +19,7 @@ export default function BellesBeaux() {
     },
     {
       title: "Sophomore Class",
-      image: "/images/sophomores-25-26.jpg", // Blue OSG T-shirts
+      image: "/images/sophomores-25-26.jpg", 
       rows: [
         { label: "Back Row (L-R)", names: "Karston Gonzalez, Henry Branum, Walker Waters, Paxton Davis, Logan Najera" },
         { label: "Middle Row (L-R)", names: "Rowan Brazell, Jemma Cruz, Lynnlee Patton, Julia Rose, Anna Windham, Presli Smith, Elodie George, Madyson Wright, Brooklynn Baughman, Taryn Ray, Heath Ulate" },
@@ -26,7 +29,7 @@ export default function BellesBeaux() {
     },
     {
       title: "Freshmen Class",
-      image: "/images/freshmen-25-26.jpg", // Formal black dresses/red ties
+      image: "/images/freshmen-25-26.jpg", 
       rows: [
         { label: "Back Row (L-R)", names: "Willow Waters, Adalyn Foster, Baylie Baughman, Carter Madison, Brooklyn Williamson, Reece Norris, Lillian Clark, Ethan Carter, Laith Hilal, Brogan Bridges, Hunter Niemann, Caden Cornwell, Major Boland, Karter Gonzales, Asher Stumpner, Jack Brazile, Jax Christopher, Brecken Haiduk, Grayson White, Mia Schulte, Avery Underwood, Lanie Guerrero, Brooklyn Madison, Baylor Brown, Sutton Forrest" },
         { label: "Front Row (L-R)", names: "Brooklyn Carruth, Brooklynn Drager, Aliyah Perez, Lyric Powell, Analei Jimenez, Ava Solis, Aria Vaughn, Faith Ortiz, Olivia Baccari, Khloe Jolley" },
@@ -53,15 +56,60 @@ export default function BellesBeaux() {
         </div>
       </section>
 
-      {/* Senior Teaser/Placeholder */}
-      <section className="py-16 bg-gray-50 border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <h2 className="text-[#1a1a2e] text-2xl tracking-[0.2em] uppercase mb-4">Class of 2026</h2>
-          <div className="inline-block px-8 py-4 bg-white border border-[#d4af37]/30 rounded shadow-sm">
-            <p className="text-[#1a1a2e] font-light italic">
-              Senior Class individual portraits and biographies are coming soon.
-            </p>
+      {/* SENIORS SECTION - UPDATED */}
+      <section className="py-20 bg-gray-50 border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-6">
+          
+          {/* Section Title */}
+          <div className="text-center mb-16">
+            <h2 className="text-[#1a1a2e] text-3xl sm:text-4xl tracking-[0.2em] uppercase mb-4">
+              Class of 2026
+            </h2>
+            <div className="flex justify-center items-center gap-3">
+              <span className="h-[1px] w-12 bg-[#d4af37]"></span>
+              <p className="text-[#d4af37] font-serif italic text-xl">Senior Spotlights</p>
+              <span className="h-[1px] w-12 bg-[#d4af37]"></span>
+            </div>
           </div>
+
+          {/* 
+             GRID STRATEGY:
+             - Mobile: 1 column (Ensures text in image is readable)
+             - Tablet: 2 columns 
+             - Desktop: 3 columns (Large enough to read, but efficient)
+          */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+            {seniorIds.map((id) => (
+              <div 
+                key={id} 
+                className="relative group rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 bg-white"
+              >
+                {/* 
+                   AspectRatio Box: 
+                   Canva images are usually distinct ratios. 
+                   If they are 900x900, 'aspect-square' works perfectly.
+                */}
+                <div className="relative aspect-square w-full bg-gray-200">
+                  <Image
+                    src={`/images/seniors/${id}.jpg`} // Assumes images are in public/images/seniors/
+                    alt={`Senior Spotlight ${id}`}
+                    fill
+                    className="object-cover"
+                    // Optimization: 
+                    // Mobile takes full width (100vw)
+                    // Tablet takes half (50vw)
+                    // Desktop takes third (33vw)
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    priority={id <= 3} // Load top 3 immediately for speed
+                  />
+                  
+                  {/* Optional: Gold Hover Border Effect */}
+                  <div className="absolute inset-0 border-2 border-[#d4af37] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                </div>
+              </div>
+            ))}
+          </div>
+          
         </div>
       </section>
 
@@ -105,7 +153,7 @@ export default function BellesBeaux() {
         </div>
       </section>
 
-      {/* Program Requirement / Call to Action */}
+      {/* Call to Action */}
       <section className="py-20 bg-[#1a1a2e] text-white">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h3 className="text-2xl font-light mb-6 tracking-wide">Interested in the Belles & Beaux Program?</h3>
