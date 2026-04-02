@@ -46,12 +46,6 @@ export default function Header() {
             >
               GALA
             </a>
-            {/*<a
-              href="/membership"
-              className="text-sm tracking-wider hover:text-[#d4af37] transition-colors font-light"
-            >
-              MEMBERSHIP
-            </a>*/}
             <a
               href="/#contact"
               className="text-sm tracking-wider hover:text-[#d4af37] transition-colors font-light"
@@ -93,13 +87,6 @@ export default function Header() {
               className="block py-3 border-b border-white/10 hover:text-[#d4af37] transition-colors"
             >
               Gala
-            </a>
-            <a
-              href="/membership"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-3 border-b border-white/10 hover:text-[#d4af37] transition-colors"
-            >
-              Membership
             </a>
             <a
               href="/#contact"

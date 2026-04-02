@@ -174,10 +174,10 @@ export default function BellesBeaux() {
             events, educational workshops, and are presented at our annual Gala.
           </p>
           <a
-            href="/#contact"
+            href="/belles-beaux/join"
             className="inline-block border border-[#d4af37] text-[#d4af37] px-10 py-3 rounded hover:bg-[#d4af37] hover:text-[#1a1a2e] transition-all tracking-widest text-sm uppercase"
           >
-            Inquire for Membership
+            Apply for Membership
           </a>
         </div>
       </section>

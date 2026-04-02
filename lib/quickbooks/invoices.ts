@@ -1,112 +1,56 @@
 import { getQuickBooksClient } from "./client";
 import { QuickBooksInvoice } from "@/types/quickbooks";
-import { MembershipTier } from "@/types/membership";
-import { MEMBERSHIP_YEAR } from "@/lib/membership/config";
+
+export interface InvoiceInput {
+  customerId: string;
+  amount: number;
+  description: string;
+  itemId?: string; // QB item/service ID — must exist in QB account
+}
 
 /**
- * QuickBooks Invoice Operations
- *
- * Handles creating invoices for membership dues
+ * Create a QB invoice and return it along with the hosted payment link.
+ * Requires QB Payments to be enabled on the account for InvoiceLink to populate.
  */
-
-/**
- * Create membership invoice for a customer
- *
- * @param customerId - QuickBooks customer ID
- * @param tier - Membership tier information
- * @param itemId - QuickBooks item/service ID for membership (needs to be created in QB first)
- * @returns Created invoice
- */
-export async function createMembershipInvoice(
-  customerId: string,
-  tier: MembershipTier,
-  itemId: string = "1" // Default item ID - needs to be configured in QB
+export async function createInvoice(
+  input: InvoiceInput
 ): Promise<QuickBooksInvoice> {
   const client = getQuickBooksClient();
 
-  // Calculate due date (30 days from today)
   const today = new Date();
   const dueDate = new Date(today);
   dueDate.setDate(dueDate.getDate() + 30);
 
   const invoiceData: Omit<QuickBooksInvoice, "Id"> = {
-    CustomerRef: {
-      value: customerId,
-    },
+    CustomerRef: { value: input.customerId },
     Line: [
       {
-        Amount: tier.price,
-        Description: `${tier.name} Membership - ${MEMBERSHIP_YEAR.current}`,
+        Amount: input.amount,
+        Description: input.description,
         DetailType: "SalesItemLineDetail",
         SalesItemLineDetail: {
           ItemRef: {
-            value: itemId,
-            name: "Membership Dues",
+            value: input.itemId ?? "1",
+            name: "Dues",
           },
-          UnitPrice: tier.price,
+          UnitPrice: input.amount,
           Qty: 1,
         },
       },
     ],
-    DueDate: dueDate.toISOString().split("T")[0], // YYYY-MM-DD format
-    TxnDate: today.toISOString().split("T")[0], // YYYY-MM-DD format
+    DueDate: dueDate.toISOString().split("T")[0],
+    TxnDate: today.toISOString().split("T")[0],
   };
 
-  try {
-    const response = await client.makeApiRequest<{
-      Invoice: QuickBooksInvoice;
-    }>("/invoice", "POST", invoiceData);
+  const response = await client.makeApiRequest<{
+    Invoice: QuickBooksInvoice;
+  }>("/invoice", "POST", invoiceData);
 
-    return response.Invoice;
-  } catch (error) {
-    console.error("Error creating invoice:", error);
-    throw new Error("Failed to create invoice in QuickBooks");
-  }
+  return response.Invoice;
 }
 
 /**
- * Get invoice by ID
- */
-export async function getInvoiceById(
-  invoiceId: string
-): Promise<QuickBooksInvoice | null> {
-  const client = getQuickBooksClient();
-
-  try {
-    const response = await client.makeApiRequest<{
-      Invoice: QuickBooksInvoice;
-    }>(`/invoice/${invoiceId}`, "GET");
-
-    return response.Invoice;
-  } catch (error) {
-    console.error("Error getting invoice:", error);
-    return null;
-  }
-}
-
-/**
- * Get all invoices for a customer
- */
-export async function getCustomerInvoices(
-  customerId: string
-): Promise<QuickBooksInvoice[]> {
-  const client = getQuickBooksClient();
-
-  try {
-    const query = `SELECT * FROM Invoice WHERE CustomerRef = '${customerId}'`;
-    const response = await client.query<{
-      QueryResponse: { Invoice?: QuickBooksInvoice[] };
-    }>(query);
-
-    return response.QueryResponse.Invoice || [];
-  } catch (error) {
-    console.error("Error getting customer invoices:", error);
-    return [];
-  }
-}
-
-/**
- * Send invoice email to customer
+ * Send invoice email to an additional address beyond the primary QB customer email.
  */
 export async function sendInvoiceEmail(
   invoiceId: string,
@@ -119,7 +63,6 @@ export async function sendInvoiceEmail(
       `/invoice/${invoiceId}/send?sendTo=${encodeURIComponent(emailAddress)}`,
       "POST"
     );
-
     return true;
   } catch (error) {
     console.error("Error sending invoice email:", error);
@@ -127,40 +70,18 @@ export async function sendInvoiceEmail(
   }
 }
 
-/**
- * Get invoice PDF
- */
-export async function getInvoicePdf(invoiceId: string): Promise<Blob | null> {
+export async function getInvoiceById(
+  invoiceId: string
+): Promise<QuickBooksInvoice | null> {
   const client = getQuickBooksClient();
 
   try {
-    // QuickBooks PDF endpoint returns PDF binary data
-    const response = await client.makeApiRequest<Blob>(
-      `/invoice/${invoiceId}/pdf`,
-      "GET"
-    );
-
-    return response;
+    const response = await client.makeApiRequest<{
+      Invoice: QuickBooksInvoice;
+    }>(`/invoice/${invoiceId}`, "GET");
+    return response.Invoice;
   } catch (error) {
-    console.error("Error getting invoice PDF:", error);
+    console.error("Error getting invoice:", error);
     return null;
   }
-}
-
-/**
- * Check if customer has active membership invoice for current year
- */
-export async function hasActiveYearMembership(
-  customerId: string
-): Promise<boolean> {
-  const invoices = await getCustomerInvoices(customerId);
-
-  // Check if any invoice contains current membership year in description
-  return invoices.some((invoice) =>
-    invoice.Line.some(
-      (line) =>
-        line.Description?.includes(MEMBERSHIP_YEAR.current) &&
-        line.Description?.includes("Membership")
-    )
-  );
 }
