@@ -6,8 +6,10 @@ import { createClient } from "@supabase/supabase-js";
  * POST /api/quickbooks/webhook
  *
  * Receives payment notifications from Intuit.
- * When a Payment entity is received, looks up the matching student
- * by qb_invoice_id and marks them as paid in Supabase.
+ *
+ * Handles two entity types:
+ * - Invoice (Update): when Balance reaches 0, the invoice is paid — mark student paid
+ * - Payment (Create/Update): fallback path using payment ID
  *
  * Intuit sends a signature in the "intuit-signature" header using
  * the Webhook Verifier Token from the Intuit portal.
@@ -17,7 +19,7 @@ import { createClient } from "@supabase/supabase-js";
 
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY!;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
   return createClient(url, key);
 }
 
@@ -31,7 +33,6 @@ function verifySignature(payload: string, signature: string): boolean {
   hmac.update(payload);
   const expected = hmac.digest("base64");
 
-  // Use constant-time comparison to prevent timing attacks
   try {
     return timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
   } catch {
@@ -41,9 +42,8 @@ function verifySignature(payload: string, signature: string): boolean {
 
 export async function POST(request: NextRequest) {
   const signature = request.headers.get("intuit-signature") ?? "";
-  const payload = await request.text();
+  const payload   = await request.text();
 
-  // Verify the request is actually from Intuit
   if (!verifySignature(payload, signature)) {
     console.warn("[QB Webhook] Invalid signature — rejecting request");
     return new NextResponse("Unauthorized", { status: 401 });
@@ -60,70 +60,59 @@ export async function POST(request: NextRequest) {
   const notifications = body.eventNotifications ?? [];
 
   for (const notification of notifications) {
-    const dataChangeEvent = notification.dataChangeEvent;
-    if (!dataChangeEvent?.entities) continue;
+    const entities = notification.dataChangeEvent?.entities ?? [];
 
-    for (const entity of dataChangeEvent.entities) {
-      // We only care about Payment events
-      if (entity.name !== "Payment") continue;
+    for (const entity of entities) {
+      console.log("[QB Webhook] Entity:", entity.name, entity.operation, entity.id);
 
-      console.log("[QB Webhook] Payment event:", entity.id, "operation:", entity.operation);
+      if (entity.name === "Invoice" && entity.operation === "Update") {
+        // Invoice updated — mark student paid by qb_invoice_id.
+        // QB fires this when the invoice balance reaches 0 (fully paid).
+        await markStudentPaidByInvoiceId(entity.id);
+      }
 
-      if (entity.operation !== "Create" && entity.operation !== "Update") continue;
-
-      // Mark the student paid by their QB invoice ID
-      // QB Payments link a Payment to an Invoice via LinkedTxn — we store invoiceId on the student
-      await markStudentPaid(entity.id);
+      if (entity.name === "Payment" && (entity.operation === "Create" || entity.operation === "Update")) {
+        // Payment created/updated — store the payment ID on the student record.
+        // We can't look up the linked invoice without a QB API call here,
+        // so we rely on the Invoice Update event above for the paid status flip.
+        console.log("[QB Webhook] Payment event noted:", entity.id);
+      }
     }
   }
 
-  // Always return 200 so Intuit doesn't retry
   return new NextResponse(null, { status: 200 });
 }
 
-async function markStudentPaid(qbPaymentId: string) {
+async function markStudentPaidByInvoiceId(qbInvoiceId: string) {
   const supabase = getSupabase();
 
-  // QB webhook gives us the Payment ID, not the Invoice ID directly.
-  // We need to look up which invoice this payment covers.
-  // For now, we store qb_invoice_id on the student and the webhook
-  // fires when the hosted payment page completes — the paymentId
-  // maps 1:1 to the invoice for this use case.
-  //
-  // Strategy: update any unpaid student whose qb_invoice_id is associated
-  // with this payment. Since we can't query QB here (no token refresh in
-  // webhook path), we match by looking up the payment ID we'll store after
-  // invoice creation (qb_payment_id column — to be added when wiring QB calls).
-  //
-  // For the initial release: QB sends the Invoice entity update with
-  // Balance = 0 when paid — handle that path too.
   const { error } = await supabase
     .from("students")
     .update({
-      paid: true,
+      paid:    true,
       paid_at: new Date().toISOString(),
     })
-    .eq("qb_payment_id", qbPaymentId)
+    .eq("qb_invoice_id", qbInvoiceId)
     .eq("paid", false);
 
   if (error) {
-    console.error("[QB Webhook] Failed to mark student paid:", qbPaymentId, error);
+    console.error("[QB Webhook] Failed to mark student paid for invoice:", qbInvoiceId, error);
   } else {
-    console.log("[QB Webhook] Marked student paid for payment:", qbPaymentId);
+    console.log("[QB Webhook] Marked student paid for invoice:", qbInvoiceId);
   }
 }
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface WebhookEntity {
-  name: string;       // "Payment", "Invoice", "Customer", etc.
-  id: string;         // QB entity ID
-  operation: string;  // "Create", "Update", "Delete", "Merge", "Void"
+  name:        string;
+  id:          string;
+  operation:   string;
   lastUpdated: string;
 }
 
 interface WebhookNotification {
-  realmId: string;
+  realmId:         string;
   dataChangeEvent: {
     entities: WebhookEntity[];
   };

@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { studentFormSchema } from "@/lib/validation/student";
 import { BELLES_BEAUX_CONFIG, calculateDues } from "@/lib/belles-beaux/config";
 import { SECURE_HEADERS } from "@/lib/api-headers";
+import { createStudentInvoice } from "@/lib/quickbooks/invoice-service";
 
 // Server-side Supabase client (bypasses RLS for trusted server operations)
 function getSupabase() {
@@ -91,22 +92,43 @@ export async function POST(request: NextRequest) {
     });
 
     // ── QuickBooks Invoice ─────────────────────────────────────────────────────
-    // TODO: Replace with real QB calls when credentials are configured
-    //
-    // const { customerId, invoiceId, paymentLink } = await createStudentInvoice({
-    //   studentName: `${formData.firstName} ${formData.lastName}`,
-    //   emails: invoiceEmails,
-    //   amount: duesAmount,
-    //   schoolYear: BELLES_BEAUX_CONFIG.schoolYear,
-    // });
-    //
-    // await supabase
-    //   .from('students')
-    //   .update({ qb_customer_id: customerId, qb_invoice_id: invoiceId, qb_payment_link: paymentLink })
-    //   .eq('id', student.id);
-    //
+    let paymentLink: string | null = null;
+
+    if (process.env.ENABLE_QUICKBOOKS_SYNC === "true" || process.env.MOCK_PAYMENT_MODE === "true") {
+      try {
+        // Use first available parent name + primary email for the QB customer
+        const parentName =
+          formData.mom?.name || formData.dad?.name ||
+          `Parent of ${formData.firstName} ${formData.lastName}`;
+        const primaryEmail = invoiceEmails[0];
+        const additionalEmails = invoiceEmails.slice(1);
+
+        const { customerId, invoiceId, paymentLink: qbLink } = await createStudentInvoice({
+          studentName:     `${formData.firstName} ${formData.lastName}`,
+          parentName,
+          primaryEmail,
+          additionalEmails,
+          amount:          duesAmount,
+        });
+
+        paymentLink = qbLink;
+
+        await supabase
+          .from("students")
+          .update({
+            qb_customer_id:  customerId,
+            qb_invoice_id:   invoiceId,
+            qb_payment_link: paymentLink,
+          })
+          .eq("id", student.id);
+
+        console.log("[B&B Submit] QB invoice created:", invoiceId);
+      } catch (qbError) {
+        // Log but don't fail the submission — student is already saved
+        console.error("[B&B Submit] QB invoice creation failed:", qbError);
+      }
+    }
     // ──────────────────────────────────────────────────────────────────────────
-    const paymentLink: string | null = null;
 
     return NextResponse.json({
       success: true,
