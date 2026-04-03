@@ -17,8 +17,7 @@ import {
   TSHIRT_SIZE_OPTIONS,
   DUES,
   LATE_FEE,
-  getMembershipOptions,
-  calculateDues,
+
 } from "@/lib/belles-beaux/config";
 import { MembershipType } from "@/types/student";
 
@@ -222,6 +221,19 @@ export default function JoinBellesBeaux() {
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
+  // Live pricing from settings table — falls back to hardcoded DUES if unavailable
+  const [liveDues, setLiveDues] = useState<typeof DUES>(DUES);
+  const [liveLate, setLiveLate] = useState(LATE_FEE);
+  useEffect(() => {
+    fetch("/api/belles-beaux/pricing")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.dues) setLiveDues(data.dues);
+        if (data.lateFee) setLiveLate(data.lateFee);
+      })
+      .catch(() => {}); // silently fall back to defaults
+  }, []);
+
   const {
     register,
     handleSubmit,
@@ -312,8 +324,19 @@ export default function JoinBellesBeaux() {
   };
 
   // ── Derived pricing display ──────────────────────────────────────────────────
-  const duesAmount = membershipType ? calculateDues(membershipType) : null;
-  const membershipOptions = getMembershipOptions(grade);
+  const duesAmount = membershipType ? liveDues[membershipType] : null;
+
+  // Build membership options using live dues instead of hardcoded config
+  const membershipOptions = (() => {
+    if (grade === "9") return null;
+    const gradeLabel: Record<string, string> = { "10": "Sophomore", "11": "Junior", "12": "Senior" };
+    if (!gradeLabel[grade]) return null;
+    const newType = `new_${gradeLabel[grade].toLowerCase()}` as MembershipType;
+    return [
+      { value: "returning", label: `Returning Member — $${liveDues.returning.toLocaleString()}` },
+      { value: newType,     label: `First-Time ${gradeLabel[grade]} (New Member) — $${liveDues[newType].toLocaleString()}` },
+    ];
+  })();
 
   // ── Render ───────────────────────────────────────────────────────────────────
   return (
@@ -581,14 +604,14 @@ export default function JoinBellesBeaux() {
                   <p>
                     Annual dues and fees for all new freshman and returning Belles and Beaux are{" "}
                     <span className="font-semibold text-[#1a1a2e]">
-                      ${DUES.freshman.toLocaleString()}.00
+                      ${liveDues.freshman.toLocaleString()}.00
                     </span>{" "}
                     for the {BELLES_BEAUX_CONFIG.schoolYear} year.
                   </p>
                   <p>
                     Payment is due by <strong>June 30, 2026</strong>. A{" "}
                     <span className="font-semibold text-red-600">
-                      ${LATE_FEE} late fee
+                      ${liveLate} late fee
                     </span>{" "}
                     will be added to any balance not paid by that date.
                   </p>
@@ -606,12 +629,12 @@ export default function JoinBellesBeaux() {
                   <div className="text-sm text-gray-600 space-y-3 leading-relaxed">
                     <p>
                       If your student is joining OSG for the first time and is not a freshman, a
-                      buy-in fee is required in addition to the ${DUES.returning} annual dues.
+                      buy-in fee is required in addition to the ${liveDues.returning} annual dues.
                     </p>
                     <ul className="space-y-1 text-[#1a1a2e] font-medium border-l-2 border-[#d4af37] pl-4">
-                      <li>First-time Sophomore — ${DUES.new_sophomore.toLocaleString()}</li>
-                      <li>First-time Junior — ${DUES.new_junior.toLocaleString()}</li>
-                      <li>First-time Senior — ${DUES.new_senior.toLocaleString()}</li>
+                      <li>First-time Sophomore — ${liveDues.new_sophomore.toLocaleString()}</li>
+                      <li>First-time Junior — ${liveDues.new_junior.toLocaleString()}</li>
+                      <li>First-time Senior — ${liveDues.new_senior.toLocaleString()}</li>
                     </ul>
                   </div>
                 </Card>
@@ -621,7 +644,7 @@ export default function JoinBellesBeaux() {
               <Card title="Select Your Membership">
                 {grade === "9" ? (
                   <div className="bg-[#d4af37]/10 border border-[#d4af37]/30 rounded-lg p-4 text-sm text-[#1a1a2e]">
-                    <p className="font-semibold">New Freshman — ${DUES.freshman.toLocaleString()}.00</p>
+                    <p className="font-semibold">New Freshman — ${liveDues.freshman.toLocaleString()}.00</p>
                     <p className="text-gray-500 text-xs mt-1">
                       All freshmen are enrolled at the standard annual rate.
                     </p>
