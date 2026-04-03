@@ -61,6 +61,7 @@ export default function AdminBellesBeaux() {
   const [students, setStudents]     = useState<StudentRow[]>([]);
   const [loading, setLoading]       = useState(true);
   const [fetchError, setFetchError] = useState("");
+  const [toggling, setToggling]     = useState<Set<string>>(new Set());
 
   const [search, setSearch]           = useState("");
   const [gradeFilter, setGradeFilter] = useState("all");
@@ -89,6 +90,34 @@ export default function AdminBellesBeaux() {
 
     fetchStudents();
   }, []);
+
+  const handleTogglePaid = async (student: StudentRow) => {
+    if (toggling.has(student.id)) return;
+    setToggling((prev) => new Set(prev).add(student.id));
+
+    const newPaid = !student.paid;
+    const res = await fetch(`/api/admin/students/${student.id}/mark-paid`, {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({ paid: newPaid }),
+    });
+
+    if (res.ok) {
+      setStudents((prev) =>
+        prev.map((s) =>
+          s.id === student.id
+            ? { ...s, paid: newPaid, paid_at: newPaid ? new Date().toISOString() : null }
+            : s
+        )
+      );
+    }
+
+    setToggling((prev) => {
+      const next = new Set(prev);
+      next.delete(student.id);
+      return next;
+    });
+  };
 
   const handleLogout = async () => {
     await fetch("/api/admin/logout", { method: "POST" });
@@ -271,27 +300,34 @@ export default function AdminBellesBeaux() {
                             ${s.dues_amount.toLocaleString()}
                           </td>
                           <td className="px-5 py-4">
-                            {s.paid ? (
-                              <div>
-                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />
-                                  Paid
-                                </span>
-                                {s.paid_at && (
-                                  <p className="text-xs text-gray-400 mt-1">{formatDate(s.paid_at)}</p>
-                                )}
-                              </div>
-                            ) : (
-                              <div>
-                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-semibold">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block" />
-                                  Pending
-                                </span>
-                                <p className="text-xs text-gray-400 mt-1">
-                                  {formatDate(s.submitted_at)}
-                                </p>
-                              </div>
-                            )}
+                            <button
+                              onClick={() => handleTogglePaid(s)}
+                              disabled={toggling.has(s.id)}
+                              title={s.paid ? "Click to mark as unpaid" : "Click to mark as paid"}
+                              className="text-left disabled:opacity-50 print:pointer-events-none"
+                            >
+                              {s.paid ? (
+                                <div>
+                                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold hover:bg-green-200 transition-colors">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />
+                                    Paid
+                                  </span>
+                                  {s.paid_at && (
+                                    <p className="text-xs text-gray-400 mt-1">{formatDate(s.paid_at)}</p>
+                                  )}
+                                </div>
+                              ) : (
+                                <div>
+                                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-semibold hover:bg-amber-100 transition-colors">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block" />
+                                    Pending
+                                  </span>
+                                  <p className="text-xs text-gray-400 mt-1">
+                                    {formatDate(s.submitted_at)}
+                                  </p>
+                                </div>
+                              )}
+                            </button>
                           </td>
                         </tr>
                       ))
