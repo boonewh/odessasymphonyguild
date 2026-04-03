@@ -1,18 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createHmac } from "crypto";
 
 /**
  * Middleware — protects /admin/* routes with an httpOnly session cookie.
+ * Uses Web Crypto API (required for Next.js Edge runtime).
  * The cookie value is HMAC-SHA256(ADMIN_PASSWORD) so it cannot be forged
  * without knowing the password, and the password is never sent to the browser.
  */
 
-function expectedToken(): string {
+async function expectedToken(): Promise<string> {
   const secret = process.env.ADMIN_PASSWORD ?? "";
-  return createHmac("sha256", secret).update("osg-admin-session").digest("hex");
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const signature = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    encoder.encode("osg-admin-session")
+  );
+  return Array.from(new Uint8Array(signature))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Allow the login page and login API through without a session check
@@ -24,7 +39,7 @@ export function middleware(request: NextRequest) {
   if (pathname.startsWith("/admin")) {
     const session = request.cookies.get("admin_session")?.value;
 
-    if (session !== expectedToken()) {
+    if (session !== await expectedToken()) {
       const loginUrl = new URL("/admin/login", request.url);
       return NextResponse.redirect(loginUrl);
     }

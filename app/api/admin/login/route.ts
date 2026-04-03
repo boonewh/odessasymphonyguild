@@ -1,9 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createHmac } from "crypto";
 
-function sessionToken(): string {
+async function sessionToken(): Promise<string> {
   const secret = process.env.ADMIN_PASSWORD ?? "";
-  return createHmac("sha256", secret).update("osg-admin-session").digest("hex");
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const signature = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    encoder.encode("osg-admin-session")
+  );
+  return Array.from(new Uint8Array(signature))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 export async function POST(request: NextRequest) {
@@ -15,7 +29,7 @@ export async function POST(request: NextRequest) {
 
   const response = NextResponse.json({ success: true });
 
-  response.cookies.set("admin_session", sessionToken(), {
+  response.cookies.set("admin_session", await sessionToken(), {
     httpOnly: true,
     secure:   process.env.NODE_ENV === "production",
     sameSite: "strict",
