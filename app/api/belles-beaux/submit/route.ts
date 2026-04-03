@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { studentFormSchema } from "@/lib/validation/student";
 import { BELLES_BEAUX_CONFIG, calculateDues } from "@/lib/belles-beaux/config";
+import { SECURE_HEADERS } from "@/lib/api-headers";
 
 // Server-side Supabase client (bypasses RLS for trusted server operations)
 function getSupabase() {
@@ -27,7 +28,7 @@ export async function POST(request: NextRequest) {
     if (!parseResult.success) {
       return NextResponse.json(
         { error: "Invalid form data", details: parseResult.error.flatten() },
-        { status: 400 }
+        { status: 400, headers: SECURE_HEADERS }
       );
     }
 
@@ -113,12 +114,12 @@ export async function POST(request: NextRequest) {
       duesAmount,
       invoiceEmails,
       paymentLink,
-    });
+    }, { headers: SECURE_HEADERS });
   } catch (error) {
     console.error("[B&B Submit] Error:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "An unexpected error occurred." },
-      { status: 500 }
+      { status: 500, headers: SECURE_HEADERS }
     );
   }
 }
