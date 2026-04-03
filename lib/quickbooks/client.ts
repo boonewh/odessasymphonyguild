@@ -160,11 +160,22 @@ export class QuickBooksClient {
       body: data ? JSON.stringify(data) : undefined,
     });
 
+    const intuitTid = response.headers.get("intuit_tid");
+
     if (!response.ok) {
       const errorText = await response.text();
+      console.error(`[QB API] Error on ${method} ${endpoint}`, {
+        status: response.status,
+        intuit_tid: intuitTid,
+        body: errorText,
+      });
       throw new Error(
         `QuickBooks API error: ${response.status} - ${errorText}`
       );
+    }
+
+    if (intuitTid) {
+      console.log(`[QB API] ${method} ${endpoint} — intuit_tid: ${intuitTid}`);
     }
 
     return response.json();
