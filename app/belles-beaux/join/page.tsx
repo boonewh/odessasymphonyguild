@@ -662,6 +662,9 @@ export default function JoinBellesBeaux() {
                   <div className="text-right text-xs text-gray-400 max-w-[200px]">
                     You will be redirected to a secure QuickBooks payment page. An invoice will
                     also be sent to the parent email(s) provided.
+                    <p className="mt-2 text-gray-500">
+                      Payment services provided by Intuit Payments Inc.
+                    </p>
                   </div>
                 </div>
               )}
