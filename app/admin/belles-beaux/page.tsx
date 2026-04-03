@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { BELLES_BEAUX_CONFIG } from "@/lib/belles-beaux/config";
@@ -35,8 +36,6 @@ interface StudentRow {
   qb_invoice_id: string | null;
 }
 
-const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "osg2026";
-
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", {
     month: "short",
@@ -57,22 +56,18 @@ function membershipLabel(type: string) {
 }
 
 export default function AdminBellesBeaux() {
-  const [authed, setAuthed]           = useState(false);
-  const [passwordInput, setPasswordInput] = useState("");
-  const [passwordError, setPasswordError] = useState(false);
+  const router = useRouter();
 
-  const [students, setStudents]       = useState<StudentRow[]>([]);
-  const [loading, setLoading]         = useState(false);
-  const [fetchError, setFetchError]   = useState("");
+  const [students, setStudents]     = useState<StudentRow[]>([]);
+  const [loading, setLoading]       = useState(true);
+  const [fetchError, setFetchError] = useState("");
 
   const [search, setSearch]           = useState("");
   const [gradeFilter, setGradeFilter] = useState("all");
   const [paidFilter, setPaidFilter]   = useState("all");
 
-  // Load students once authenticated
+  // Load students on mount — middleware guarantees we're authenticated
   useEffect(() => {
-    if (!authed) return;
-
     async function fetchStudents() {
       setLoading(true);
       setFetchError("");
@@ -93,16 +88,11 @@ export default function AdminBellesBeaux() {
     }
 
     fetchStudents();
-  }, [authed]);
+  }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (passwordInput === ADMIN_PASSWORD) {
-      setAuthed(true);
-    } else {
-      setPasswordError(true);
-      setPasswordInput("");
-    }
+  const handleLogout = async () => {
+    await fetch("/api/admin/logout", { method: "POST" });
+    router.push("/admin/login");
   };
 
   const filtered = useMemo(() => {
@@ -121,38 +111,6 @@ export default function AdminBellesBeaux() {
   const paidCount   = students.filter((s) => s.paid).length;
   const unpaidCount = students.length - paidCount;
 
-  // ── Login gate ────────────────────────────────────────────────────────────────
-  if (!authed) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white rounded-xl shadow-lg p-10 w-full max-w-sm">
-          <div className="text-center mb-8">
-            <h1 className="text-2xl font-semibold text-[#1a1a2e]">Admin Access</h1>
-            <p className="text-sm text-gray-500 mt-1">Belles &amp; Beaux Roster</p>
-          </div>
-          <form onSubmit={handleLogin}>
-            <input
-              type="password"
-              value={passwordInput}
-              onChange={(e) => { setPasswordInput(e.target.value); setPasswordError(false); }}
-              placeholder="Enter password"
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#d4af37] focus:border-transparent mb-3"
-            />
-            {passwordError && (
-              <p className="text-sm text-red-600 mb-3">Incorrect password.</p>
-            )}
-            <button
-              type="submit"
-              className="w-full bg-[#d4af37] text-[#1a1a2e] py-3 rounded-lg font-semibold hover:bg-[#c19b2e] transition-colors"
-            >
-              Sign In
-            </button>
-          </form>
-        </div>
-      </div>
-    );
-  }
-
   // ── Roster ────────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gray-50">
@@ -168,12 +126,20 @@ export default function AdminBellesBeaux() {
               {BELLES_BEAUX_CONFIG.schoolYear} Season &mdash; Admin View
             </p>
           </div>
-          <button
-            onClick={() => window.location.reload()}
-            className="text-xs text-white/50 hover:text-white transition-colors print:hidden"
-          >
-            ↻ Refresh
-          </button>
+          <div className="flex items-center gap-4 print:hidden">
+            <button
+              onClick={() => window.location.reload()}
+              className="text-xs text-white/50 hover:text-white transition-colors"
+            >
+              ↻ Refresh
+            </button>
+            <button
+              onClick={handleLogout}
+              className="text-xs text-white/50 hover:text-white transition-colors"
+            >
+              Sign Out
+            </button>
+          </div>
         </div>
       </section>
 
