@@ -33,6 +33,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Verify reCAPTCHA token
+    const recaptchaToken = body.recaptchaToken;
+    if (!recaptchaToken) {
+      return NextResponse.json({ error: "Please complete the reCAPTCHA." }, { status: 400, headers: SECURE_HEADERS });
+    }
+    const recaptchaRes = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${recaptchaToken}`,
+    });
+    const recaptchaData = await recaptchaRes.json();
+    if (!recaptchaData.success) {
+      console.warn("[B&B Submit] reCAPTCHA failed:", recaptchaData["error-codes"]);
+      return NextResponse.json({ error: "reCAPTCHA verification failed. Please try again." }, { status: 400, headers: SECURE_HEADERS });
+    }
+
     const formData = parseResult.data;
     const duesAmount = calculateDues(formData.membershipType);
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import Script from "next/script";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Header from "@/components/Header";
@@ -221,6 +222,40 @@ export default function JoinBellesBeaux() {
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
+  // reCAPTCHA v2
+  const recaptchaRef     = useRef<HTMLDivElement>(null);
+  const recaptchaWidgetId = useRef<number | null>(null);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const [recaptchaError, setRecaptchaError] = useState(false);
+
+  const renderRecaptcha = useCallback(() => {
+    if (
+      recaptchaRef.current &&
+      recaptchaWidgetId.current === null &&
+      typeof window !== "undefined" &&
+      (window as unknown as { grecaptcha?: { render: (el: HTMLElement, opts: object) => number } }).grecaptcha
+    ) {
+      const g = (window as unknown as { grecaptcha: { render: (el: HTMLElement, opts: object) => number } }).grecaptcha;
+      recaptchaWidgetId.current = g.render(recaptchaRef.current, {
+        sitekey:  process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
+        callback: (token: string) => { setRecaptchaToken(token); setRecaptchaError(false); },
+        "expired-callback": () => setRecaptchaToken(null),
+      });
+    }
+  }, []);
+
+  // Render widget when user reaches step 4
+  useEffect(() => {
+    if (step === 4) {
+      // grecaptcha may not be ready yet — retry until it is
+      const interval = setInterval(() => {
+        const g = (window as unknown as { grecaptcha?: { render: unknown } }).grecaptcha;
+        if (g) { clearInterval(interval); renderRecaptcha(); }
+      }, 200);
+      return () => clearInterval(interval);
+    }
+  }, [step, renderRecaptcha]);
+
   // Live pricing from settings table — falls back to hardcoded DUES if unavailable
   const [liveDues, setLiveDues] = useState<typeof DUES>(DUES);
   const [liveLate, setLiveLate] = useState(LATE_FEE);
@@ -290,6 +325,10 @@ export default function JoinBellesBeaux() {
 
   // ── Final submit ─────────────────────────────────────────────────────────────
   const onSubmit = async (data: StudentFormSchema) => {
+    if (!recaptchaToken) {
+      setRecaptchaError(true);
+      return;
+    }
     setSubmitState("submitting");
     setErrorMessage("");
 
@@ -297,7 +336,7 @@ export default function JoinBellesBeaux() {
       const response = await fetch("/api/belles-beaux/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, recaptchaToken }),
       });
 
       const result = await response.json();
@@ -341,6 +380,10 @@ export default function JoinBellesBeaux() {
   // ── Render ───────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-white">
+      <Script
+        src="https://www.google.com/recaptcha/api.js?render=explicit"
+        strategy="lazyOnload"
+      />
       <Header />
 
       {/* Hero */}
@@ -691,6 +734,14 @@ export default function JoinBellesBeaux() {
                   </div>
                 </div>
               )}
+
+              {/* reCAPTCHA */}
+              <div className="mb-6">
+                <div ref={recaptchaRef} />
+                {recaptchaError && (
+                  <p className="mt-2 text-xs text-red-600">Please complete the reCAPTCHA.</p>
+                )}
+              </div>
 
               {/* Error */}
               {submitState === "error" && (
