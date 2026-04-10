@@ -91,6 +91,21 @@ export default function AdminPricing() {
             Changes take effect immediately on the signup form. Double-check amounts before saving.
           </div>
 
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8 flex items-center justify-between">
+            <div>
+              <p className="font-medium text-[#1a1a2e]">QuickBooks Connection</p>
+              <p className="text-xs text-gray-400 mt-0.5">
+                Use this if the system stops creating invoices or the QB connection needs to be refreshed.
+              </p>
+            </div>
+            <a
+              href="/api/quickbooks/auth?key=osg2026"
+              className="px-5 py-2.5 bg-[#2CA01C] text-white rounded-lg text-sm font-semibold hover:bg-[#258a18] transition-colors whitespace-nowrap"
+            >
+              Connect to QuickBooks
+            </a>
+          </div>
+
           {loading ? (
             <div className="text-center py-16 text-gray-400">Loading settings...</div>
           ) : (
