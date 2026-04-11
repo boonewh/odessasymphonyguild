@@ -60,7 +60,7 @@ export default function Header() {
               href="/belles-beaux/join"
               className="bg-[#d4af37] text-[#1a1a2e] px-4 py-2 rounded-lg text-sm font-semibold hover:bg-[#c19b2e] transition-colors"
             >
-              Join
+              JOIN
             </a>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
