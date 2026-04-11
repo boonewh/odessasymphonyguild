@@ -79,18 +79,21 @@ export async function POST(request: NextRequest) {
     const { data: student, error: dbError } = await supabase
       .from("students")
       .insert({
-        school_year:     BELLES_BEAUX_CONFIG.schoolYear,
-        first_name:      formData.firstName,
-        middle_name:     formData.middleName || null,
-        last_name:       formData.lastName,
-        nickname:        formData.nickname || null,
-        cell_number:     formData.cellNumber,
-        school:          formData.school,
-        grade:           formData.grade,
-        gender:          formData.gender,
-        tshirt_size:     formData.tshirtSize,
-        membership_type: formData.membershipType,
-        dues_amount:     duesAmount,
+        school_year:              BELLES_BEAUX_CONFIG.schoolYear,
+        first_name:               formData.firstName,
+        middle_name:              formData.middleName || null,
+        last_name:                formData.lastName,
+        nickname:                 formData.nickname || null,
+        cell_number:              formData.cellNumber,
+        school:                   formData.school,
+        grade:                    formData.grade,
+        gender:                   formData.gender,
+        tshirt_size:              formData.tshirtSize,
+        membership_type:          formData.membershipType,
+        dues_amount:              duesAmount,
+        media_release_consent:    formData.mediaReleaseConsent,
+        social_media_opt_out:     formData.socialMediaOptOut,
+        media_release_signature:  formData.mediaReleaseSignature,
         ...guardianFields,
       })
       .select()

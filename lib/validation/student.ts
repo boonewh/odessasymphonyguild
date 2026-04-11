@@ -56,6 +56,11 @@ export const studentFormSchema = z
       { message: 'Please select a membership type' }
     ),
 
+    // Photo / media release — signed during registration
+    mediaReleaseConsent:    z.boolean().refine((v) => v === true, { message: 'You must consent to submit.' }),
+    socialMediaOptOut:      z.boolean(),
+    mediaReleaseSignature:  z.string().min(2, 'Please type your full legal name as your signature'),
+
     // reCAPTCHA token (validated server-side only)
     recaptchaToken: z.string().optional(),
   })
