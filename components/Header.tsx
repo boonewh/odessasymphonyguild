@@ -54,14 +54,22 @@ export default function Header() {
             </a>
           </nav>
 
-          {/* Mobile menu button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-2xl hover:text-[#d4af37] transition-colors"
-            aria-label="Toggle menu"
-          >
-            {mobileMenuOpen ? "✕" : "☰"}
-          </button>
+          {/* Join button (desktop) + mobile menu button */}
+          <div className="flex items-center gap-3">
+            <a
+              href="/belles-beaux/join"
+              className="bg-[#d4af37] text-[#1a1a2e] px-4 py-2 rounded-lg text-sm font-semibold hover:bg-[#c19b2e] transition-colors"
+            >
+              Join
+            </a>
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 text-2xl hover:text-[#d4af37] transition-colors"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? "✕" : "☰"}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Navigation */}
@@ -91,9 +99,16 @@ export default function Header() {
             <a
               href="/#contact"
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-3 hover:text-[#d4af37] transition-colors"
+              className="block py-3 border-b border-white/10 hover:text-[#d4af37] transition-colors"
             >
               Contact
+            </a>
+            <a
+              href="/belles-beaux/join"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block mt-2 text-center bg-[#d4af37] text-[#1a1a2e] px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-[#c19b2e] transition-colors"
+            >
+              Join
             </a>
           </nav>
         )}

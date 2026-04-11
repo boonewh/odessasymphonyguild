@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Footer() {
   return (
     <footer className="bg-[#0f0f1e] text-gray-400 py-12">
@@ -10,6 +12,13 @@ export default function Footer() {
         </p>
         <p className="text-xs text-gray-500">
           A 501(c)(3) Non-Profit Organization
+        </p>
+        <p className="text-xs text-gray-600">
+          <Link href="/privacy-policy" className="hover:text-gray-400 transition-colors">Privacy Policy</Link>
+          {" · "}
+          <Link href="/terms" className="hover:text-gray-400 transition-colors">Terms of Use</Link>
+          {" · "}
+          <Link href="/admin/belles-beaux" className="hover:text-gray-400 transition-colors">Admin</Link>
         </p>
         <p className="text-xs text-gray-600 mt-4">
           webpage by:{' '}
