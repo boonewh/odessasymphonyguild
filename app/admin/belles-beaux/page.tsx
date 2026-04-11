@@ -163,6 +163,12 @@ export default function AdminBellesBeaux() {
               ↻ Refresh
             </button>
             <button
+              onClick={() => router.push("/admin/pricing")}
+              className="text-xs text-white/50 hover:text-white transition-colors"
+            >
+              Pricing
+            </button>
+            <button
               onClick={handleLogout}
               className="text-xs text-white/50 hover:text-white transition-colors"
             >
