@@ -2,12 +2,22 @@ import { z } from 'zod';
 
 const phoneRegex = /^\(\d{3}\) \d{3}-\d{4}$/;
 
-const parentSchema = z.object({
-  name: z.string().max(100).optional().or(z.literal('')),
+export const GUARDIAN_RELATIONSHIPS = [
+  'Mother',
+  'Father',
+  'Grandmother',
+  'Grandfather',
+  'Guardian',
+  'Other',
+] as const;
+
+const guardianSchema = z.object({
+  relationship: z.enum(GUARDIAN_RELATIONSHIPS, { message: 'Please select a relationship' }),
+  name:           z.string().max(100).optional().or(z.literal('')),
   mailingAddress: z.string().max(200).optional().or(z.literal('')),
-  city: z.string().max(100).optional().or(z.literal('')),
-  state: z.string().max(2).optional().or(z.literal('')),
-  zipCode: z.string().max(10).optional().or(z.literal('')),
+  city:           z.string().max(100).optional().or(z.literal('')),
+  state:          z.string().max(2).optional().or(z.literal('')),
+  zipCode:        z.string().max(10).optional().or(z.literal('')),
   cellNumber: z
     .string()
     .optional()
@@ -15,50 +25,47 @@ const parentSchema = z.object({
       (val) => !val || val === '' || phoneRegex.test(val),
       { message: 'Please enter a valid phone number (xxx) xxx-xxxx' }
     ),
-  email: z.string().email('Please enter a valid email address').optional().or(z.literal('')),
+  email:      z.string().email('Please enter a valid email address').optional().or(z.literal('')),
   formalName: z.string().max(200).optional().or(z.literal('')),
 });
 
 export const studentFormSchema = z
   .object({
     // Student
-    firstName: z.string().min(2, 'First name is required').max(50),
+    firstName:  z.string().min(2, 'First name is required').max(50),
     middleName: z.string().max(50).optional().or(z.literal('')),
-    lastName: z.string().min(2, 'Last name is required').max(50),
-    nickname: z.string().max(50).optional().or(z.literal('')),
+    lastName:   z.string().min(2, 'Last name is required').max(50),
+    nickname:   z.string().max(50).optional().or(z.literal('')),
     cellNumber: z
       .string()
       .regex(phoneRegex, 'Please enter a valid phone number (xxx) xxx-xxxx'),
-    school: z.string().min(2, 'School is required').max(100),
-    grade: z.enum(['9', '10', '11', '12'], { message: 'Please select a grade' }),
-    gender: z.string().min(1, 'Please select a gender'),
+    school:     z.string().min(2, 'School is required').max(100),
+    grade:      z.enum(['9', '10', '11', '12'], { message: 'Please select a grade' }),
+    gender:     z.string().min(1, 'Please select a gender'),
     tshirtSize: z.string().min(1, 'Please select a t-shirt size'),
 
-    // Parents
-    mom: parentSchema.optional(),
-    dad: parentSchema.optional(),
+    // Guardians — 1 required, up to 4
+    guardians: z
+      .array(guardianSchema)
+      .min(1, 'At least one guardian is required')
+      .max(4),
 
     // Membership type drives invoice amount
     membershipType: z.enum(
       ['freshman', 'returning', 'new_sophomore', 'new_junior', 'new_senior'],
       { message: 'Please select a membership type' }
     ),
+
+    // reCAPTCHA token (validated server-side only)
+    recaptchaToken: z.string().optional(),
   })
   .superRefine((data, ctx) => {
-    const momEmail = data.mom?.email?.trim();
-    const dadEmail = data.dad?.email?.trim();
-
-    if (!momEmail && !dadEmail) {
-      // Flag both email fields so the user sees the error wherever they are
+    const hasEmail = data.guardians.some((g) => g.email?.trim());
+    if (!hasEmail) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'At least one parent email is required for invoice delivery.',
-        path: ['mom', 'email'],
-      });
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'At least one parent email is required for invoice delivery.',
-        path: ['dad', 'email'],
+        message: 'At least one guardian email is required for invoice delivery.',
+        path: ['guardians', 0, 'email'],
       });
     }
   });

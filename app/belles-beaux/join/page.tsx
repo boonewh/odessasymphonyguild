@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Script from "next/script";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -10,6 +10,7 @@ import {
   studentFormSchema,
   StudentFormSchema,
   formatPhoneNumber,
+  GUARDIAN_RELATIONSHIPS,
 } from "@/lib/validation/student";
 import {
   BELLES_BEAUX_CONFIG,
@@ -18,16 +19,14 @@ import {
   TSHIRT_SIZE_OPTIONS,
   DUES,
   LATE_FEE,
-
 } from "@/lib/belles-beaux/config";
 import { MembershipType } from "@/types/student";
 
 // ── Step configuration ────────────────────────────────────────────────────────
 const STEPS = [
   { number: 1, label: "Student Info" },
-  { number: 2, label: "Mom / Guardian" },
-  { number: 3, label: "Dad / Guardian" },
-  { number: 4, label: "Membership" },
+  { number: 2, label: "Guardians" },
+  { number: 3, label: "Membership" },
 ];
 
 type SubmitState = "idle" | "submitting" | "redirecting" | "error";
@@ -103,119 +102,6 @@ function Card({
   );
 }
 
-// ── Parent / Guardian form section ────────────────────────────────────────────
-function ParentSection({
-  prefix,
-  register,
-  errors,
-  watch,
-  setValue,
-}: {
-  prefix: "mom" | "dad";
-  register: ReturnType<typeof useForm<StudentFormSchema>>["register"];
-  errors: ReturnType<typeof useForm<StudentFormSchema>>["formState"]["errors"];
-  watch: ReturnType<typeof useForm<StudentFormSchema>>["watch"];
-  setValue: ReturnType<typeof useForm<StudentFormSchema>>["setValue"];
-}) {
-  const parentErrors = errors[prefix];
-  const cellKey = `${prefix}.cellNumber` as const;
-  const cellValue = watch(cellKey);
-
-  useEffect(() => {
-    if (cellValue) {
-      const formatted = formatPhoneNumber(cellValue);
-      if (formatted !== cellValue) {
-        setValue(cellKey, formatted);
-      }
-    }
-  }, [cellValue, setValue, cellKey]);
-
-  const formalNamePlaceholder =
-    prefix === "mom"
-      ? "e.g. Mr. and Mrs. John Smith  |  Ms. Jane Smith  |  Dr. Jane Smith"
-      : "e.g. Mr. and Mrs. John Smith  |  Mr. John Smith  |  Dr. John Smith";
-
-  return (
-    <div className="space-y-5">
-      <div>
-        <label className={labelClass}>Name</label>
-        <input type="text" {...register(`${prefix}.name`)} className={inputClass} />
-      </div>
-
-      <div>
-        <label className={labelClass}>Mailing Address</label>
-        <input type="text" {...register(`${prefix}.mailingAddress`)} className={inputClass} />
-      </div>
-
-      <div className="grid sm:grid-cols-3 gap-4">
-        <div className="sm:col-span-1">
-          <label className={labelClass}>City</label>
-          <input type="text" {...register(`${prefix}.city`)} className={inputClass} />
-        </div>
-        <div>
-          <label className={labelClass}>State</label>
-          <input
-            type="text"
-            {...register(`${prefix}.state`)}
-            placeholder="TX"
-            maxLength={2}
-            className={inputClass}
-          />
-        </div>
-        <div>
-          <label className={labelClass}>Zip Code</label>
-          <input type="text" {...register(`${prefix}.zipCode`)} className={inputClass} />
-        </div>
-      </div>
-
-      <div className="grid sm:grid-cols-2 gap-4">
-        <div>
-          <label className={labelClass}>Cell Number</label>
-          <input
-            type="tel"
-            {...register(`${prefix}.cellNumber`)}
-            placeholder="(xxx) xxx-xxxx"
-            className={inputClass}
-          />
-          {parentErrors?.cellNumber && (
-            <p className={errorClass}>{parentErrors.cellNumber.message}</p>
-          )}
-        </div>
-        <div>
-          <label className={labelClass}>
-            E-mail Address{" "}
-            <span className="text-[#d4af37] font-normal text-xs">(invoice delivered here)</span>
-          </label>
-          <input
-            type="email"
-            {...register(`${prefix}.email`)}
-            className={inputClass}
-            autoComplete="email"
-          />
-          {parentErrors?.email && (
-            <p className={errorClass}>{parentErrors.email.message}</p>
-          )}
-        </div>
-      </div>
-
-      <div>
-        <label className={labelClass}>
-          Formal Name for Presentation
-          <span className="block text-xs text-gray-400 font-normal mt-0.5">
-            Used when your student is presented at the Gala
-          </span>
-        </label>
-        <input
-          type="text"
-          {...register(`${prefix}.formalName`)}
-          placeholder={formalNamePlaceholder}
-          className={inputClass}
-        />
-      </div>
-    </div>
-  );
-}
-
 // ── Main page component ───────────────────────────────────────────────────────
 export default function JoinBellesBeaux() {
   const [step, setStep] = useState(1);
@@ -223,7 +109,7 @@ export default function JoinBellesBeaux() {
   const [errorMessage, setErrorMessage] = useState("");
 
   // reCAPTCHA v2
-  const recaptchaRef     = useRef<HTMLDivElement>(null);
+  const recaptchaRef      = useRef<HTMLDivElement>(null);
   const recaptchaWidgetId = useRef<number | null>(null);
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const [recaptchaError, setRecaptchaError] = useState(false);
@@ -244,10 +130,9 @@ export default function JoinBellesBeaux() {
     }
   }, []);
 
-  // Render widget when user reaches step 4
+  // Render widget when user reaches step 3 (Membership / final step)
   useEffect(() => {
-    if (step === 4) {
-      // grecaptcha may not be ready yet — retry until it is
+    if (step === 3) {
       const interval = setInterval(() => {
         const g = (window as unknown as { grecaptcha?: { render: unknown } }).grecaptcha;
         if (g) { clearInterval(interval); renderRecaptcha(); }
@@ -256,7 +141,7 @@ export default function JoinBellesBeaux() {
     }
   }, [step, renderRecaptcha]);
 
-  // Live pricing from settings table — falls back to hardcoded DUES if unavailable
+  // Live pricing from settings table
   const [liveDues, setLiveDues] = useState<typeof DUES>(DUES);
   const [liveLate, setLiveLate] = useState(LATE_FEE);
   useEffect(() => {
@@ -266,7 +151,7 @@ export default function JoinBellesBeaux() {
         if (data.dues) setLiveDues(data.dues);
         if (data.lateFee) setLiveLate(data.lateFee);
       })
-      .catch(() => {}); // silently fall back to defaults
+      .catch(() => {});
   }, []);
 
   const {
@@ -275,14 +160,39 @@ export default function JoinBellesBeaux() {
     watch,
     setValue,
     trigger,
+    control,
     formState: { errors },
   } = useForm<StudentFormSchema>({
     resolver: zodResolver(studentFormSchema),
     mode: "onTouched",
+    defaultValues: {
+      guardians: [
+        {
+          relationship: undefined,
+          name: "",
+          mailingAddress: "",
+          city: "",
+          state: "",
+          zipCode: "",
+          cellNumber: "",
+          email: "",
+          formalName: "",
+        },
+      ],
+    },
   });
 
-  const grade = watch("grade");
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "guardians",
+  });
+
+  // Track "same address as Guardian 1" per guardian index
+  const [sameAddress, setSameAddress] = useState<boolean[]>([false, false, false, false]);
+
+  const grade        = watch("grade");
   const membershipType = watch("membershipType") as MembershipType | undefined;
+  const guardians    = watch("guardians");
 
   // Auto-format student cell
   const studentCell = watch("cellNumber");
@@ -293,15 +203,42 @@ export default function JoinBellesBeaux() {
     }
   }, [studentCell, setValue]);
 
+  // Auto-format guardian cell numbers
+  useEffect(() => {
+    fields.forEach((_, i) => {
+      const val = guardians?.[i]?.cellNumber;
+      if (val) {
+        const formatted = formatPhoneNumber(val);
+        if (formatted !== val) setValue(`guardians.${i}.cellNumber`, formatted);
+      }
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fields.map((_, i) => guardians?.[i]?.cellNumber).join(",")]);
+
   // When grade is set to 9, auto-assign freshman membership type
   useEffect(() => {
     if (grade === "9") {
       setValue("membershipType", "freshman");
     } else if (grade && membershipType === "freshman") {
-      // Clear auto-set freshman type if user switches away from grade 9
       setValue("membershipType", "" as MembershipType);
     }
   }, [grade, setValue, membershipType]);
+
+  // Copy address from guardian 1 when "same address" is toggled on
+  const handleSameAddressToggle = (index: number, checked: boolean) => {
+    setSameAddress((prev) => {
+      const next = [...prev];
+      next[index] = checked;
+      return next;
+    });
+    if (checked) {
+      const g1 = guardians?.[0];
+      setValue(`guardians.${index}.mailingAddress`, g1?.mailingAddress || "");
+      setValue(`guardians.${index}.city`,           g1?.city || "");
+      setValue(`guardians.${index}.state`,          g1?.state || "");
+      setValue(`guardians.${index}.zipCode`,        g1?.zipCode || "");
+    }
+  };
 
   // ── Step navigation ──────────────────────────────────────────────────────────
   const handleNext = async () => {
@@ -316,8 +253,10 @@ export default function JoinBellesBeaux() {
         "tshirtSize",
       ]);
       if (valid) setStep(2);
-    } else if (step === 2 || step === 3) {
-      setStep(step + 1);
+    } else if (step === 2) {
+      // Validate all guardian entries (relationship is required for each)
+      const valid = await trigger("guardians");
+      if (valid) setStep(3);
     }
   };
 
@@ -365,7 +304,6 @@ export default function JoinBellesBeaux() {
   // ── Derived pricing display ──────────────────────────────────────────────────
   const duesAmount = membershipType ? liveDues[membershipType] : null;
 
-  // Build membership options using live dues instead of hardcoded config
   const membershipOptions = (() => {
     if (grade === "9") return null;
     const gradeLabel: Record<string, string> = { "10": "Sophomore", "11": "Junior", "12": "Senior" };
@@ -544,27 +482,227 @@ export default function JoinBellesBeaux() {
                   onClick={handleNext}
                   className="bg-[#d4af37] text-[#1a1a2e] px-8 py-3 rounded-lg font-semibold hover:bg-[#c19b2e] transition-colors"
                 >
-                  Continue to Parent Info →
+                  Continue to Guardian Info →
                 </button>
               </div>
             </>
           )}
 
-          {/* ── STEP 2: Mom ── */}
+          {/* ── STEP 2: Guardians ── */}
           {step === 2 && (
             <>
-              <Card
-                title="Parent / Guardian Information — Mom"
-                subtitle="If not applicable, click Skip below. At least one parent email is required."
-              >
-                <ParentSection
-                  prefix="mom"
-                  register={register}
-                  errors={errors}
-                  watch={watch}
-                  setValue={setValue}
-                />
-              </Card>
+              <div className="mb-6">
+                <h2 className="text-xl font-semibold text-[#1a1a2e] mb-1">
+                  Parent / Guardian Information
+                </h2>
+                <p className="text-sm text-gray-400 italic">
+                  At least one guardian is required. Add up to four. At least one email address
+                  is required for invoice delivery.
+                </p>
+              </div>
+
+              {/* Guardian email cross-field error (shown at top of step) */}
+              {errors.guardians?.root?.message && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                  {errors.guardians.root.message}
+                </div>
+              )}
+              {/* superRefine email error surfaced on guardians[0].email path */}
+              {(errors.guardians as { "0"?: { email?: { message?: string } } })?.[0]?.email?.message ===
+                "At least one guardian email is required for invoice delivery." && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                  At least one guardian email is required for invoice delivery.
+                </div>
+              )}
+
+              {fields.map((field, index) => {
+                const gErrors = errors.guardians?.[index];
+                const isFirst = index === 0;
+                const showSameAddress = !isFirst && fields.length > 1;
+
+                return (
+                  <div
+                    key={field.id}
+                    className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 mb-4"
+                  >
+                    {/* Card header */}
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-base font-semibold text-[#1a1a2e] flex items-center gap-2">
+                        <span className="text-[#d4af37] text-xl font-light">/</span>
+                        Guardian {index + 1}
+                      </h3>
+                      {!isFirst && (
+                        <button
+                          type="button"
+                          onClick={() => remove(index)}
+                          className="text-xs text-red-400 hover:text-red-600 transition-colors"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="space-y-5">
+                      {/* Relationship */}
+                      <div>
+                        <label className={labelClass}>
+                          Relationship <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                          {...register(`guardians.${index}.relationship`)}
+                          className={inputClass}
+                        >
+                          <option value="">Select relationship</option>
+                          {GUARDIAN_RELATIONSHIPS.map((r) => (
+                            <option key={r} value={r}>{r}</option>
+                          ))}
+                        </select>
+                        {gErrors?.relationship && (
+                          <p className={errorClass}>{gErrors.relationship.message}</p>
+                        )}
+                      </div>
+
+                      {/* Name */}
+                      <div>
+                        <label className={labelClass}>Name</label>
+                        <input
+                          type="text"
+                          {...register(`guardians.${index}.name`)}
+                          className={inputClass}
+                        />
+                      </div>
+
+                      {/* Same address checkbox for guardians 2-4 */}
+                      {showSameAddress && (
+                        <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={sameAddress[index] ?? false}
+                            onChange={(e) => handleSameAddressToggle(index, e.target.checked)}
+                            className="accent-[#d4af37] w-4 h-4"
+                          />
+                          Same mailing address as Guardian 1
+                        </label>
+                      )}
+
+                      {/* Address fields — hidden when sameAddress is checked */}
+                      {!sameAddress[index] && (
+                        <>
+                          <div>
+                            <label className={labelClass}>Mailing Address</label>
+                            <input
+                              type="text"
+                              {...register(`guardians.${index}.mailingAddress`)}
+                              className={inputClass}
+                            />
+                          </div>
+
+                          <div className="grid sm:grid-cols-3 gap-4">
+                            <div className="sm:col-span-1">
+                              <label className={labelClass}>City</label>
+                              <input
+                                type="text"
+                                {...register(`guardians.${index}.city`)}
+                                className={inputClass}
+                              />
+                            </div>
+                            <div>
+                              <label className={labelClass}>State</label>
+                              <input
+                                type="text"
+                                {...register(`guardians.${index}.state`)}
+                                placeholder="TX"
+                                maxLength={2}
+                                className={inputClass}
+                              />
+                            </div>
+                            <div>
+                              <label className={labelClass}>Zip Code</label>
+                              <input
+                                type="text"
+                                {...register(`guardians.${index}.zipCode`)}
+                                className={inputClass}
+                              />
+                            </div>
+                          </div>
+                        </>
+                      )}
+
+                      {/* Cell & Email */}
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className={labelClass}>Cell Number</label>
+                          <input
+                            type="tel"
+                            {...register(`guardians.${index}.cellNumber`)}
+                            placeholder="(xxx) xxx-xxxx"
+                            className={inputClass}
+                          />
+                          {gErrors?.cellNumber && (
+                            <p className={errorClass}>{gErrors.cellNumber.message}</p>
+                          )}
+                        </div>
+                        <div>
+                          <label className={labelClass}>
+                            E-mail Address{" "}
+                            <span className="text-[#d4af37] font-normal text-xs">(invoice delivered here)</span>
+                          </label>
+                          <input
+                            type="email"
+                            {...register(`guardians.${index}.email`)}
+                            className={inputClass}
+                            autoComplete="email"
+                          />
+                          {gErrors?.email &&
+                            gErrors.email.message !==
+                              "At least one guardian email is required for invoice delivery." && (
+                            <p className={errorClass}>{gErrors.email.message}</p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Formal name */}
+                      <div>
+                        <label className={labelClass}>
+                          Formal Name for Presentation
+                          <span className="block text-xs text-gray-400 font-normal mt-0.5">
+                            Used when your student is presented at the Gala
+                          </span>
+                        </label>
+                        <input
+                          type="text"
+                          {...register(`guardians.${index}.formalName`)}
+                          placeholder="e.g. Mr. and Mrs. John Smith  |  Ms. Jane Smith  |  Dr. Jane Smith"
+                          className={inputClass}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Add guardian button */}
+              {fields.length < 4 && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    append({
+                      relationship: undefined as unknown as typeof GUARDIAN_RELATIONSHIPS[number],
+                      name: "",
+                      mailingAddress: "",
+                      city: "",
+                      state: "",
+                      zipCode: "",
+                      cellNumber: "",
+                      email: "",
+                      formalName: "",
+                    })
+                  }
+                  className="w-full mb-6 py-3 border-2 border-dashed border-[#d4af37]/50 text-[#d4af37] rounded-xl text-sm font-semibold hover:border-[#d4af37] hover:bg-[#d4af37]/5 transition-colors"
+                >
+                  + Add Another Guardian
+                </button>
+              )}
 
               <div className="flex justify-between">
                 <button
@@ -574,72 +712,19 @@ export default function JoinBellesBeaux() {
                 >
                   ← Back
                 </button>
-                <div className="flex gap-3">
-                  <button
-                    type="button"
-                    onClick={handleNext}
-                    className="px-6 py-3 border-2 border-gray-300 text-gray-600 rounded-lg font-semibold hover:border-gray-400 transition-colors"
-                  >
-                    Skip
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleNext}
-                    className="bg-[#d4af37] text-[#1a1a2e] px-8 py-3 rounded-lg font-semibold hover:bg-[#c19b2e] transition-colors"
-                  >
-                    Continue →
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  className="bg-[#d4af37] text-[#1a1a2e] px-8 py-3 rounded-lg font-semibold hover:bg-[#c19b2e] transition-colors"
+                >
+                  Continue to Membership →
+                </button>
               </div>
             </>
           )}
 
-          {/* ── STEP 3: Dad ── */}
+          {/* ── STEP 3: Membership & Payment ── */}
           {step === 3 && (
-            <>
-              <Card
-                title="Parent / Guardian Information — Dad"
-                subtitle="If not applicable, click Skip below. At least one parent email is required."
-              >
-                <ParentSection
-                  prefix="dad"
-                  register={register}
-                  errors={errors}
-                  watch={watch}
-                  setValue={setValue}
-                />
-              </Card>
-
-              <div className="flex justify-between">
-                <button
-                  type="button"
-                  onClick={handleBack}
-                  className="px-6 py-3 border-2 border-gray-300 text-gray-600 rounded-lg font-semibold hover:border-gray-400 transition-colors"
-                >
-                  ← Back
-                </button>
-                <div className="flex gap-3">
-                  <button
-                    type="button"
-                    onClick={handleNext}
-                    className="px-6 py-3 border-2 border-gray-300 text-gray-600 rounded-lg font-semibold hover:border-gray-400 transition-colors"
-                  >
-                    Skip
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleNext}
-                    className="bg-[#d4af37] text-[#1a1a2e] px-8 py-3 rounded-lg font-semibold hover:bg-[#c19b2e] transition-colors"
-                  >
-                    Continue →
-                  </button>
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* ── STEP 4: Membership & Payment ── */}
-          {step === 4 && (
             <form onSubmit={handleSubmit(onSubmit)} noValidate>
               {/* What's included */}
               <Card title="Financial Obligations">
@@ -727,7 +812,7 @@ export default function JoinBellesBeaux() {
                   </div>
                   <div className="text-right text-xs text-gray-400 max-w-[200px]">
                     You will be redirected to a secure QuickBooks payment page. An invoice will
-                    also be sent to the parent email(s) provided.
+                    also be sent to the guardian email(s) provided.
                     <p className="mt-2 text-gray-500">
                       Payment services provided by Intuit Payments Inc.
                     </p>

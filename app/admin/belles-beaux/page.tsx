@@ -23,14 +23,28 @@ interface StudentRow {
   tshirt_size: string;
   membership_type: string;
   dues_amount: number;
+  // Guardian columns (new)
+  guardian_1_relationship: string | null;
+  guardian_1_name: string | null;
+  guardian_1_email: string | null;
+  guardian_1_cell: string | null;
+  guardian_2_relationship: string | null;
+  guardian_2_name: string | null;
+  guardian_2_email: string | null;
+  guardian_2_cell: string | null;
+  guardian_3_relationship: string | null;
+  guardian_3_name: string | null;
+  guardian_3_email: string | null;
+  guardian_3_cell: string | null;
+  guardian_4_relationship: string | null;
+  guardian_4_name: string | null;
+  guardian_4_email: string | null;
+  guardian_4_cell: string | null;
+  // Legacy columns for historical records
   mom_name: string | null;
   mom_email: string | null;
-  mom_cell: string | null;
-  mom_formal_name: string | null;
   dad_name: string | null;
   dad_email: string | null;
-  dad_cell: string | null;
-  dad_formal_name: string | null;
   paid: boolean;
   paid_at: string | null;
   qb_invoice_id: string | null;
@@ -292,14 +306,27 @@ export default function AdminBellesBeaux() {
                           <td className="px-5 py-4 text-gray-600 text-xs">
                             {membershipLabel(s.membership_type)}
                           </td>
-                          <td className="px-5 py-4 text-xs text-gray-600 space-y-0.5">
-                            {s.mom_name && <p>{s.mom_name}</p>}
-                            {s.mom_email && (
-                              <p className="text-[#d4af37]">{s.mom_email}</p>
-                            )}
-                            {s.dad_name && <p className="mt-1">{s.dad_name}</p>}
-                            {s.dad_email && (
-                              <p className="text-[#d4af37]">{s.dad_email}</p>
+                          <td className="px-5 py-4 text-xs text-gray-600 space-y-1">
+                            {([1, 2, 3, 4] as const).map((n) => {
+                              const name  = s[`guardian_${n}_name` as keyof StudentRow] as string | null;
+                              const email = s[`guardian_${n}_email` as keyof StudentRow] as string | null;
+                              const rel   = s[`guardian_${n}_relationship` as keyof StudentRow] as string | null;
+                              if (!name && !email) return null;
+                              return (
+                                <div key={n} className={n > 1 ? "pt-1 border-t border-gray-100" : ""}>
+                                  {name && <p>{name}{rel ? <span className="text-gray-400"> ({rel})</span> : null}</p>}
+                                  {email && <p className="text-[#d4af37]">{email}</p>}
+                                </div>
+                              );
+                            })}
+                            {/* Fallback for legacy mom/dad records */}
+                            {!s.guardian_1_name && !s.guardian_1_email && (
+                              <>
+                                {s.mom_name && <p>{s.mom_name}</p>}
+                                {s.mom_email && <p className="text-[#d4af37]">{s.mom_email}</p>}
+                                {s.dad_name && <p className="mt-1">{s.dad_name}</p>}
+                                {s.dad_email && <p className="text-[#d4af37]">{s.dad_email}</p>}
+                              </>
                             )}
                           </td>
                           <td className="px-5 py-4 font-medium text-[#1a1a2e]">

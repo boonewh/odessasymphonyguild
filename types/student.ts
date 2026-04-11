@@ -1,4 +1,13 @@
-export interface ParentInfo {
+export type GuardianRelationship =
+  | 'Mother'
+  | 'Father'
+  | 'Grandmother'
+  | 'Grandfather'
+  | 'Guardian'
+  | 'Other';
+
+export interface GuardianInfo {
+  relationship: GuardianRelationship;
   name?: string;
   mailingAddress?: string;
   city?: string;
@@ -28,9 +37,8 @@ export interface StudentFormData {
   gender: string;
   tshirtSize: string;
 
-  // Parent / Guardian — at least one email required
-  mom?: ParentInfo;
-  dad?: ParentInfo;
+  // Guardians — 1 to 4, at least one email required
+  guardians: GuardianInfo[];
 
   // Membership
   membershipType: MembershipType;

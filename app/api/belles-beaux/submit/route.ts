@@ -52,13 +52,29 @@ export async function POST(request: NextRequest) {
     const formData = parseResult.data;
     const duesAmount = calculateDues(formData.membershipType);
 
-    // Collect parent emails for invoice delivery
-    const invoiceEmails: string[] = [];
-    if (formData.mom?.email?.trim()) invoiceEmails.push(formData.mom.email.trim());
-    if (formData.dad?.email?.trim()) invoiceEmails.push(formData.dad.email.trim());
+    // Collect guardian emails for invoice delivery
+    const invoiceEmails: string[] = formData.guardians
+      .map((g) => g.email?.trim())
+      .filter((e): e is string => Boolean(e));
 
     // ── Save to Supabase ───────────────────────────────────────────────────────
     const supabase = getSupabase();
+
+    // Build guardian columns dynamically (up to 4)
+    const guardianFields: Record<string, string | null> = {};
+    for (let i = 0; i < 4; i++) {
+      const g = formData.guardians[i];
+      const n = i + 1;
+      guardianFields[`guardian_${n}_relationship`] = g?.relationship || null;
+      guardianFields[`guardian_${n}_name`]         = g?.name || null;
+      guardianFields[`guardian_${n}_address`]      = g?.mailingAddress || null;
+      guardianFields[`guardian_${n}_city`]         = g?.city || null;
+      guardianFields[`guardian_${n}_state`]        = g?.state || null;
+      guardianFields[`guardian_${n}_zip`]          = g?.zipCode || null;
+      guardianFields[`guardian_${n}_cell`]         = g?.cellNumber || null;
+      guardianFields[`guardian_${n}_email`]        = g?.email || null;
+      guardianFields[`guardian_${n}_formal_name`]  = g?.formalName || null;
+    }
 
     const { data: student, error: dbError } = await supabase
       .from("students")
@@ -75,22 +91,7 @@ export async function POST(request: NextRequest) {
         tshirt_size:     formData.tshirtSize,
         membership_type: formData.membershipType,
         dues_amount:     duesAmount,
-        mom_name:        formData.mom?.name || null,
-        mom_address:     formData.mom?.mailingAddress || null,
-        mom_city:        formData.mom?.city || null,
-        mom_state:       formData.mom?.state || null,
-        mom_zip:         formData.mom?.zipCode || null,
-        mom_cell:        formData.mom?.cellNumber || null,
-        mom_email:       formData.mom?.email || null,
-        mom_formal_name: formData.mom?.formalName || null,
-        dad_name:        formData.dad?.name || null,
-        dad_address:     formData.dad?.mailingAddress || null,
-        dad_city:        formData.dad?.city || null,
-        dad_state:       formData.dad?.state || null,
-        dad_zip:         formData.dad?.zipCode || null,
-        dad_cell:        formData.dad?.cellNumber || null,
-        dad_email:       formData.dad?.email || null,
-        dad_formal_name: formData.dad?.formalName || null,
+        ...guardianFields,
       })
       .select()
       .single();
@@ -112,10 +113,10 @@ export async function POST(request: NextRequest) {
 
     if (process.env.ENABLE_QUICKBOOKS_SYNC === "true" || process.env.MOCK_PAYMENT_MODE === "true") {
       try {
-        // Use first available parent name + primary email for the QB customer
+        // Use first available guardian name + primary email for the QB customer
         const parentName =
-          formData.mom?.name || formData.dad?.name ||
-          `Parent of ${formData.firstName} ${formData.lastName}`;
+          formData.guardians.find((g) => g.name?.trim())?.name?.trim() ||
+          `Guardian of ${formData.firstName} ${formData.lastName}`;
         const primaryEmail = invoiceEmails[0];
         const additionalEmails = invoiceEmails.slice(1);
 
