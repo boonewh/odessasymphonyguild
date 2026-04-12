@@ -202,26 +202,22 @@ export default function GalaPage() {
       {/* --- FOOTER CTA --- */}
       <section className="py-16 bg-emerald-950 border-t border-emerald-900 text-center">
         <div className="max-w-4xl mx-auto px-6">
-          <h2 className="text-3xl font-light mb-6 text-amber-400">
-            Join the Magic
+          <h2 className="text-3xl font-light mb-4 text-amber-400">
+            Ready to Join Belles &amp; Beaux?
           </h2>
-          <p className="mb-8 text-emerald-200">
-            For membership inquiries and more information about supporting the
-            Guild.
+          <p className="mb-8 text-emerald-200 max-w-xl mx-auto">
+            Apply for the {new Date().getFullYear()}&ndash;{new Date().getFullYear() + 1} season and
+            become part of the Odessa Symphony Guild tradition.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <a
-              href="https://www.facebook.com/odessasymphonyguild/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 px-8 py-3 bg-emerald-800 hover:bg-emerald-700 text-white rounded-full transition-all duration-300 border border-emerald-600 hover:border-amber-400 shadow-lg hover:shadow-amber-400/20"
-            >
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-              </svg>
-              Connect on Facebook
-            </a>
-          </div>
+          <a
+            href="/belles-beaux/join"
+            className="inline-flex items-center gap-3 px-10 py-4 bg-[#d4af37] hover:bg-[#c19b2e] text-[#1a1a2e] font-semibold rounded-full transition-all duration-300 shadow-lg hover:shadow-amber-400/30 text-base"
+          >
+            Start Your Application
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </a>
         </div>
       </section>
 
