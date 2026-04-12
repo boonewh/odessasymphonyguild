@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "crypto";
 import { createClient } from "@supabase/supabase-js";
+import { loadTokens, saveTokens } from "@/lib/quickbooks/tokens";
+import OAuthClient from "intuit-oauth";
 
 /**
  * POST /api/quickbooks/webhook
@@ -8,11 +10,10 @@ import { createClient } from "@supabase/supabase-js";
  * Receives payment notifications from Intuit.
  *
  * Handles two entity types:
- * - Invoice (Update): when Balance reaches 0, the invoice is paid — mark student paid
- * - Payment (Create/Update): fallback path using payment ID
- *
- * Intuit sends a signature in the "intuit-signature" header using
- * the Webhook Verifier Token from the Intuit portal.
+ * - Invoice (Update): when Balance reaches 0, mark student paid
+ * - Payment (Create/Update): fetch the payment from QB to get the linked
+ *   invoice ID, then mark student paid. This is the primary path because
+ *   QB does not reliably send Invoice Update events after payment.
  *
  * Must return 200 within 30 seconds or Intuit will retry.
  */
@@ -37,6 +38,91 @@ function verifySignature(payload: string, signature: string): boolean {
     return timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
   } catch {
     return false;
+  }
+}
+
+async function getAccessToken(): Promise<{ accessToken: string; realmId: string; environment: string } | null> {
+  const tokens = await loadTokens();
+  if (!tokens) return null;
+
+  const environment = (process.env.QUICKBOOKS_ENVIRONMENT as "sandbox" | "production") || "sandbox";
+  const now = new Date();
+
+  if (tokens.expiresAt <= now) {
+    try {
+      const oauthClient = new OAuthClient({
+        clientId:     process.env.QUICKBOOKS_CLIENT_ID!,
+        clientSecret: process.env.QUICKBOOKS_CLIENT_SECRET!,
+        environment,
+        redirectUri:  process.env.QUICKBOOKS_REDIRECT_URI!,
+      });
+      oauthClient.setToken({
+        access_token:               tokens.accessToken,
+        refresh_token:              tokens.refreshToken,
+        token_type:                 "bearer",
+        expires_in:                 0,
+        x_refresh_token_expires_in: Math.floor((tokens.refreshExpiresAt.getTime() - now.getTime()) / 1000),
+      });
+      const refreshed = await oauthClient.refresh();
+      const t = refreshed.token;
+      const updated = {
+        realmId:          tokens.realmId,
+        accessToken:      t.access_token,
+        refreshToken:     t.refresh_token,
+        expiresAt:        new Date(Date.now() + t.expires_in * 1000),
+        refreshExpiresAt: new Date(Date.now() + t.x_refresh_token_expires_in * 1000),
+      };
+      await saveTokens(updated);
+      return { accessToken: updated.accessToken, realmId: updated.realmId, environment };
+    } catch (err) {
+      console.error("[QB Webhook] Token refresh failed:", err);
+      return null;
+    }
+  }
+
+  return { accessToken: tokens.accessToken, realmId: tokens.realmId, environment };
+}
+
+async function getInvoiceIdFromPayment(paymentId: string): Promise<string | null> {
+  const auth = await getAccessToken();
+  if (!auth) {
+    console.error("[QB Webhook] No QB tokens available to fetch payment");
+    return null;
+  }
+
+  const base = auth.environment === "sandbox"
+    ? `https://sandbox-quickbooks.api.intuit.com/v3/company/${auth.realmId}`
+    : `https://quickbooks.api.intuit.com/v3/company/${auth.realmId}`;
+
+  try {
+    const res = await fetch(`${base}/payment/${paymentId}`, {
+      headers: {
+        Authorization:  `Bearer ${auth.accessToken}`,
+        Accept:         "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      console.error("[QB Webhook] Failed to fetch payment:", paymentId, res.status);
+      return null;
+    }
+
+    const data = await res.json();
+    // Lines[].LinkedTxn[] contains the linked invoice
+    const lines = data.Payment?.Line ?? [];
+    for (const line of lines) {
+      for (const txn of (line.LinkedTxn ?? [])) {
+        if (txn.TxnType === "Invoice") {
+          return txn.TxnId as string;
+        }
+      }
+    }
+
+    console.warn("[QB Webhook] No linked invoice found in payment:", paymentId);
+    return null;
+  } catch (err) {
+    console.error("[QB Webhook] Error fetching payment:", paymentId, err);
+    return null;
   }
 }
 
@@ -66,16 +152,17 @@ export async function POST(request: NextRequest) {
       console.log("[QB Webhook] Entity:", entity.name, entity.operation, entity.id);
 
       if (entity.name === "Invoice" && entity.operation === "Update") {
-        // Invoice updated — mark student paid by qb_invoice_id.
-        // QB fires this when the invoice balance reaches 0 (fully paid).
+        // Invoice updated — mark student paid directly
         await markStudentPaidByInvoiceId(entity.id);
       }
 
       if (entity.name === "Payment" && (entity.operation === "Create" || entity.operation === "Update")) {
-        // Payment created/updated — store the payment ID on the student record.
-        // We can't look up the linked invoice without a QB API call here,
-        // so we rely on the Invoice Update event above for the paid status flip.
-        console.log("[QB Webhook] Payment event noted:", entity.id);
+        // Payment received — look up the linked invoice, then mark paid
+        console.log("[QB Webhook] Payment received:", entity.id, "— fetching linked invoice");
+        const invoiceId = await getInvoiceIdFromPayment(entity.id);
+        if (invoiceId) {
+          await markStudentPaidByInvoiceId(invoiceId);
+        }
       }
     }
   }
