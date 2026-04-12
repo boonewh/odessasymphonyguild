@@ -825,67 +825,121 @@ export default function JoinBellesBeaux() {
 
               {/* Media Release */}
               <Card title="Media Release & Consent">
-                <div className="space-y-5">
-                  <div className="text-sm text-gray-600 leading-relaxed space-y-3">
+                <div className="space-y-8">
+
+                  {/* Authorization text */}
+                  <div className="bg-gray-50 rounded-lg p-5 text-sm text-gray-600 leading-relaxed space-y-3">
                     <p>
-                      By submitting this form, the parent or guardian grants permission to the
-                      Odessa Symphony Guild to photograph, video record, and otherwise capture the
-                      image, likeness, voice, and/or participation of the student during Guild-related
-                      activities and events for lawful nonprofit purposes including the organization
-                      website, social media, promotional materials, newsletters, and fundraising.
+                      By submitting this form, the parent or guardian named below grants permission
+                      to the Odessa Symphony Guild, a Texas nonprofit organization, to photograph,
+                      video record, and otherwise capture the image, likeness, voice, and/or
+                      participation of the student during Guild-related activities and events.
                     </p>
-                    <ul className="list-disc ml-5 space-y-1 text-gray-400 text-xs">
-                      <li>No compensation will be provided for use of these materials</li>
-                      <li>All media becomes the property of the Odessa Symphony Guild</li>
-                      <li>Consent is perpetual unless revoked in writing</li>
+                    <p>
+                      I authorize the Odessa Symphony Guild to use, reproduce, publish, distribute,
+                      and display such media, in whole or in part, in any format now known or later
+                      developed, for lawful nonprofit purposes, including but not limited to:
+                    </p>
+                    <ul className="list-disc ml-5 space-y-1">
+                      <li>Organization website</li>
+                      <li>Social media platforms</li>
+                      <li>Promotional and marketing materials</li>
+                      <li>Educational materials</li>
+                      <li>Newsletters, reports, and presentations</li>
+                      <li>Fundraising and outreach efforts</li>
                     </ul>
+                    <p className="font-medium text-gray-700">I understand and agree that:</p>
+                    <ul className="list-disc ml-5 space-y-1">
+                      <li>No compensation will be provided for the use of these materials</li>
+                      <li>Media may be used with or without identifying the student by name</li>
+                      <li>All media becomes the property of the Odessa Symphony Guild</li>
+                      <li>The Odessa Symphony Guild is not obligated to use any media captured</li>
+                      <li>Consent is perpetual unless revoked in writing</li>
+                      <li>Revocation requests must be submitted in writing and apply only to future use</li>
+                    </ul>
+                    <p>
+                      I hereby release and hold harmless the Odessa Symphony Guild, its officers,
+                      members, employees, volunteers, and affiliates from any claims, demands, or
+                      liabilities arising from the use of these materials.
+                    </p>
+                    <p className="italic text-gray-400 text-xs">
+                      This agreement is governed by the laws of the State of Texas.
+                    </p>
                   </div>
 
-                  <label className="flex items-start gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      {...register("socialMediaOptOut")}
-                      className="w-4 h-4 mt-0.5 accent-[#d4af37] rounded"
-                    />
-                    <span className="text-sm text-gray-700">
-                      I do <strong>NOT</strong> give permission for images or video to be used on
-                      social media.
-                      <span className="block text-xs text-gray-400 mt-0.5">
-                        Other approved nonprofit uses may still apply.
+                  {/* Social Media */}
+                  <div className="space-y-2">
+                    <p className="text-sm font-semibold text-[#1a1a2e] uppercase tracking-wider">
+                      Social Media
+                    </p>
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        {...register("socialMediaOptOut")}
+                        className="w-4 h-4 mt-0.5 accent-[#d4af37] rounded"
+                      />
+                      <span className="text-sm text-gray-700">
+                        I do <strong>NOT</strong> give permission for images or video of my student
+                        to be used on social media platforms.
+                        <span className="block text-xs text-gray-400 mt-0.5">
+                          Leave unchecked if social media use is permitted. Other approved nonprofit
+                          uses may still apply regardless of this selection.
+                        </span>
                       </span>
-                    </span>
-                  </label>
-
-                  <label className="flex items-start gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      {...register("mediaReleaseConsent")}
-                      className="w-4 h-4 mt-0.5 accent-[#d4af37] rounded"
-                    />
-                    <span className="text-sm text-gray-700">
-                      I am the parent or legal guardian and consent to the Media Release above.{" "}
-                      <span className="text-red-500">*</span>
-                    </span>
-                  </label>
-                  {errors.mediaReleaseConsent && (
-                    <p className={errorClass}>{errors.mediaReleaseConsent.message}</p>
-                  )}
-
-                  <div>
-                    <label className={labelClass}>
-                      Electronic Signature — Type your full legal name{" "}
-                      <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="text"
-                      {...register("mediaReleaseSignature")}
-                      placeholder="Type your full legal name"
-                      className={`${inputClass} italic`}
-                    />
-                    {errors.mediaReleaseSignature && (
-                      <p className={errorClass}>{errors.mediaReleaseSignature.message}</p>
+                  </div>
+
+                  {/* Media Release Consent */}
+                  <div className="space-y-2">
+                    <p className="text-sm font-semibold text-[#1a1a2e] uppercase tracking-wider">
+                      Media Release <span className="text-red-500">*</span>
+                    </p>
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        {...register("mediaReleaseConsent")}
+                        className="w-4 h-4 mt-0.5 accent-[#d4af37] rounded"
+                      />
+                      <span className="text-sm text-gray-700">
+                        I affirm that I am the parent or legal guardian of the student named in this
+                        application and I consent to the Media Release authorization above.
+                      </span>
+                    </label>
+                    {errors.mediaReleaseConsent && (
+                      <p className={errorClass}>{errors.mediaReleaseConsent.message}</p>
                     )}
                   </div>
+
+                  {/* Signature & date */}
+                  <div className="space-y-4">
+                    <div>
+                      <label className={labelClass}>
+                        Electronic Signature — Type your full legal name{" "}
+                        <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        {...register("mediaReleaseSignature")}
+                        placeholder="Type your full legal name"
+                        className={`${inputClass} italic`}
+                      />
+                      {errors.mediaReleaseSignature && (
+                        <p className={errorClass}>{errors.mediaReleaseSignature.message}</p>
+                      )}
+                    </div>
+                    <div>
+                      <label className={labelClass}>Date</label>
+                      <input
+                        type="text"
+                        readOnly
+                        value={new Date().toLocaleDateString("en-US", {
+                          year: "numeric", month: "long", day: "numeric",
+                        })}
+                        className="w-full px-4 py-2.5 border border-gray-200 rounded-lg bg-gray-100 text-gray-500 text-sm"
+                      />
+                    </div>
+                  </div>
+
                 </div>
               </Card>
 
