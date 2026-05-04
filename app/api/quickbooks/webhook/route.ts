@@ -135,33 +135,64 @@ export async function POST(request: NextRequest) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
-  let body: { eventNotifications?: WebhookNotification[] };
-  try {
-    body = JSON.parse(payload);
-  } catch {
-    console.error("[QB Webhook] Failed to parse payload");
-    return new NextResponse("Bad Request", { status: 400 });
+  if (!payload.trim()) {
+    console.warn("[QB Webhook] Empty payload received");
+    return new NextResponse(null, { status: 200 });
   }
 
-  const notifications = body.eventNotifications ?? [];
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(payload);
+  } catch {
+    // Return 200 to prevent Intuit retry storms
+    console.error("[QB Webhook] Failed to parse payload");
+    return new NextResponse(null, { status: 200 });
+  }
 
-  for (const notification of notifications) {
-    const entities = notification.dataChangeEvent?.entities ?? [];
+  if (Array.isArray(parsed)) {
+    // ── CloudEvents format (new) ──────────────────────────────────────────────
+    const events = parsed as CloudEvent[];
+    for (const event of events) {
+      const parts      = (event.type ?? "").split(".");
+      const entityName = parts[1] ?? "";
+      const operation  = parts[2] ?? "";
+      const entityId   = event.intuitentityid;
 
-    for (const entity of entities) {
-      console.log("[QB Webhook] Entity:", entity.name, entity.operation, entity.id);
+      console.log("[QB Webhook] CloudEvent:", event.type, entityId);
 
-      if (entity.name === "Invoice" && entity.operation === "Update") {
-        // Invoice updated — mark student paid directly
-        await markStudentPaidByInvoiceId(entity.id);
+      if (entityName === "invoice" && operation === "updated") {
+        await markStudentPaidByInvoiceId(entityId);
       }
 
-      if (entity.name === "Payment" && (entity.operation === "Create" || entity.operation === "Update")) {
-        // Payment received — look up the linked invoice, then mark paid
-        console.log("[QB Webhook] Payment received:", entity.id, "— fetching linked invoice");
-        const invoiceId = await getInvoiceIdFromPayment(entity.id);
+      if (entityName === "payment" && (operation === "created" || operation === "updated")) {
+        console.log("[QB Webhook] Payment event:", entityId, "— fetching linked invoice");
+        const invoiceId = await getInvoiceIdFromPayment(entityId);
         if (invoiceId) {
           await markStudentPaidByInvoiceId(invoiceId);
+        }
+      }
+    }
+  } else {
+    // ── Legacy format (kept during migration window) ──────────────────────────
+    const body          = parsed as { eventNotifications?: WebhookNotification[] };
+    const notifications = body.eventNotifications ?? [];
+
+    for (const notification of notifications) {
+      const entities = notification.dataChangeEvent?.entities ?? [];
+
+      for (const entity of entities) {
+        console.log("[QB Webhook] Entity (legacy):", entity.name, entity.operation, entity.id);
+
+        if (entity.name === "Invoice" && entity.operation === "Update") {
+          await markStudentPaidByInvoiceId(entity.id);
+        }
+
+        if (entity.name === "Payment" && (entity.operation === "Create" || entity.operation === "Update")) {
+          console.log("[QB Webhook] Payment received (legacy):", entity.id, "— fetching linked invoice");
+          const invoiceId = await getInvoiceIdFromPayment(entity.id);
+          if (invoiceId) {
+            await markStudentPaidByInvoiceId(invoiceId);
+          }
         }
       }
     }
@@ -191,6 +222,20 @@ async function markStudentPaidByInvoiceId(qbInvoiceId: string) {
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
+// CloudEvents format (new — required by May 15, 2026)
+interface CloudEvent {
+  specversion:     string;
+  id:              string;
+  source:          string;
+  type:            string;  // e.g. "qbo.payment.created.v1"
+  datacontenttype: string;
+  time:            string;
+  intuitentityid:  string;
+  intuitaccountid: string;
+  data:            Record<string, unknown>;
+}
+
+// Legacy format (retained for dual-format support during migration window)
 interface WebhookEntity {
   name:        string;
   id:          string;

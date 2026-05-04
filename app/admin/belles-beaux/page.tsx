@@ -157,9 +157,16 @@ export default function AdminBellesBeaux() {
   // ── Roster ────────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <style>{`
+        @media print {
+          @page { margin: 0.4in; size: landscape; }
+          table { font-size: 9px; width: 100%; }
+          td, th { padding: 3px 6px !important; }
+        }
+      `}</style>
+      <div className="print:hidden"><Header /></div>
 
-      <section className="bg-gradient-to-br from-[#1a1a2e] to-[#2d3748] py-12 text-white">
+      <section className="bg-gradient-to-br from-[#1a1a2e] to-[#2d3748] py-12 text-white print:hidden">
         <div className="max-w-7xl mx-auto px-6 flex items-end justify-between">
           <div>
             <h1 className="text-3xl font-light tracking-wide mb-1">
@@ -191,6 +198,14 @@ export default function AdminBellesBeaux() {
           </div>
         </div>
       </section>
+
+      {/* Print-only header — flows naturally before content, no overlap */}
+      <div className="hidden print:block p-4 text-center border-b mb-4">
+        <h1 className="text-xl font-bold">
+          OSG Belles &amp; Beaux — {BELLES_BEAUX_CONFIG.schoolYear} Roster
+        </h1>
+        <p className="text-sm text-gray-500">Printed {new Date().toLocaleDateString()}</p>
+      </div>
 
       <section className="py-10">
         <div className="max-w-7xl mx-auto px-6">
@@ -377,15 +392,7 @@ export default function AdminBellesBeaux() {
         </div>
       </section>
 
-      {/* Print-only header */}
-      <div className="hidden print:block fixed top-0 left-0 w-full p-4 text-center border-b">
-        <h1 className="text-xl font-bold">
-          OSG Belles &amp; Beaux — {BELLES_BEAUX_CONFIG.schoolYear} Roster
-        </h1>
-        <p className="text-sm text-gray-500">Printed {new Date().toLocaleDateString()}</p>
-      </div>
-
-      <Footer />
+      <div className="print:hidden"><Footer /></div>
     </div>
   );
 }
