@@ -3,9 +3,9 @@ import { MembershipType } from '@/types/student';
 /**
  * Belles & Beaux Program Configuration
  *
- * Prices are stored here as defaults.
- * TODO: Pull these from Supabase `settings` table so the treasurer
- * can update them from the admin panel without a code change.
+ * Prices here are FALLBACK DEFAULTS only. Live pricing comes from the
+ * Supabase `settings` table (edited at /admin/pricing) via
+ * lib/belles-beaux/pricing.ts — used for both display and billing.
  */
 
 export const BELLES_BEAUX_CONFIG = {
@@ -15,8 +15,8 @@ export const BELLES_BEAUX_CONFIG = {
 };
 
 /**
- * Dues amounts per membership type.
- * TODO: Replace with live DB fetch from admin-managed settings table.
+ * Fallback dues amounts per membership type — only used if the
+ * settings table is unavailable.
  */
 export const DUES: Record<MembershipType, number> = {
   freshman:      300,  // New freshman — base rate
@@ -27,10 +27,6 @@ export const DUES: Record<MembershipType, number> = {
 };
 
 export const LATE_FEE = 100; // Added after lateFeeDeadline
-
-export function calculateDues(membershipType: MembershipType): number {
-  return DUES[membershipType];
-}
 
 // ── Form select options ────────────────────────────────────────────────────────
 

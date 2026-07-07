@@ -205,3 +205,78 @@ export async function createStudentInvoice(
 
   return { customerId, invoiceId, paymentLink };
 }
+
+// ── Late fee ──────────────────────────────────────────────────────────────────
+
+interface QBInvoiceLine {
+  Id?: string;
+  Amount?: number;
+  Description?: string;
+  DetailType?: string;
+  SalesItemLineDetail?: {
+    ItemRef: { value: string };
+    UnitPrice?: number;
+    Qty?: number;
+  };
+}
+
+interface QBInvoice {
+  Id: string;
+  SyncToken: string;
+  Line: QBInvoiceLine[];
+}
+
+const lateFeeDescription = () =>
+  `Late Fee — ${BELLES_BEAUX_CONFIG.schoolYear} Belles & Beaux Dues`;
+
+/**
+ * Adds or removes a late-fee line on an existing invoice so the amount the
+ * parent pays online matches the dues on the roster. Idempotent: applying
+ * twice or removing a fee that isn't there is a no-op.
+ */
+export async function setInvoiceLateFee(
+  invoiceId: string,
+  feeAmount: number,
+  apply: boolean
+): Promise<void> {
+  // Mock invoices don't support line edits — nothing to keep in sync
+  if (process.env.MOCK_PAYMENT_MODE === "true") return;
+
+  const { accessToken, realmId, environment } = await getTokens();
+
+  const { Invoice: invoice } = await qbRequest<{ Invoice: QBInvoice }>(
+    `/invoice/${invoiceId}`, "GET", accessToken, realmId, environment
+  );
+
+  const desc = lateFeeDescription();
+  // QB returns a computed SubTotal line — strip it; QB regenerates on update
+  let lines = invoice.Line.filter((l) => l.DetailType !== "SubTotalLineDetail");
+  const hasFee = lines.some((l) => l.Description === desc);
+
+  if (apply) {
+    if (hasFee) return;
+    lines = [
+      ...lines,
+      {
+        Amount:      feeAmount,
+        Description: desc,
+        DetailType:  "SalesItemLineDetail",
+        SalesItemLineDetail: {
+          ItemRef:   { value: process.env.QB_ITEM_ID || "1" },
+          UnitPrice: feeAmount,
+          Qty:       1,
+        },
+      },
+    ];
+  } else {
+    if (!hasFee) return;
+    lines = lines.filter((l) => l.Description !== desc);
+  }
+
+  await qbRequest(
+    "/invoice", "POST", accessToken, realmId, environment,
+    { Id: invoice.Id, SyncToken: invoice.SyncToken, sparse: true, Line: lines }
+  );
+
+  console.log(`[QB] Late fee ${apply ? "added to" : "removed from"} invoice:`, invoiceId);
+}

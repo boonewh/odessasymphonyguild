@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { BELLES_BEAUX_CONFIG } from "@/lib/belles-beaux/config";
-import { createClient } from "@/utils/supabase/client";
 
 // ── Types matching the Supabase table columns ─────────────────────────────────
 interface StudentRow {
@@ -48,6 +47,8 @@ interface StudentRow {
   paid: boolean;
   paid_at: string | null;
   qb_invoice_id: string | null;
+  late_fee_applied: boolean;
+  late_fee_amount: number | null;
 }
 
 function formatDate(iso: string) {
@@ -76,6 +77,9 @@ export default function AdminBellesBeaux() {
   const [loading, setLoading]       = useState(true);
   const [fetchError, setFetchError] = useState("");
   const [toggling, setToggling]     = useState<Set<string>>(new Set());
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [feeBusyId, setFeeBusyId]   = useState<string | null>(null);
+  const [lateFee, setLateFee]       = useState<number | null>(null);
 
   const [search, setSearch]           = useState("");
   const [gradeFilter, setGradeFilter] = useState("all");
@@ -87,22 +91,24 @@ export default function AdminBellesBeaux() {
       setLoading(true);
       setFetchError("");
 
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from("students")
-        .select("*")
-        .eq("school_year", BELLES_BEAUX_CONFIG.schoolYear)
-        .order("last_name", { ascending: true });
-
-      if (error) {
+      try {
+        const res = await fetch("/api/admin/students");
+        if (!res.ok) throw new Error();
+        const json = await res.json();
+        setStudents(json.students as StudentRow[]);
+      } catch {
         setFetchError("Failed to load student data. Please refresh.");
-      } else {
-        setStudents(data as StudentRow[]);
       }
       setLoading(false);
     }
 
     fetchStudents();
+
+    // Current late fee amount, for the confirm prompt
+    fetch("/api/belles-beaux/pricing")
+      .then((res) => res.json())
+      .then((data) => typeof data.lateFee === "number" && setLateFee(data.lateFee))
+      .catch(() => {});
   }, []);
 
   const handleTogglePaid = async (student: StudentRow) => {
@@ -131,6 +137,72 @@ export default function AdminBellesBeaux() {
       next.delete(student.id);
       return next;
     });
+  };
+
+  const handleLateFee = async (student: StudentRow) => {
+    if (feeBusyId) return;
+
+    const apply = !student.late_fee_applied;
+    const feeLabel = apply
+      ? lateFee != null ? `$${lateFee.toLocaleString()}` : "the late fee"
+      : `$${(student.late_fee_amount ?? 0).toLocaleString()}`;
+    const confirmed = window.confirm(
+      apply
+        ? `Add the ${feeLabel} late fee to ${student.first_name} ${student.last_name}'s dues?\n\n` +
+          `Their QuickBooks invoice will be updated to include it.`
+        : `Remove the ${feeLabel} late fee from ${student.first_name} ${student.last_name}'s dues?\n\n` +
+          `The late fee line will be removed from their QuickBooks invoice.`
+    );
+    if (!confirmed) return;
+
+    setFeeBusyId(student.id);
+    const res = await fetch(`/api/admin/students/${student.id}/late-fee`, {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({ apply }),
+    });
+
+    if (res.ok) {
+      const json = await res.json();
+      setStudents((prev) =>
+        prev.map((s) =>
+          s.id === student.id
+            ? {
+                ...s,
+                dues_amount:      json.duesAmount,
+                late_fee_applied: json.lateFeeApplied,
+                late_fee_amount:  json.lateFeeAmount,
+              }
+            : s
+        )
+      );
+      if (json.invoiceWarning) window.alert(json.invoiceWarning);
+    } else {
+      const json = await res.json().catch(() => null);
+      window.alert(json?.error ?? "Failed to update the late fee. Please try again.");
+    }
+    setFeeBusyId(null);
+  };
+
+  const handleDelete = async (student: StudentRow) => {
+    if (deletingId) return;
+
+    const confirmed = window.confirm(
+      `Delete ${student.first_name} ${student.last_name} from the roster?\n\n` +
+      `This permanently removes their application. If a QuickBooks invoice ` +
+      `was created for them, it must be voided in QuickBooks separately.`
+    );
+    if (!confirmed) return;
+
+    setDeletingId(student.id);
+    const res = await fetch(`/api/admin/students/${student.id}`, { method: "DELETE" });
+
+    if (res.ok) {
+      setStudents((prev) => prev.filter((s) => s.id !== student.id));
+    } else {
+      window.alert("Failed to delete student. Please try again.");
+    }
+    setDeletingId(null);
   };
 
   const handleLogout = async () => {
@@ -182,6 +254,12 @@ export default function AdminBellesBeaux() {
               className="text-xs text-white/50 hover:text-white transition-colors"
             >
               ↻ Refresh
+            </button>
+            <button
+              onClick={() => router.push("/admin/belles-beaux/add")}
+              className="text-xs text-white/50 hover:text-white transition-colors"
+            >
+              + Add Student
             </button>
             <button
               onClick={() => router.push("/admin/pricing")}
@@ -292,12 +370,13 @@ export default function AdminBellesBeaux() {
                       <th className="text-left px-5 py-3.5 font-medium tracking-wider text-xs uppercase">Parent Contact</th>
                       <th className="text-left px-5 py-3.5 font-medium tracking-wider text-xs uppercase">Dues</th>
                       <th className="text-left px-5 py-3.5 font-medium tracking-wider text-xs uppercase">Status</th>
+                      <th className="text-left px-5 py-3.5 font-medium tracking-wider text-xs uppercase print:hidden">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
                     {filtered.length === 0 ? (
                       <tr>
-                        <td colSpan={7} className="text-center py-16 text-gray-400">
+                        <td colSpan={8} className="text-center py-16 text-gray-400">
                           {students.length === 0
                             ? "No students have registered yet."
                             : "No students match your search."}
@@ -346,6 +425,24 @@ export default function AdminBellesBeaux() {
                           </td>
                           <td className="px-5 py-4 font-medium text-[#1a1a2e]">
                             ${s.dues_amount.toLocaleString()}
+                            {s.late_fee_applied && (
+                              <p className="text-xs font-normal text-amber-600">
+                                incl. ${(s.late_fee_amount ?? 0).toLocaleString()} late fee
+                              </p>
+                            )}
+                            {!s.paid && (
+                              <button
+                                onClick={() => handleLateFee(s)}
+                                disabled={feeBusyId === s.id}
+                                className="block mt-1 text-xs font-normal text-gray-400 hover:text-amber-600 transition-colors disabled:opacity-50 print:hidden"
+                              >
+                                {feeBusyId === s.id
+                                  ? "Updating..."
+                                  : s.late_fee_applied
+                                  ? "Remove late fee"
+                                  : "+ Late fee"}
+                              </button>
+                            )}
                           </td>
                           <td className="px-5 py-4">
                             <button
@@ -375,6 +472,16 @@ export default function AdminBellesBeaux() {
                                   </p>
                                 </div>
                               )}
+                            </button>
+                          </td>
+                          <td className="px-5 py-4 print:hidden">
+                            <button
+                              onClick={() => handleDelete(s)}
+                              disabled={deletingId === s.id}
+                              title="Delete this student"
+                              className="text-xs font-semibold text-red-400 hover:text-red-600 transition-colors disabled:opacity-50"
+                            >
+                              {deletingId === s.id ? "Deleting..." : "Delete"}
                             </button>
                           </td>
                         </tr>

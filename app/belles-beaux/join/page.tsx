@@ -107,6 +107,11 @@ export default function JoinBellesBeaux() {
   const [step, setStep] = useState(1);
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [duplicatePaymentLink, setDuplicatePaymentLink] = useState<string | null>(null);
+  const [softDuplicate, setSoftDuplicate] = useState<{
+    message: string;
+    paymentLink: string | null;
+  } | null>(null);
 
   // reCAPTCHA v2
   const recaptchaRef      = useRef<HTMLDivElement>(null);
@@ -266,22 +271,44 @@ export default function JoinBellesBeaux() {
   const handleBack = () => setStep((s) => s - 1);
 
   // ── Final submit ─────────────────────────────────────────────────────────────
-  const onSubmit = async (data: StudentFormSchema) => {
+  // confirmedDifferentStudent is set when the parent confirms the shared-contact
+  // warning ("yes, this is a different student — e.g., a sibling or twin")
+  const submitApplication = async (data: StudentFormSchema, confirmedDifferentStudent: boolean) => {
     if (!recaptchaToken) {
       setRecaptchaError(true);
       return;
     }
     setSubmitState("submitting");
     setErrorMessage("");
+    setDuplicatePaymentLink(null);
+    setSoftDuplicate(null);
 
     try {
       const response = await fetch("/api/belles-beaux/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...data, recaptchaToken }),
+        body: JSON.stringify({ ...data, recaptchaToken, confirmedDifferentStudent }),
       });
 
       const result = await response.json();
+
+      // Same contact info as an existing student — ask before proceeding
+      if (response.status === 409 && result.softDuplicate) {
+        setSoftDuplicate({
+          message: result.error,
+          paymentLink: result.paymentLink ?? null,
+        });
+        setSubmitState("idle");
+        return;
+      }
+
+      // Duplicate registration — surface the original invoice instead of erroring
+      if (response.status === 409 && result.duplicate) {
+        setDuplicatePaymentLink(result.paymentLink ?? null);
+        setErrorMessage(result.error);
+        setSubmitState("error");
+        return;
+      }
 
       if (!response.ok) {
         throw new Error(result.error || "Submission failed. Please try again.");
@@ -303,6 +330,8 @@ export default function JoinBellesBeaux() {
       setSubmitState("error");
     }
   };
+
+  const onSubmit = (data: StudentFormSchema) => submitApplication(data, false);
 
   // ── Derived pricing display ──────────────────────────────────────────────────
   const duesAmount = membershipType ? liveDues[membershipType] : null;
@@ -951,10 +980,42 @@ export default function JoinBellesBeaux() {
                 )}
               </div>
 
-              {/* Error */}
+              {/* Shared contact info warning — confirm before proceeding */}
+              {softDuplicate && submitState !== "submitting" && (
+                <div className="mb-6 p-4 bg-amber-50 border border-amber-300 rounded-lg text-amber-800 text-sm">
+                  <p>{softDuplicate.message}</p>
+                  <div className="flex flex-wrap gap-3 mt-4">
+                    <button
+                      type="button"
+                      onClick={handleSubmit((data) => submitApplication(data, true))}
+                      className="bg-[#d4af37] text-[#1a1a2e] px-5 py-2.5 rounded-lg font-semibold hover:bg-[#c19b2e] transition-colors text-sm"
+                    >
+                      Yes — This Is a Different Student, Continue
+                    </button>
+                    {softDuplicate.paymentLink && (
+                      <a
+                        href={softDuplicate.paymentLink}
+                        className="px-5 py-2.5 border-2 border-[#d4af37] text-[#b8962e] rounded-lg font-semibold hover:bg-[#d4af37] hover:text-[#1a1a2e] transition-colors text-sm"
+                      >
+                        Pay the Existing Invoice Instead
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Error / duplicate registration */}
               {submitState === "error" && (
                 <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                  {errorMessage}
+                  <p>{errorMessage}</p>
+                  {duplicatePaymentLink && (
+                    <a
+                      href={duplicatePaymentLink}
+                      className="inline-block mt-3 bg-[#d4af37] text-[#1a1a2e] px-6 py-2.5 rounded-lg font-semibold hover:bg-[#c19b2e] transition-colors"
+                    >
+                      Pay Existing Invoice →
+                    </a>
+                  )}
                 </div>
               )}
 

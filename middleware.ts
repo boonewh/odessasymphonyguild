@@ -35,11 +35,15 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Protect all other /admin/* routes
-  if (pathname.startsWith("/admin")) {
+  // Protect all other /admin/* pages and /api/admin/* endpoints
+  if (pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) {
     const session = request.cookies.get("admin_session")?.value;
 
     if (session !== await expectedToken()) {
+      // API callers get a 401; page requests get bounced to the login screen
+      if (pathname.startsWith("/api/")) {
+        return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+      }
       const loginUrl = new URL("/admin/login", request.url);
       return NextResponse.redirect(loginUrl);
     }
@@ -49,5 +53,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/api/admin/:path*"],
 };

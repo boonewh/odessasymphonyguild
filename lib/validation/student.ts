@@ -29,33 +29,36 @@ const guardianSchema = z.object({
   formalName: z.string().max(200).optional().or(z.literal('')),
 });
 
-export const studentFormSchema = z
-  .object({
-    // Student
-    firstName:  z.string().min(2, 'First name is required').max(50),
-    middleName: z.string().max(50).optional().or(z.literal('')),
-    lastName:   z.string().min(2, 'Last name is required').max(50),
-    nickname:   z.string().max(50).optional().or(z.literal('')),
-    cellNumber: z
-      .string()
-      .regex(phoneRegex, 'Please enter a valid phone number (xxx) xxx-xxxx'),
-    school:     z.string().min(2, 'School is required').max(100),
-    grade:      z.enum(['9', '10', '11', '12'], { message: 'Please select a grade' }),
-    gender:     z.string().min(1, 'Please select a gender'),
-    tshirtSize: z.string().min(1, 'Please select a t-shirt size'),
+// Core student + guardian fields shared by the public form and the admin add
+const studentCoreSchema = z.object({
+  // Student
+  firstName:  z.string().min(2, 'First name is required').max(50),
+  middleName: z.string().max(50).optional().or(z.literal('')),
+  lastName:   z.string().min(2, 'Last name is required').max(50),
+  nickname:   z.string().max(50).optional().or(z.literal('')),
+  cellNumber: z
+    .string()
+    .regex(phoneRegex, 'Please enter a valid phone number (xxx) xxx-xxxx'),
+  school:     z.string().min(2, 'School is required').max(100),
+  grade:      z.enum(['9', '10', '11', '12'], { message: 'Please select a grade' }),
+  gender:     z.string().min(1, 'Please select a gender'),
+  tshirtSize: z.string().min(1, 'Please select a t-shirt size'),
 
-    // Guardians — 1 required, up to 4
-    guardians: z
-      .array(guardianSchema)
-      .min(1, 'At least one guardian is required')
-      .max(4),
+  // Guardians — 1 required, up to 4
+  guardians: z
+    .array(guardianSchema)
+    .min(1, 'At least one guardian is required')
+    .max(4),
 
-    // Membership type drives invoice amount
-    membershipType: z.enum(
-      ['freshman', 'returning', 'new_sophomore', 'new_junior', 'new_senior'],
-      { message: 'Please select a membership type' }
-    ),
+  // Membership type drives invoice amount
+  membershipType: z.enum(
+    ['freshman', 'returning', 'new_sophomore', 'new_junior', 'new_senior'],
+    { message: 'Please select a membership type' }
+  ),
+});
 
+export const studentFormSchema = studentCoreSchema
+  .extend({
     // Photo / media release — signed during registration
     mediaReleaseConsent:    z.boolean().refine((v) => v === true, { message: 'You must consent to submit.' }),
     socialMediaOptOut:      z.boolean(),
@@ -76,6 +79,12 @@ export const studentFormSchema = z
   });
 
 export type StudentFormSchema = z.infer<typeof studentFormSchema>;
+
+// Admin manual add — no media release or reCAPTCHA. Guardian email is only
+// required when the admin chooses to create an invoice (enforced in the route).
+export const adminStudentSchema = studentCoreSchema;
+
+export type AdminStudentSchema = z.infer<typeof adminStudentSchema>;
 
 export function formatPhoneNumber(value: string): string {
   const digits = value.replace(/\D/g, '').slice(0, 10);
