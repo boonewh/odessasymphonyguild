@@ -27,18 +27,34 @@ interface StudentRow {
   guardian_1_name: string | null;
   guardian_1_email: string | null;
   guardian_1_cell: string | null;
+  guardian_1_address: string | null;
+  guardian_1_city: string | null;
+  guardian_1_state: string | null;
+  guardian_1_zip: string | null;
   guardian_2_relationship: string | null;
   guardian_2_name: string | null;
   guardian_2_email: string | null;
   guardian_2_cell: string | null;
+  guardian_2_address: string | null;
+  guardian_2_city: string | null;
+  guardian_2_state: string | null;
+  guardian_2_zip: string | null;
   guardian_3_relationship: string | null;
   guardian_3_name: string | null;
   guardian_3_email: string | null;
   guardian_3_cell: string | null;
+  guardian_3_address: string | null;
+  guardian_3_city: string | null;
+  guardian_3_state: string | null;
+  guardian_3_zip: string | null;
   guardian_4_relationship: string | null;
   guardian_4_name: string | null;
   guardian_4_email: string | null;
   guardian_4_cell: string | null;
+  guardian_4_address: string | null;
+  guardian_4_city: string | null;
+  guardian_4_state: string | null;
+  guardian_4_zip: string | null;
   // Legacy columns for historical records
   mom_name: string | null;
   mom_email: string | null;
@@ -57,6 +73,17 @@ function formatDate(iso: string) {
     day: "numeric",
     year: "numeric",
   });
+}
+
+// "123 Main St, Odessa, TX 79761" — skips whatever pieces are missing
+function formatAddress(
+  street: string | null,
+  city: string | null,
+  state: string | null,
+  zip: string | null
+) {
+  const stateZip = [state, zip].filter(Boolean).join(" ");
+  return [street, city, stateZip].filter(Boolean).join(", ");
 }
 
 function membershipLabel(type: string) {
@@ -400,16 +427,23 @@ export default function AdminBellesBeaux() {
                           <td className="px-5 py-4 text-gray-600 text-xs">
                             {membershipLabel(s.membership_type)}
                           </td>
-                          <td className="px-5 py-4 text-xs text-gray-600 space-y-1">
+                          <td className="px-5 py-4 text-xs text-gray-600 space-y-1 max-w-[280px]">
                             {([1, 2, 3, 4] as const).map((n) => {
                               const name  = s[`guardian_${n}_name` as keyof StudentRow] as string | null;
                               const email = s[`guardian_${n}_email` as keyof StudentRow] as string | null;
                               const rel   = s[`guardian_${n}_relationship` as keyof StudentRow] as string | null;
-                              if (!name && !email) return null;
+                              const addr  = formatAddress(
+                                s[`guardian_${n}_address` as keyof StudentRow] as string | null,
+                                s[`guardian_${n}_city` as keyof StudentRow] as string | null,
+                                s[`guardian_${n}_state` as keyof StudentRow] as string | null,
+                                s[`guardian_${n}_zip` as keyof StudentRow] as string | null
+                              );
+                              if (!name && !email && !addr) return null;
                               return (
                                 <div key={n} className={n > 1 ? "pt-1 border-t border-gray-100" : ""}>
                                   {name && <p>{name}{rel ? <span className="text-gray-400"> ({rel})</span> : null}</p>}
                                   {email && <p className="text-[#d4af37]">{email}</p>}
+                                  {addr && <p className="text-gray-400">{addr}</p>}
                                 </div>
                               );
                             })}
@@ -475,14 +509,23 @@ export default function AdminBellesBeaux() {
                             </button>
                           </td>
                           <td className="px-5 py-4 print:hidden">
-                            <button
-                              onClick={() => handleDelete(s)}
-                              disabled={deletingId === s.id}
-                              title="Delete this student"
-                              className="text-xs font-semibold text-red-400 hover:text-red-600 transition-colors disabled:opacity-50"
-                            >
-                              {deletingId === s.id ? "Deleting..." : "Delete"}
-                            </button>
+                            <div className="flex items-center gap-3">
+                              <button
+                                onClick={() => router.push(`/admin/belles-beaux/edit/${s.id}`)}
+                                title="Edit this student"
+                                className="text-xs font-semibold text-[#b8962e] hover:text-[#d4af37] transition-colors"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleDelete(s)}
+                                disabled={deletingId === s.id}
+                                title="Delete this student"
+                                className="text-xs font-semibold text-red-400 hover:text-red-600 transition-colors disabled:opacity-50"
+                              >
+                                {deletingId === s.id ? "Deleting..." : "Delete"}
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))
