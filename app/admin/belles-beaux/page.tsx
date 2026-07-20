@@ -441,6 +441,7 @@ export default function AdminBellesBeaux() {
                       <th className="text-left px-5 py-3.5 font-medium tracking-wider text-xs uppercase">Name</th>
                       <th className="text-left px-5 py-3.5 font-medium tracking-wider text-xs uppercase">School</th>
                       <th className="text-left px-5 py-3.5 font-medium tracking-wider text-xs uppercase">Grade</th>
+                      <th className="text-left px-5 py-3.5 font-medium tracking-wider text-xs uppercase whitespace-nowrap">T-Shirt Size</th>
                       <th className="text-left px-5 py-3.5 font-medium tracking-wider text-xs uppercase">Membership</th>
                       <th className="text-left px-5 py-3.5 font-medium tracking-wider text-xs uppercase">Parent Contact</th>
                       <th className="text-left px-5 py-3.5 font-medium tracking-wider text-xs uppercase">Dues</th>
@@ -451,7 +452,7 @@ export default function AdminBellesBeaux() {
                   <tbody className="divide-y divide-gray-100">
                     {filtered.length === 0 ? (
                       <tr>
-                        <td colSpan={8} className="text-center py-16 text-gray-400">
+                        <td colSpan={9} className="text-center py-16 text-gray-400">
                           {students.length === 0
                             ? "No students have registered yet."
                             : "No students match your search."}
@@ -472,6 +473,9 @@ export default function AdminBellesBeaux() {
                           </td>
                           <td className="px-5 py-4 text-gray-600">{s.school}</td>
                           <td className="px-5 py-4 text-gray-600">{s.grade}th</td>
+                          <td className="px-5 py-4 text-gray-600 whitespace-nowrap">
+                            {s.tshirt_size}
+                          </td>
                           <td className="px-5 py-4 text-gray-600 text-xs">
                             {membershipLabel(s.membership_type)}
                           </td>
