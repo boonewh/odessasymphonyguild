@@ -27,6 +27,7 @@ interface StudentRow {
   guardian_1_name: string | null;
   guardian_1_email: string | null;
   guardian_1_cell: string | null;
+  guardian_1_formal_name: string | null;
   guardian_1_address: string | null;
   guardian_1_city: string | null;
   guardian_1_state: string | null;
@@ -35,6 +36,7 @@ interface StudentRow {
   guardian_2_name: string | null;
   guardian_2_email: string | null;
   guardian_2_cell: string | null;
+  guardian_2_formal_name: string | null;
   guardian_2_address: string | null;
   guardian_2_city: string | null;
   guardian_2_state: string | null;
@@ -43,6 +45,7 @@ interface StudentRow {
   guardian_3_name: string | null;
   guardian_3_email: string | null;
   guardian_3_cell: string | null;
+  guardian_3_formal_name: string | null;
   guardian_3_address: string | null;
   guardian_3_city: string | null;
   guardian_3_state: string | null;
@@ -51,6 +54,7 @@ interface StudentRow {
   guardian_4_name: string | null;
   guardian_4_email: string | null;
   guardian_4_cell: string | null;
+  guardian_4_formal_name: string | null;
   guardian_4_address: string | null;
   guardian_4_city: string | null;
   guardian_4_state: string | null;
@@ -58,8 +62,12 @@ interface StudentRow {
   // Legacy columns for historical records
   mom_name: string | null;
   mom_email: string | null;
+  mom_cell: string | null;
   dad_name: string | null;
   dad_email: string | null;
+  dad_cell: string | null;
+  media_release_consent: boolean | null;
+  social_media_opt_out: boolean | null;
   paid: boolean;
   paid_at: string | null;
   qb_invoice_id: string | null;
@@ -95,6 +103,13 @@ function membershipLabel(type: string) {
     new_senior:    "New Senior",
   };
   return map[type] ?? type;
+}
+
+// Keeps commas, quotes, line breaks, and spreadsheet formulas safe in CSV cells.
+function csvCell(value: string | number | boolean | null | undefined) {
+  let text = value == null ? "" : String(value);
+  if (/^[=+\-@]/.test(text)) text = `'${text}`;
+  return `"${text.replace(/"/g, '""')}"`;
 }
 
 export default function AdminBellesBeaux() {
@@ -294,6 +309,68 @@ export default function AdminBellesBeaux() {
   const paidCount   = students.filter((s) => s.paid).length;
   const unpaidCount = students.length - paidCount;
 
+  const handleExport = () => {
+    const guardianHeaders = ([1, 2, 3, 4] as const).flatMap((n) => [
+      `Parent ${n} Relationship`,
+      `Parent ${n} Name`,
+      `Parent ${n} Formal Name`,
+      `Parent ${n} Phone`,
+      `Parent ${n} Email`,
+      `Parent ${n} Address`,
+    ]);
+    const headers = [
+      "Student First Name", "Student Middle Name", "Student Last Name", "Nickname",
+      "Student Phone", "School", "Grade", "Gender", "T-Shirt Size", "Membership",
+      ...guardianHeaders,
+      "Dues", "Late Fee Applied", "Late Fee Amount", "Payment Status", "Paid Date",
+      "Media Release", "Social Media Opt Out", "Submitted Date", "School Year",
+    ];
+
+    const rows = students.map((s) => {
+      const guardians = ([1, 2, 3, 4] as const).flatMap((n) => {
+        const key = (field: string) => s[`guardian_${n}_${field}` as keyof StudentRow];
+        return [
+          key("relationship"),
+          key("name"),
+          key("formal_name"),
+          key("cell"),
+          key("email"),
+          formatAddress(
+            key("address") as string | null,
+            key("city") as string | null,
+            key("state") as string | null,
+            key("zip") as string | null
+          ),
+        ];
+      });
+      return [
+        s.first_name, s.middle_name, s.last_name, s.nickname, s.cell_number,
+        s.school, s.grade, s.gender, s.tshirt_size, membershipLabel(s.membership_type),
+        ...guardians,
+        s.dues_amount,
+        s.late_fee_applied ? "Yes" : "No",
+        s.late_fee_amount ?? "",
+        s.paid ? "Paid" : "Pending",
+        s.paid_at ? new Date(s.paid_at).toLocaleDateString("en-US") : "",
+        s.media_release_consent === true ? "Granted" : s.media_release_consent === false ? "Not granted" : "",
+        s.social_media_opt_out === true ? "Yes" : s.social_media_opt_out === false ? "No" : "",
+        new Date(s.submitted_at).toLocaleDateString("en-US"),
+        s.school_year,
+      ];
+    });
+
+    const csv = [headers, ...rows].map((row) => row.map(csvCell).join(",")).join("\r\n");
+    const blob = new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `OSG-Belles-Beaux-${BELLES_BEAUX_CONFIG.schoolYear}-Roster.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  };
+
   // ── Roster ────────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gray-50">
@@ -411,6 +488,16 @@ export default function AdminBellesBeaux() {
               {applyingFees ? "Applying..." : "Apply Late Fees"}
             </button>
             <button
+              onClick={handleExport}
+              disabled={students.length === 0}
+              className="flex items-center gap-2 px-5 py-2.5 border-2 border-[#1a1a2e] text-[#1a1a2e] rounded-lg font-semibold hover:bg-[#1a1a2e] hover:text-white transition-colors text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" />
+              </svg>
+              Export for Sheets
+            </button>
+            <button
               onClick={() => window.print()}
               className="flex items-center gap-2 px-5 py-2.5 border-2 border-[#d4af37] text-[#d4af37] rounded-lg font-semibold hover:bg-[#d4af37] hover:text-[#1a1a2e] transition-colors text-sm"
             >
@@ -483,6 +570,7 @@ export default function AdminBellesBeaux() {
                             {([1, 2, 3, 4] as const).map((n) => {
                               const name  = s[`guardian_${n}_name` as keyof StudentRow] as string | null;
                               const email = s[`guardian_${n}_email` as keyof StudentRow] as string | null;
+                              const cell  = s[`guardian_${n}_cell` as keyof StudentRow] as string | null;
                               const rel   = s[`guardian_${n}_relationship` as keyof StudentRow] as string | null;
                               const addr  = formatAddress(
                                 s[`guardian_${n}_address` as keyof StudentRow] as string | null,
@@ -490,22 +578,25 @@ export default function AdminBellesBeaux() {
                                 s[`guardian_${n}_state` as keyof StudentRow] as string | null,
                                 s[`guardian_${n}_zip` as keyof StudentRow] as string | null
                               );
-                              if (!name && !email && !addr) return null;
+                              if (!name && !email && !cell && !addr) return null;
                               return (
                                 <div key={n} className={n > 1 ? "pt-1 border-t border-gray-100" : ""}>
                                   {name && <p>{name}{rel ? <span className="text-gray-400"> ({rel})</span> : null}</p>}
                                   {email && <p className="text-[#d4af37]">{email}</p>}
+                                  {cell && <a href={`tel:${cell}`} className="block text-gray-500 hover:text-[#1a1a2e]">{cell}</a>}
                                   {addr && <p className="text-gray-400">{addr}</p>}
                                 </div>
                               );
                             })}
                             {/* Fallback for legacy mom/dad records */}
-                            {!s.guardian_1_name && !s.guardian_1_email && (
+                            {!s.guardian_1_name && !s.guardian_1_email && !s.guardian_1_cell && (
                               <>
                                 {s.mom_name && <p>{s.mom_name}</p>}
                                 {s.mom_email && <p className="text-[#d4af37]">{s.mom_email}</p>}
+                                {s.mom_cell && <a href={`tel:${s.mom_cell}`} className="block text-gray-500">{s.mom_cell}</a>}
                                 {s.dad_name && <p className="mt-1">{s.dad_name}</p>}
                                 {s.dad_email && <p className="text-[#d4af37]">{s.dad_email}</p>}
+                                {s.dad_cell && <a href={`tel:${s.dad_cell}`} className="block text-gray-500">{s.dad_cell}</a>}
                               </>
                             )}
                           </td>
