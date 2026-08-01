@@ -102,67 +102,206 @@ function Card({
   );
 }
 
+function InterestForm() {
+  const [phone, setPhone] = useState("");
+  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [message, setMessage] = useState("");
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formElement = event.currentTarget;
+    setStatus("submitting");
+    setMessage("");
+
+    const form = new FormData(formElement);
+    try {
+      const response = await fetch("/api/belles-beaux/interest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          studentName: form.get("studentName"),
+          parentName: form.get("parentName"),
+          school: form.get("school"),
+          parentEmail: form.get("parentEmail"),
+          parentPhone: form.get("parentPhone"),
+          website: form.get("website"),
+        }),
+      });
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        setStatus("error");
+        setMessage(result.error ?? "We could not save your information. Please try again.");
+        return;
+      }
+
+      setStatus("success");
+      setMessage(
+        result.alreadySubmitted
+          ? "You are already on the interest list. No need to submit again."
+          : `Thank you! We added your family to the ${BELLES_BEAUX_CONFIG.nextSchoolYear} interest list.`
+      );
+      formElement.reset();
+      setPhone("");
+    } catch {
+      setStatus("error");
+      setMessage("We could not save your information. Please check your connection and try again.");
+    }
+  };
+
+  const fieldClass =
+    "w-full rounded-md border border-[#1a1a2e]/20 bg-white px-4 py-3 text-base text-[#1a1a2e] focus-visible:border-[#b8962e] focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-[#d4af37] sm:text-sm";
+
+  return (
+    <section id="interest-list" className="bg-[#f5f2eb] py-10 sm:py-14">
+      <div className="mx-auto grid max-w-6xl gap-8 px-6 lg:grid-cols-[4fr_6fr] lg:gap-12">
+        <div className="lg:pt-3">
+          <p className="font-mono text-sm font-semibold uppercase tracking-wide text-[#9a7a18]">
+            Looking Ahead
+          </p>
+          <h2 className="mt-3 max-w-[35ch] text-balance text-3xl font-light tracking-tight text-[#1a1a2e] sm:text-4xl">
+            Interested in next season?
+          </h2>
+          <p className="mt-4 max-w-[56ch] text-pretty text-base/7 text-gray-600 sm:text-sm/6">
+            Share your family&apos;s information for the {BELLES_BEAUX_CONFIG.nextSchoolYear}{" "}
+            Belles &amp; Beaux interest list. This is not a membership application and does
+            not reserve a place in the program.
+          </p>
+        </div>
+
+        <div className="rounded-md bg-white p-6 shadow-lg ring-1 ring-black/5 sm:p-8">
+          {status === "success" ? (
+            <div className="flex min-h-80 flex-col items-center justify-center text-center" role="status">
+              <h3 className="max-w-[40ch] text-balance text-2xl font-medium tracking-tight text-[#1a1a2e]">Interest received</h3>
+              <p className="mt-3 max-w-[56ch] text-pretty text-base/7 text-gray-600 sm:text-sm/6">{message}</p>
+              <button
+                type="button"
+                onClick={() => setStatus("idle")}
+                className="mt-7 rounded-md px-3 py-2 text-base font-semibold text-[#9a7a18] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d4af37] sm:text-sm"
+              >
+                Add another student
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="grid gap-5 sm:grid-cols-2">
+                <label className="grid gap-2 text-base font-medium text-[#1a1a2e] sm:text-sm">
+                  Student Name <span className="text-red-600">*</span>
+                  <input name="studentName" required maxLength={120} autoComplete="name" className={fieldClass} />
+                </label>
+                <label className="grid gap-2 text-base font-medium text-[#1a1a2e] sm:text-sm">
+                  Parent or Guardian Name <span className="text-red-600">*</span>
+                  <input name="parentName" required maxLength={120} autoComplete="name" className={fieldClass} />
+                </label>
+              </div>
+              <label className="grid gap-2 text-base font-medium text-[#1a1a2e] sm:text-sm">
+                Student&apos;s School <span className="text-red-600">*</span>
+                <input name="school" required maxLength={120} className={fieldClass} />
+              </label>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <label className="grid gap-2 text-base font-medium text-[#1a1a2e] sm:text-sm">
+                  Parent Email <span className="text-red-600">*</span>
+                  <input name="parentEmail" type="email" required maxLength={254} autoComplete="email" className={fieldClass} />
+                </label>
+                <label className="grid gap-2 text-base font-medium text-[#1a1a2e] sm:text-sm">
+                  Parent Phone <span className="text-red-600">*</span>
+                  <input
+                    name="parentPhone"
+                    type="tel"
+                    required
+                    value={phone}
+                    onChange={(event) => setPhone(formatPhoneNumber(event.target.value))}
+                    placeholder="(432) 555-1234"
+                    autoComplete="tel"
+                    className={fieldClass}
+                  />
+                </label>
+              </div>
+
+              <label className="absolute -left-[10000px]" aria-hidden="true">
+                Website
+                <input name="website" tabIndex={-1} autoComplete="off" />
+              </label>
+
+              {status === "error" && (
+                <p className="border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+                  {message}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                disabled={status === "submitting"}
+                className="w-full rounded-md bg-[#1a1a2e] px-4 py-3.5 text-base font-semibold text-white hover:bg-[#2d3748] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d4af37] disabled:cursor-wait disabled:opacity-60 sm:text-sm"
+              >
+                {status === "submitting" ? "Adding Your Family..." : "Join the Interest List"}
+              </button>
+              <p className="text-center text-base/7 text-gray-500 sm:text-sm/6">
+                For interest purposes only. A full application will still be required when registration opens.
+              </p>
+            </form>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function RegistrationClosed() {
   return (
-    <div className="min-h-screen bg-[#f5f2eb]">
+    <div className="isolate min-h-dvh bg-[#f5f2eb] antialiased">
       <Header />
 
-      <main className="relative isolate overflow-hidden bg-[#1a1a2e] text-white">
-        <div
-          className="absolute inset-0 opacity-[0.08]"
-          aria-hidden="true"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 1px 1px, #d4af37 1px, transparent 0)",
-            backgroundSize: "28px 28px",
-          }}
-        />
-        <div className="absolute -right-24 -top-32 h-80 w-80 rounded-full border border-[#d4af37]/20" aria-hidden="true" />
-        <div className="absolute -right-8 -top-16 h-80 w-80 rounded-full border border-[#d4af37]/10" aria-hidden="true" />
+      <main>
+        <section className="relative isolate overflow-hidden bg-[#1a1a2e] py-10 text-center text-white sm:py-14">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(212,175,55,0.08)_1px,transparent_0)] bg-[size:28px_28px]" aria-hidden="true" />
+          <div className="absolute -right-24 -top-32 size-80 rounded-full border border-[#d4af37]/20" aria-hidden="true" />
+          <div className="absolute -right-8 -top-16 size-80 rounded-full border border-[#d4af37]/10" aria-hidden="true" />
 
-        <section className="relative mx-auto flex min-h-[70vh] max-w-5xl items-center px-6 py-20 sm:py-28">
-          <div className="w-full border-y border-[#d4af37]/30 py-12 text-center sm:py-16">
-            <p className="mb-7 inline-flex items-center gap-2 rounded-full border border-[#d4af37]/40 bg-[#d4af37]/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#e2c65f]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#d4af37]" />
+          <div className="relative mx-auto max-w-6xl px-6">
+            <p className="inline-flex items-center gap-2 rounded-full border border-[#d4af37]/40 bg-[#d4af37]/10 py-1 pr-3 pl-1 text-sm font-semibold text-[#e2c65f] sm:text-xs">
+              <span className="size-2 shrink-0 rounded-full bg-[#d4af37]" />
               Registration Closed
             </p>
 
-            <p className="mb-4 text-xs uppercase tracking-[0.35em] text-white/50">
-              Odessa Symphony Guild
-            </p>
-            <h1 className="mx-auto max-w-3xl text-4xl font-light leading-tight tracking-wide sm:text-6xl">
-              Thank you for your interest in
-              <span className="mt-2 block text-[#d4af37]">Belles &amp; Beaux</span>
+            <h1 className="mx-auto mt-4 max-w-[24ch] text-balance text-4xl font-light tracking-tight sm:text-5xl">
+              Thank you for your interest in{" "}
+              <span className="block text-[#d4af37]">Belles &amp; Beaux</span>
             </h1>
-            <p className="mx-auto mt-7 max-w-2xl text-base font-light leading-8 text-white/70 sm:text-lg">
+            <p className="mx-auto mt-4 max-w-[48ch] text-pretty text-base/7 text-white/70 sm:text-sm/6">
               Registration for the {BELLES_BEAUX_CONFIG.schoolYear} season is now closed.
-              Please check back next year for the next opportunity to join this Odessa
-              Symphony Guild tradition.
+              If your family is interested in next season, add your information to the
+              interest list below.
             </p>
+          </div>
+        </section>
 
-            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+        <InterestForm />
+
+        <section className="bg-[#1a1a2e] py-10 text-white sm:py-12">
+          <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <h2 className="max-w-[40ch] text-balance text-2xl font-medium tracking-tight">Stay connected between seasons</h2>
+              <p className="mt-2 max-w-[56ch] text-pretty text-base/7 text-white/60 sm:text-sm/6">
+                Find program news, event highlights, and future opportunities from the Odessa Symphony Guild.
+              </p>
+            </div>
+            <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
               <a
                 href="https://www.facebook.com/odessasymphonyguild/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-w-64 items-center justify-center gap-3 rounded-sm bg-[#d4af37] px-7 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-[#1a1a2e] transition-colors hover:bg-[#e2c65f]"
+                className="rounded-md border border-[#d4af37]/70 px-4 py-3 text-center text-base font-semibold text-[#d4af37] hover:border-[#d4af37] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d4af37] sm:text-sm"
               >
-                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                </svg>
-                Follow for Updates
+                Follow on Facebook
               </a>
               <a
                 href="/belles-beaux"
-                className="inline-flex min-w-64 items-center justify-center border border-white/25 px-7 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:border-[#d4af37] hover:text-[#d4af37]"
+                className="rounded-md border border-white/25 px-4 py-3 text-center text-base font-semibold text-white hover:border-white/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:text-sm"
               >
                 Explore the Program
               </a>
             </div>
-
-            <p className="mt-8 text-sm text-white/45">
-              Follow the Odessa Symphony Guild on Facebook for announcements and future registration dates.
-            </p>
           </div>
         </section>
       </main>

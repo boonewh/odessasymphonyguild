@@ -122,7 +122,6 @@ export default function AdminBellesBeaux() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [feeBusyId, setFeeBusyId]   = useState<string | null>(null);
   const [lateFee, setLateFee]       = useState<number | null>(null);
-  const [applyingFees, setApplyingFees] = useState(false);
 
   const [search, setSearch]           = useState("");
   const [gradeFilter, setGradeFilter] = useState("all");
@@ -225,46 +224,6 @@ export default function AdminBellesBeaux() {
       window.alert(json?.error ?? "Failed to update the late fee. Please try again.");
     }
     setFeeBusyId(null);
-  };
-
-  const handleApplyAllLateFees = async () => {
-    if (applyingFees) return;
-
-    const eligible = students.filter((s) => !s.paid && !s.late_fee_applied);
-    if (eligible.length === 0) {
-      window.alert("Every unpaid student already has a late fee applied.");
-      return;
-    }
-
-    const feeLabel = lateFee != null ? `$${lateFee.toLocaleString()}` : "the late fee";
-    const confirmed = window.confirm(
-      `Apply the ${feeLabel} late fee to all ${eligible.length} unpaid student${eligible.length === 1 ? "" : "s"}?\n\n` +
-      `Their QuickBooks invoices will be updated to include it. Students who already ` +
-      `have a late fee are skipped, and paid students are never affected.`
-    );
-    if (!confirmed) return;
-
-    setApplyingFees(true);
-    const res = await fetch("/api/admin/students/apply-late-fees", { method: "POST" });
-
-    if (res.ok) {
-      const json = await res.json();
-      let summary = `Late fee applied to ${json.applied} of ${json.eligible} student${json.eligible === 1 ? "" : "s"}.`;
-      if (!json.qbEnabled) {
-        summary += `\n\nQuickBooks sync is not enabled, so no invoices were updated.`;
-      } else if (json.qbFailures?.length) {
-        summary += `\n\nThe QuickBooks invoice could not be updated for: ${json.qbFailures.join(", ")}. Please adjust those invoices in QuickBooks manually.`;
-      }
-      if (json.dbFailures?.length) {
-        summary += `\n\nFailed to update the roster for: ${json.dbFailures.join(", ")}. Try again or apply their fees individually.`;
-      }
-      window.alert(summary);
-      window.location.reload();
-    } else {
-      const json = await res.json().catch(() => null);
-      window.alert(json?.error ?? "Failed to apply late fees. Please try again.");
-      setApplyingFees(false);
-    }
   };
 
   const handleDelete = async (student: StudentRow) => {
@@ -407,6 +366,12 @@ export default function AdminBellesBeaux() {
               + Add Student
             </button>
             <button
+              onClick={() => router.push("/admin/belles-beaux/interests")}
+              className="text-xs text-white/50 hover:text-white transition-colors"
+            >
+              Interest List
+            </button>
+            <button
               onClick={() => router.push("/admin/pricing")}
               className="text-xs text-white/50 hover:text-white transition-colors"
             >
@@ -480,13 +445,6 @@ export default function AdminBellesBeaux() {
                 <option value="unpaid">Pending</option>
               </select>
             </div>
-            <button
-              onClick={handleApplyAllLateFees}
-              disabled={applyingFees}
-              className="px-5 py-2.5 border-2 border-amber-500 text-amber-600 rounded-lg font-semibold hover:bg-amber-500 hover:text-white transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {applyingFees ? "Applying..." : "Apply Late Fees"}
-            </button>
             <button
               onClick={handleExport}
               disabled={students.length === 0}

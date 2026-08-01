@@ -10,6 +10,7 @@ import { MembershipType } from '@/types/student';
 
 export const BELLES_BEAUX_CONFIG = {
   schoolYear: '2026-2027',
+  nextSchoolYear: '2027-2028',
   programName: "Belles & Beaux",
   lateFeeDeadline: '2026-06-30',
   registrationOpen: false,

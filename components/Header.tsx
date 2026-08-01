@@ -59,7 +59,9 @@ export default function Header() {
           <div className="flex items-center gap-3">
             <a
               href="/belles-beaux/join"
-              className="bg-[#d4af37] text-[#1a1a2e] px-4 py-2 rounded-lg text-sm font-semibold hover:bg-[#c19b2e] transition-colors"
+              className={BELLES_BEAUX_CONFIG.registrationOpen
+                ? "rounded-lg bg-[#d4af37] px-4 py-2 text-sm font-semibold text-[#1a1a2e] hover:bg-[#c19b2e]"
+                : "rounded-lg border border-[#d4af37]/70 px-3 py-2 text-sm font-semibold text-[#d4af37] hover:border-[#d4af37]"}
             >
               {BELLES_BEAUX_CONFIG.registrationOpen ? "JOIN" : "PROGRAM INFO"}
             </a>
@@ -107,7 +109,9 @@ export default function Header() {
             <a
               href="/belles-beaux/join"
               onClick={() => setMobileMenuOpen(false)}
-              className="block mt-2 text-center bg-[#d4af37] text-[#1a1a2e] px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-[#c19b2e] transition-colors"
+              className={BELLES_BEAUX_CONFIG.registrationOpen
+                ? "mt-2 rounded-lg bg-[#d4af37] px-4 py-2.5 text-center text-sm font-semibold text-[#1a1a2e] hover:bg-[#c19b2e]"
+                : "mt-2 rounded-lg border border-[#d4af37]/70 px-3 py-2.5 text-center text-sm font-semibold text-[#d4af37] hover:border-[#d4af37]"}
             >
               {BELLES_BEAUX_CONFIG.registrationOpen ? "Join" : "Program Info"}
             </a>
