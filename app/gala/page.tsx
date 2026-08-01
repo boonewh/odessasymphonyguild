@@ -2,6 +2,7 @@
 import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { BELLES_BEAUX_CONFIG } from "@/lib/belles-beaux/config";
 
 export default function GalaPage() {
   const timelineEvents = [
@@ -206,14 +207,20 @@ export default function GalaPage() {
             Ready to Join Belles &amp; Beaux?
           </h2>
           <p className="mb-8 text-emerald-200 max-w-xl mx-auto">
-            Apply for the {new Date().getFullYear()}&ndash;{new Date().getFullYear() + 1} season and
-            become part of the Odessa Symphony Guild tradition.
+            {BELLES_BEAUX_CONFIG.registrationOpen ? (
+              <>
+                Apply for the {new Date().getFullYear()}&ndash;{new Date().getFullYear() + 1} season and
+                become part of the Odessa Symphony Guild tradition.
+              </>
+            ) : (
+              <>Registration is closed for this season. Follow the Guild for future opportunities to join this tradition.</>
+            )}
           </p>
           <a
             href="/belles-beaux/join"
             className="inline-flex items-center gap-3 px-10 py-4 bg-[#d4af37] hover:bg-[#c19b2e] text-[#1a1a2e] font-semibold rounded-full transition-all duration-300 shadow-lg hover:shadow-amber-400/30 text-base"
           >
-            Start Your Application
+            {BELLES_BEAUX_CONFIG.registrationOpen ? "Start Your Application" : "Registration Information"}
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { BELLES_BEAUX_CONFIG } from "@/lib/belles-beaux/config";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -60,7 +61,7 @@ export default function Header() {
               href="/belles-beaux/join"
               className="bg-[#d4af37] text-[#1a1a2e] px-4 py-2 rounded-lg text-sm font-semibold hover:bg-[#c19b2e] transition-colors"
             >
-              JOIN
+              {BELLES_BEAUX_CONFIG.registrationOpen ? "JOIN" : "PROGRAM INFO"}
             </a>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -108,7 +109,7 @@ export default function Header() {
               onClick={() => setMobileMenuOpen(false)}
               className="block mt-2 text-center bg-[#d4af37] text-[#1a1a2e] px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-[#c19b2e] transition-colors"
             >
-              Join
+              {BELLES_BEAUX_CONFIG.registrationOpen ? "Join" : "Program Info"}
             </a>
           </nav>
         )}

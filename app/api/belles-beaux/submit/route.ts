@@ -31,6 +31,13 @@ function normEmail(value: string | null | undefined): string {
  * 4. TODO: Creates QuickBooks customer + invoice, returns payment link
  */
 export async function POST(request: NextRequest) {
+  if (!BELLES_BEAUX_CONFIG.registrationOpen) {
+    return NextResponse.json(
+      { error: `Registration for the ${BELLES_BEAUX_CONFIG.schoolYear} season is closed.` },
+      { status: 403, headers: SECURE_HEADERS }
+    );
+  }
+
   try {
     const body = await request.json();
 

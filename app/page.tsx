@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { BELLES_BEAUX_CONFIG } from "@/lib/belles-beaux/config";
 
 export default function Home() {
   return (
@@ -37,7 +38,7 @@ export default function Home() {
             href="/belles-beaux/join"
             className="inline-block bg-[#d4af37] text-[#1a1a2e] px-8 sm:px-10 py-4 rounded font-semibold tracking-wider hover:bg-[#c19b2e] transform hover:-translate-y-1 transition-all shadow-lg hover:shadow-xl text-sm sm:text-base"
           >
-            JOIN OUR MISSION
+            {BELLES_BEAUX_CONFIG.registrationOpen ? "JOIN OUR MISSION" : "BELLES & BEAUX INFORMATION"}
           </a>
         </div>
       </section>

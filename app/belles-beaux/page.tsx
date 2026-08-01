@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { BELLES_BEAUX_CONFIG } from "@/lib/belles-beaux/config";
 
 export default function BellesBeaux() {
   // Create an array of 18 items [1, 2, ... 18]
@@ -177,7 +178,7 @@ export default function BellesBeaux() {
             href="/belles-beaux/join"
             className="inline-block border border-[#d4af37] text-[#d4af37] px-10 py-3 rounded hover:bg-[#d4af37] hover:text-[#1a1a2e] transition-all tracking-widest text-sm uppercase"
           >
-            Apply for Membership
+            {BELLES_BEAUX_CONFIG.registrationOpen ? "Apply for Membership" : "Registration Information"}
           </a>
         </div>
       </section>

@@ -12,6 +12,7 @@ export const BELLES_BEAUX_CONFIG = {
   schoolYear: '2026-2027',
   programName: "Belles & Beaux",
   lateFeeDeadline: '2026-06-30',
+  registrationOpen: false,
 };
 
 /**

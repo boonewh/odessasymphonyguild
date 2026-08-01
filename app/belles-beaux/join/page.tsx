@@ -102,8 +102,82 @@ function Card({
   );
 }
 
-// ── Main page component ───────────────────────────────────────────────────────
+function RegistrationClosed() {
+  return (
+    <div className="min-h-screen bg-[#f5f2eb]">
+      <Header />
+
+      <main className="relative isolate overflow-hidden bg-[#1a1a2e] text-white">
+        <div
+          className="absolute inset-0 opacity-[0.08]"
+          aria-hidden="true"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 1px 1px, #d4af37 1px, transparent 0)",
+            backgroundSize: "28px 28px",
+          }}
+        />
+        <div className="absolute -right-24 -top-32 h-80 w-80 rounded-full border border-[#d4af37]/20" aria-hidden="true" />
+        <div className="absolute -right-8 -top-16 h-80 w-80 rounded-full border border-[#d4af37]/10" aria-hidden="true" />
+
+        <section className="relative mx-auto flex min-h-[70vh] max-w-5xl items-center px-6 py-20 sm:py-28">
+          <div className="w-full border-y border-[#d4af37]/30 py-12 text-center sm:py-16">
+            <p className="mb-7 inline-flex items-center gap-2 rounded-full border border-[#d4af37]/40 bg-[#d4af37]/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#e2c65f]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#d4af37]" />
+              Registration Closed
+            </p>
+
+            <p className="mb-4 text-xs uppercase tracking-[0.35em] text-white/50">
+              Odessa Symphony Guild
+            </p>
+            <h1 className="mx-auto max-w-3xl text-4xl font-light leading-tight tracking-wide sm:text-6xl">
+              Thank you for your interest in
+              <span className="mt-2 block text-[#d4af37]">Belles &amp; Beaux</span>
+            </h1>
+            <p className="mx-auto mt-7 max-w-2xl text-base font-light leading-8 text-white/70 sm:text-lg">
+              Registration for the {BELLES_BEAUX_CONFIG.schoolYear} season is now closed.
+              Please check back next year for the next opportunity to join this Odessa
+              Symphony Guild tradition.
+            </p>
+
+            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <a
+                href="https://www.facebook.com/odessasymphonyguild/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-w-64 items-center justify-center gap-3 rounded-sm bg-[#d4af37] px-7 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-[#1a1a2e] transition-colors hover:bg-[#e2c65f]"
+              >
+                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                </svg>
+                Follow for Updates
+              </a>
+              <a
+                href="/belles-beaux"
+                className="inline-flex min-w-64 items-center justify-center border border-white/25 px-7 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:border-[#d4af37] hover:text-[#d4af37]"
+              >
+                Explore the Program
+              </a>
+            </div>
+
+            <p className="mt-8 text-sm text-white/45">
+              Follow the Odessa Symphony Guild on Facebook for announcements and future registration dates.
+            </p>
+          </div>
+        </section>
+      </main>
+
+      <Footer />
+    </div>
+  );
+}
+
 export default function JoinBellesBeaux() {
+  return BELLES_BEAUX_CONFIG.registrationOpen ? <RegistrationForm /> : <RegistrationClosed />;
+}
+
+// The complete signup form stays intact so it can be reopened from config next season.
+function RegistrationForm() {
   const [step, setStep] = useState(1);
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const [errorMessage, setErrorMessage] = useState("");
