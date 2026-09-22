@@ -33,12 +33,10 @@ export default function GalaPage() {
               <p className={styles.presenter}>Odessa Symphony Guild presents</p>
               <p className={styles.edition}>The 2027 Symphony Ball &amp; Presentation</p>
               <h1 id="gala-title" className={styles.title}>
-                Odessa Symphony{" "}
-                <span className={styles.titleSecondLine}>Ball 2027</span>
+                <span className={styles.titleLead}>An Evening of</span>{" "}
+                <span className={styles.titleSecondLine}>Timeless Elegance</span>
               </h1>
-              <p className={styles.titleSubtitle}>An Evening of Timeless Elegance</p>
               <div className={styles.ornament} aria-hidden="true"><span />◆<span /></div>
-              <p className={styles.heroTagline}>A little elegance. A lasting difference.</p>
               <p className={styles.heroDate}><time dateTime="2027-02-27">February 27, 2027</time></p>
               <p className={styles.heroVenue}>La Hacienda</p>
               <div className={styles.heroActions}>

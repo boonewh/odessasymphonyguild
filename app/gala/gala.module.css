@@ -18,15 +18,13 @@
 .invitationFrame::after { content: ""; position: absolute; inset: 6px; border: 1px solid #5da9a750; }
 .heroCopy { position: relative; z-index: 1; width: 100%; padding: 66px 20px 72px; text-align: center; }
 .presenter { font-family: Georgia, serif; font-size: 17px; letter-spacing: .14em; }
-.edition { margin-top: 18px; font-size: 14px; letter-spacing: .035em; color: var(--teal); }
-.title { margin: 30px auto 0; max-width: 18ch; font-family: Georgia, "Times New Roman", serif; font-size: clamp(40px, 4.5vw, 72px); font-weight: 400; letter-spacing: -.055em; text-wrap: balance; }
-.titleSubtitle { margin: 14px auto 0; max-width: 32ch; font-family: Georgia, "Times New Roman", serif; font-size: clamp(22px, 2.1vw, 30px); font-style: italic; color: var(--teal); text-wrap: balance; }
-.titleSecondLine { display: block; }
-.title i { font-weight: 400; color: var(--teal); }
+.edition { margin-top: 18px; font-size: 14px; letter-spacing: .035em; color: #535955; }
+.title { margin: 30px auto 0; max-width: 20ch; font-family: Georgia, "Times New Roman", serif; font-size: clamp(42px, 4.6vw, 72px); font-weight: 400; letter-spacing: -.035em; text-wrap: balance; }
+.titleLead { display: block; font-size: .72em; }
+.titleSecondLine { display: block; font-style: italic; color: var(--teal); }
 .ornament { display: flex; align-items: center; justify-content: center; gap: 16px; color: var(--teal); margin-top: 22px; font-size: 10px; }
 .ornament span { width: 58px; height: 1px; background: #286a6850; }
-.heroTagline { margin-top: 22px; font-family: Georgia, serif; font-size: 20px; font-style: italic; }
-.heroDate { margin-top: 30px; font-size: 19px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.heroDate { margin-top: 24px; font-size: 19px; font-weight: 500; font-variant-numeric: tabular-nums; }
 .heroVenue { margin-top: 2px; font-family: var(--font-tangerine), cursive; font-size: 45px; }
 .heroActions { display: flex; align-items: center; justify-content: center; gap: 26px; margin-top: 23px; font-size: 14px; }
 .primaryLink { display: inline-flex; align-items: center; gap: 20px; min-height: 48px; background: var(--ink); color: var(--ivory); padding: 14px 18px 14px 22px; }
@@ -81,13 +79,12 @@
   .stripes { height: 18px; background: repeating-linear-gradient(90deg, var(--ink) 0 20px, var(--ivory) 20px 40px); }
   .heroInner { min-height: 0; padding-bottom: 230px; overflow: hidden; }
   .heroArt { opacity: 1; object-fit: cover; object-position: center bottom; top: auto !important; height: 310px !important; }
-  .heroCopy { padding: 48px 24px 26px; background: var(--ivory); }
+  .heroCopy { padding: 40px 24px 26px; background: var(--ivory); }
   .invitationFrame { inset: 12px; z-index: 2; }
   .presenter { font-size: 16px; letter-spacing: .04em; }
   .edition { font-size: 16px; max-width: 26ch; margin-inline: auto; }
-  .title { margin-top: 26px; font-size: clamp(32px, 8vw, 54px); }
-  .heroTagline { font-size: 18px; }
-  .heroDate { font-size: 18px; margin-top: 26px; }
+  .title { margin-top: 22px; font-size: clamp(30px, 8.6vw, 48px); }
+  .heroDate { font-size: 18px; margin-top: 22px; }
   .heroActions { gap: 12px; flex-direction: column; font-size: 16px; margin-top: 18px; }
   .heroRibbon { font-size: 16px; padding-inline: 30px; }
   .details, .story, .presentation, .closing { padding-block: 56px; }
