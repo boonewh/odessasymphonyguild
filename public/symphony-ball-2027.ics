@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Odessa Symphony Guild//Symphony Ball 2027//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:symphony-ball-2027@odessasymphonyguild.org
+DTSTAMP:20260922T000000Z
+DTSTART;VALUE=DATE:20270227
+DTEND;VALUE=DATE:20270228
+SUMMARY:Odessa Symphony Ball - Breakfast at Tiffany's
+LOCATION:La Hacienda
+DESCRIPTION:Save the date for the Symphony Ball and Presentation.
+ Event time and ticket details to be announced.
+URL:https://odessasymphonyguild.org/gala
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

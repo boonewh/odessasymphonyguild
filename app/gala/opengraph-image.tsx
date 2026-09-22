@@ -1,88 +1,26 @@
-import { ImageResponse } from 'next/og'
+import { ImageResponse } from "next/og";
 
-export const runtime = 'edge'
+export const runtime = "edge";
+export const alt = "Breakfast at Tiffany’s — Odessa Symphony Ball, February 27, 2027 at La Hacienda";
+export const size = { width: 1200, height: 630 };
+export const contentType = "image/png";
 
-export const alt = 'Gala - Odessa Symphony Guild'
-export const size = {
-  width: 1200,
-  height: 630,
-}
-
-export const contentType = 'image/png'
-
-export default async function Image() {
+export default function Image() {
   return new ImageResponse(
     (
-      <div
-        style={{
-          background: 'linear-gradient(135deg, #1a1a2e 0%, #2d3748 100%)',
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '80px',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: '40px',
-          }}
-        >
-          <img
-            src="https://odessasymphonyguild.org/images/osg-logo.png"
-            alt="OSG Logo"
-            width="160"
-            height="160"
-            style={{
-              borderRadius: '20px',
-              backgroundColor: 'white',
-              padding: '20px',
-            }}
-          />
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", background: "#f8f6ef", color: "#171918", fontFamily: "serif" }}>
+        <div style={{ display: "flex", height: 28 }}>
+          {Array.from({ length: 30 }, (_, index) => <div key={index} style={{ width: 40, height: 28, background: index % 2 === 0 ? "#171918" : "#f8f6ef" }} />)}
         </div>
-        <div
-          style={{
-            fontSize: 64,
-            fontWeight: 300,
-            letterSpacing: '0.1em',
-            color: 'white',
-            textAlign: 'center',
-            textTransform: 'uppercase',
-          }}
-        >
-          Annual Gala
+        <div style={{ display: "flex", flex: 1, flexDirection: "column", alignItems: "center", justifyContent: "center", margin: 20, border: "2px solid #82cfcc" }}>
+          <div style={{ fontSize: 24, letterSpacing: 3 }}>Odessa Symphony Guild presents</div>
+          <div style={{ fontSize: 90, marginTop: 26, letterSpacing: -3 }}>Breakfast at Tiffany’s</div>
+          <div style={{ fontSize: 26, color: "#286a68", marginTop: 22 }}>The 2027 Symphony Ball &amp; Presentation</div>
+          <div style={{ fontSize: 30, marginTop: 38 }}>February 27, 2027 · La Hacienda</div>
         </div>
-        <div
-          style={{
-            fontSize: 28,
-            color: '#d4af37',
-            marginTop: '30px',
-            textAlign: 'center',
-            letterSpacing: '0.05em',
-          }}
-        >
-          Odessa Symphony Guild
-        </div>
-        <div
-          style={{
-            fontSize: 24,
-            color: '#ffffff',
-            opacity: 0.8,
-            marginTop: '20px',
-            textAlign: 'center',
-          }}
-        >
-          Supporting the Midland-Odessa Symphony & Chorale
-        </div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", background: "#82cfcc", height: 60, fontSize: 22 }}>A little elegance. A lasting difference.</div>
       </div>
     ),
-    {
-      ...size,
-    }
-  )
+    size,
+  );
 }

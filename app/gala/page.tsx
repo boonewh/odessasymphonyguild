@@ -1,341 +1,131 @@
-"use client";
+import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { BELLES_BEAUX_CONFIG } from "@/lib/belles-beaux/config";
+import styles from "./gala.module.css";
 
-export default function GalaPage() {
-  const timelineEvents = [
-    {
-      date: "Week of Jan 19",
-      title: "Ball Shift Sign-Up Opens",
-      align: "left",
-      icon: "📋",
-      content: (
-        <>
-          <p>Committee & Freshman Parents Sign Up.</p>
-          <p className="text-sm text-emerald-300 italic mt-2">(Link coming soon)</p>
-        </>
-      ),
-    },
-    {
-      date: "January 22",
-      title: "Celebration Gift Forms & Drop-Off",
-      align: "right",
-      icon: "🎁",
-      content: (
-        <>
-          <p>Gift card drop-off begins.</p>
-          <p className="text-sm text-emerald-300 italic mt-2">
-            Paperwork available at meeting.
-          </p>
-        </>
-      ),
-    },
-    {
-      date: "January 29",
-      title: "Gifts & Gift Cards Due!",
-      align: "left",
-      icon: "💎",
-      highlight: true,
-      content: (
-        <ul className="list-disc list-inside space-y-1 text-emerald-100/90 text-left">
-          <li>Celebration Gifts & Forms Due</li>
-          <li>Gift Cards Due</li>
-          <li className="text-amber-300 font-semibold">
-            Reminder: Two Gift Cards Per Child
-          </li>
-          <li className="text-amber-300 font-semibold">
-            $50 Minimum (Cards, Cash, or Invoice)
-          </li>
-        </ul>
-      ),
-    },
-    {
-      date: "Sunday, Feb 1",
-      title: "Curtsy & Bow Practice",
-      align: "right",
-      icon: "💃",
-      content: <p>Times to be announced soon.</p>,
-    },
-  ];
+export const metadata: Metadata = {
+  metadataBase: new URL("https://odessasymphonyguild.org"),
+  title: "Breakfast at Tiffany’s | 2027 Symphony Ball | Odessa Symphony Guild",
+  description: "Join the Odessa Symphony Guild for the 2027 Symphony Ball & Presentation, inspired by Breakfast at Tiffany’s. February 27, 2027 at La Hacienda.",
+};
 
+function Arrow() {
   return (
-    <div className="min-h-screen bg-[#051a12] text-white font-sans selection:bg-emerald-500 selection:text-white">
-      <Header />
-
-{/* --- HERO SECTION --- */}
-      <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
-        
-        {/* BACKGROUND LAYERS */}
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0">
-            <Image
-              src="/images/emerald-city-bg.png"
-              alt="Emerald City Skyline"
-              fill
-              className="object-cover object-bottom"
-              priority
-            />
-          </div>
-          <div className="absolute inset-0 bg-black/40" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/95 via-transparent to-[#051a12]" />
-          <div className="absolute inset-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]" />
-        </div>
-
-        {/* CONTENT */}
-        <div className="relative z-10 text-center px-4 max-w-5xl mx-auto mt-16">
-          <div className="animate-fade-in-up">
-            <span className="block text-emerald-400 font-bold tracking-[0.3em] uppercase mb-4 text-sm sm:text-base drop-shadow-md">
-              Follow the Yellow Brick Road to the
-            </span>
-            <h1 className="font-tangerine text-7xl sm:text-8xl md:text-9xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-b from-[#fbbf24] to-[#d97706] drop-shadow-[0_4px_4px_rgba(0,0,0,1)]">
-              Annual Symphony Gala
-            </h1>
-            <h2 className="text-2xl sm:text-4xl font-light text-white italic opacity-100 mb-8 drop-shadow-lg">
-              "One Short Day in the Emerald City"
-            </h2>
-            
-            <div className="inline-block border border-amber-400/50 bg-black/70 backdrop-blur-md rounded-xl p-6 md:p-8 mt-4 transform hover:scale-105 transition-transform duration-300 shadow-2xl">
-              <p className="text-amber-400 font-bold tracking-widest text-sm uppercase mb-2">
-                Urgent Reminder
-              </p>
-              <p className="text-xl md:text-3xl font-serif text-white mb-2">
-                All Tickets & Tables Must Be Purchased By
-              </p>
-              <p className="text-3xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-200 drop-shadow-sm">
-                FRIDAY, JANUARY 16TH
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* --- THE YELLOW BRICK ROAD (TIMELINE) --- */}
-      <section className="relative pt-20 overflow-hidden">
-        <div className="relative z-10 max-w-6xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-6xl md:text-7xl font-tangerine text-emerald-200">
-              Important Dates & Reminders
-            </h2>
-            <p className="text-xl text-emerald-400/80">
-              As we follow the road to the Ball...
-            </p>
-          </div>
-
-          <div className="relative flex flex-col">
-            {timelineEvents.map((event, index) => (
-              <TimelineItem
-                key={index}
-                {...event}
-                index={index}
-                isLast={index === timelineEvents.length - 1}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* --- ABOUT SECTION --- */}
-      <section className="pt-10 pb-20 bg-gradient-to-b from-[#051a12] to-[#0f382a]">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <div className="mb-12">
-            <div className="w-72 h-72 mx-auto mb-6 relative opacity-80 flex items-center justify-center">
-              <Image
-                src="/images/wicked-hat.png"
-                alt="Magic Icon"
-                width={300}
-                height={300}
-                className="object-contain"
-              />
-            </div>
-            <h2 className="text-4xl md:text-5xl font-light mb-8 text-white">
-              A Defying Gravity Evening
-            </h2>
-            <div className="space-y-6 text-lg leading-relaxed text-emerald-100/80">
-              <p>
-                Our annual Symphony Gala Ball is the highlight of the social
-                season, honoring our dedicated Belles and Beaux while raising
-                vital funds to support the West Texas Symphony.
-              </p>
-              <p>
-                The evening features the formal presentation of our freshman,
-                sophomore, and junior Belles and Beaux, culminating in a special
-                recognition of our seniors and their four years of exemplary
-                service to the Guild and our community.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* --- SPONSORS SECTION (Added Here) --- */}
-      <section className="py-16 bg-[#0f382a]">
-        <div className="max-w-3xl mx-auto px-6 text-center">
-          {/* Subtle Lead-in Header */}
-          <h2 className="text-5xl md:text-6xl font-tangerine text-amber-300 mb-10 drop-shadow-md">
-             With Gratitude
-          </h2>
-          
-          {/* Image Container with Magic Glow Effects */}
-          <div className="relative group">
-            {/* The Gold Glow Background (Blur) */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-amber-500 to-yellow-300 rounded-lg blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
-            
-            {/* The Image Itself */}
-            <div className="relative rounded-lg overflow-hidden border-2 border-amber-500/50 shadow-2xl">
-              <Image 
-                src="/images/gala-sponsors.jpg" 
-                alt="Thank You to Our Sponsors" 
-                width={800} 
-                height={1200}
-                className="w-full h-auto object-cover"
-                priority={false}
-              />
-            </div>
-            
-            {/* Optional: Decorative bottom reflection/shine */}
-            <div className="absolute -bottom-4 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-500/50 to-transparent blur-sm"></div>
-          </div>
-        </div>
-      </section>
-
-      {/* --- FOOTER CTA --- */}
-      <section className="py-16 bg-emerald-950 border-t border-emerald-900 text-center">
-        <div className="max-w-4xl mx-auto px-6">
-          <h2 className="text-3xl font-light mb-4 text-amber-400">
-            Ready to Join Belles &amp; Beaux?
-          </h2>
-          <p className="mb-8 text-emerald-200 max-w-xl mx-auto">
-            {BELLES_BEAUX_CONFIG.registrationOpen ? (
-              <>
-                Apply for the {new Date().getFullYear()}&ndash;{new Date().getFullYear() + 1} season and
-                become part of the Odessa Symphony Guild tradition.
-              </>
-            ) : (
-              <>Registration is closed for this season. Follow the Guild for future opportunities to join this tradition.</>
-            )}
-          </p>
-          <a
-            href="/belles-beaux/join"
-            className="inline-flex items-center gap-3 px-10 py-4 bg-[#d4af37] hover:bg-[#c19b2e] text-[#1a1a2e] font-semibold rounded-full transition-all duration-300 shadow-lg hover:shadow-amber-400/30 text-base"
-          >
-            {BELLES_BEAUX_CONFIG.registrationOpen ? "Start Your Application" : "Registration Information"}
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </a>
-        </div>
-      </section>
-
-      <Footer />
-    </div>
+    <svg aria-hidden="true" viewBox="0 0 24 24" className={styles.arrow} fill="none" stroke="currentColor">
+      <path d="M4 12h15m-6-6 6 6-6 6" strokeWidth="1.5" />
+    </svg>
   );
 }
 
-// --- TIMELINE COMPONENT (Unchanged) ---
-function TimelineItem({
-  date,
-  title,
-  content,
-  align,
-  icon,
-  highlight,
-  index,
-  isLast,
-}: any) {
-  const isRight = align === "right";
-  const curveDirection = index % 2 === 0 ? "right" : "left";
-
+export default function GalaPage() {
   return (
-    <div
-      className={`relative flex flex-col md:flex-row items-start justify-between group pb-24 ${
-        isRight ? "md:flex-row-reverse" : ""
-      }`}
-    >
-      {!isLast && (
-        <div className="absolute left-1/2 -translate-x-1/2 top-8 bottom-[-2rem] w-32 -z-0 hidden md:block overflow-visible pointer-events-none">
-          <svg
-            className="w-full h-full"
-            viewBox="0 0 100 100"
-            preserveAspectRatio="none"
-          >
-            <defs>
-              <linearGradient
-                id={`grad-${index}`}
-                x1="0%"
-                y1="0%"
-                x2="0%"
-                y2="100%"
-              >
-                <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.8" />
-                <stop offset="50%" stopColor="#d97706" stopOpacity="0.6" />
-                <stop offset="100%" stopColor="#fbbf24" stopOpacity="0.8" />
-              </linearGradient>
-              <filter id="glow">
-                <feGaussianBlur stdDeviation="2.5" result="coloredBlur" />
-                <feMerge>
-                  <feMergeNode in="coloredBlur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
+    <div className={`${styles.page} isolate antialiased`}>
+      <Header theme="gala" />
+      <main id="main-content">
+        <section className={styles.hero} aria-labelledby="gala-title">
+          <div className={styles.stripes} aria-hidden="true" />
+          <div className={styles.heroInner}>
+            <Image src="/images/symphony-ball-2027-hero.png" alt="" fill priority sizes="100vw" className={styles.heroArt} />
+            <div className={styles.invitationFrame} aria-hidden="true" />
+            <div className={styles.heroCopy}>
+              <p className={styles.presenter}>Odessa Symphony Guild presents</p>
+              <p className={styles.edition}>The 2027 Symphony Ball &amp; Presentation</p>
+              <h1 id="gala-title" className={styles.title}>
+                Odessa Symphony{" "}
+                <span className={styles.titleSecondLine}>Ball 2027</span>
+              </h1>
+              <p className={styles.titleSubtitle}>An Evening of Timeless Elegance</p>
+              <div className={styles.ornament} aria-hidden="true"><span />◆<span /></div>
+              <p className={styles.heroTagline}>A little elegance. A lasting difference.</p>
+              <p className={styles.heroDate}><time dateTime="2027-02-27">February 27, 2027</time></p>
+              <p className={styles.heroVenue}>La Hacienda</p>
+              <div className={styles.heroActions}>
+                <a href="#the-evening" className={styles.primaryLink}>You’re invited <Arrow /></a>
+                <a href="/symphony-ball-2027.ics" download className={styles.textLink}>Add to calendar</a>
+              </div>
+            </div>
+          </div>
+          <div className={styles.heroRibbon}>
+            <p>An evening inspired by the timeless style of the 1961 film.</p>
+          </div>
+        </section>
 
-            <path
-              d={
-                curveDirection === "right"
-                  ? "M 50,0 C 90,25 90,75 50,100" 
-                  : "M 50,0 C 10,25 10,75 50,100"
-              }
-              fill="none"
-              stroke={`url(#grad-${index})`}
-              strokeWidth="4"
-              strokeDasharray="8 4"
-              filter="url(#glow)"
-              vectorEffect="non-scaling-stroke"
-            />
-          </svg>
-        </div>
-      )}
+        <section id="the-evening" className={styles.details} aria-labelledby="details-title">
+          <div className={styles.container}>
+            <div>
+              <p className={styles.eyebrow}>An invitation to celebrate</p>
+              <h2 id="details-title">Mark your calendar.<br />Make a memory.</h2>
+            </div>
+            <dl className={styles.eventDetails}>
+              <div>
+                <dt>The date</dt>
+                <dd><time dateTime="2027-02-27">Saturday, February 27</time><span className={styles.detailNote}>2027</span></dd>
+              </div>
+              <div>
+                <dt>The setting</dt>
+                <dd>La Hacienda<span className={styles.detailNote}>An evening with the Odessa Symphony Guild</span></dd>
+              </div>
+              <div>
+                <dt>The occasion</dt>
+                <dd>Symphony Ball<span className={styles.detailNote}>&amp; Belles and Beaux Presentation</span></dd>
+              </div>
+            </dl>
+            <p className={styles.detailsNote}>Event time, ticket information, and additional details will be announced here.</p>
+          </div>
+        </section>
 
-      {!isLast && (
-        <div className="absolute md:hidden left-1/2 -translate-x-1/2 top-8 bottom-[-2rem] w-1 bg-gradient-to-b from-yellow-400 to-amber-600 z-0 opacity-50 border-l-2 border-dashed border-amber-300"></div>
-      )}
+        <section className={styles.story} aria-labelledby="story-title">
+          <div className={`${styles.container} ${styles.split}`}>
+            <div className={styles.storyCopy}>
+              <p className={styles.eyebrow}>Timeless style. Meaningful tradition.</p>
+              <h2 id="story-title">An unforgettable evening.<br /><em>A brighter tomorrow.</em></h2>
+              <p>Classic black and white. A touch of Tiffany blue. This year, the Symphony Ball takes its inspiration from <cite>Breakfast at Tiffany’s</cite>, the beloved 1961 film.</p>
+              <p>Behind the glamour is a tradition close to our hearts: celebrating the young people, families, and Guild members whose generosity and service help the arts thrive in West Texas.</p>
+              <p>Join us as we bring the 2026–2027 Belles and Beaux season to a beautiful close and celebrate all we can accomplish together.</p>
+              <div className={styles.storyLink}>
+                <Link href="/belles-beaux" className={styles.textLink}>Discover Belles &amp; Beaux <Arrow /></Link>
+              </div>
+            </div>
+            <figure className={styles.flyer}>
+              <a href="/images/symphony-ball-2027-flyer.jpeg" target="_blank" rel="noopener noreferrer" aria-label="View the 2027 Symphony Ball invitation, opens in a new tab">
+                <Image src="/images/symphony-ball-2027-flyer.jpeg" alt="The 2027 Symphony Ball invitation, with a black satin bow, vintage fashion illustration, Tiffany blue gifts, and pearls." width={1200} height={1800} sizes="(max-width: 767px) 90vw, 420px" />
+              </a>
+              <figcaption>The invitation to a very special evening.</figcaption>
+            </figure>
+          </div>
+        </section>
 
-      <div
-        className={`w-full md:w-5/12 mb-8 md:mb-0 ${
-          isRight ? "md:text-left" : "md:text-right"
-        } text-center relative z-10 pt-4`}
-      >
-        <div
-          className={`inline-block p-6 rounded-2xl border backdrop-blur-sm transition-all duration-300 hover:-translate-y-1
-          ${
-            highlight
-              ? "bg-gradient-to-br from-amber-900/40 to-emerald-900/40 border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
-              : "bg-emerald-900/30 border-emerald-700/50 hover:border-emerald-500/50"
-          }`}
-        >
-          <h3 className="text-amber-400 font-bold text-xl mb-1 uppercase tracking-wider">
-            {date}
-          </h3>
-          <h4 className="text-white text-lg font-serif mb-3">{title}</h4>
-          <div className="text-emerald-100/80 leading-relaxed">{content}</div>
-        </div>
-      </div>
+        <section className={styles.presentation} aria-labelledby="presentation-title">
+          <div className={`${styles.container} ${styles.split}`}>
+            <div>
+              <p className={styles.eyebrow}>The heart of the ball</p>
+              <h2 id="presentation-title">A moment to shine.<br />A season of service.</h2>
+            </div>
+            <div className={styles.presentationCopy}>
+              <p>The Belles and Beaux presentation honors a season of leadership, friendship, and giving back to our community.</p>
+              <p>We celebrate our participating students and give special recognition to our seniors for their years of dedication to the Guild and the West Texas Symphony.</p>
+              <p className={styles.familyNote}>For our families: presentation, practice, and volunteer information will be shared as plans are finalized.</p>
+            </div>
+          </div>
+        </section>
 
-      <div className={`
-        relative z-10 flex items-center justify-center 
-        w-12 h-12 md:w-16 md:h-16 shrink-0 mx-auto md:mx-0
-        rounded-full bg-emerald-950 
-        border-2 md:border-4 border-amber-400 
-        shadow-[0_0_15px_rgba(251,191,36,0.5)]
-      `}>
-        <span className="text-2xl md:text-3xl filter drop-shadow-lg">
-          {icon}
-        </span>
-      </div>
-
-      <div className="hidden md:block w-5/12" />
+        <section className={styles.closing} aria-labelledby="closing-title">
+          <div className={styles.container}>
+            <p className={styles.eyebrow}>Save the date</p>
+            <h2 id="closing-title">Some evenings become traditions.</h2>
+            <p className={styles.closingScript}>Be part of ours.</p>
+            <p className={styles.closingDate}>February 27, 2027 <span aria-hidden="true">·</span> La Hacienda</p>
+            <div className={styles.closingActions}>
+              <a href="https://www.facebook.com/odessasymphonyguild/" target="_blank" rel="noopener noreferrer" className={styles.textLink}>Follow the Guild for updates <Arrow /></a>
+              <a href="/images/symphony-ball-2027-flyer.jpeg" download className={styles.textLink}>Download the invitation</a>
+            </div>
+          </div>
+        </section>
+        <div className={styles.stripes} aria-hidden="true" />
+      </main>
+      <Footer theme="gala" />
     </div>
   );
 }

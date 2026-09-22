@@ -1,8 +1,8 @@
 import Link from "next/link";
 
-export default function Footer() {
+export default function Footer({ theme = "default" }: { theme?: "default" | "gala" }) {
   return (
-    <footer className="bg-[#0f0f1e] text-gray-400 py-12">
+    <footer className={`${theme === "gala" ? "bg-[#171918]" : "bg-[#0f0f1e]"} text-gray-400 py-12`}>
       <div className="max-w-7xl mx-auto px-6 text-center space-y-4">
         <p className="text-sm">
           &copy; 2026 Odessa Symphony Guild. All rights reserved.

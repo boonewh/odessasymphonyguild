@@ -1,0 +1,105 @@
+.page {
+  --ivory: #f8f6ef;
+  --ink: #171918;
+  --tiffany: #82cfcc;
+  --teal: #286a68;
+  background: var(--ivory);
+  color: var(--ink);
+  font-family: var(--font-inter), Arial, sans-serif;
+}
+.page ::selection { background: var(--tiffany); color: var(--ink); }
+.page a:focus-visible { outline: 3px solid var(--teal); outline-offset: 6px; }
+.container { max-width: 1200px; margin-inline: auto; padding-inline: 32px; }
+.stripes { height: 26px; background: repeating-linear-gradient(90deg, var(--ink) 0 28px, var(--ivory) 28px 56px); }
+.hero { position: relative; }
+.heroInner { position: relative; min-height: 740px; display: grid; place-items: center; }
+.heroArt { object-fit: cover; object-position: center 56%; }
+.invitationFrame { position: absolute; inset: 22px; border: 1px solid #5da9a780; pointer-events: none; }
+.invitationFrame::after { content: ""; position: absolute; inset: 6px; border: 1px solid #5da9a750; }
+.heroCopy { position: relative; z-index: 1; width: 100%; padding: 66px 20px 72px; text-align: center; }
+.presenter { font-family: Georgia, serif; font-size: 17px; letter-spacing: .14em; }
+.edition { margin-top: 18px; font-size: 14px; letter-spacing: .035em; color: var(--teal); }
+.title { margin: 30px auto 0; max-width: 18ch; font-family: Georgia, "Times New Roman", serif; font-size: clamp(40px, 4.5vw, 72px); font-weight: 400; letter-spacing: -.055em; text-wrap: balance; }
+.titleSubtitle { margin: 14px auto 0; max-width: 32ch; font-family: Georgia, "Times New Roman", serif; font-size: clamp(22px, 2.1vw, 30px); font-style: italic; color: var(--teal); text-wrap: balance; }
+.titleSecondLine { display: block; }
+.title i { font-weight: 400; color: var(--teal); }
+.ornament { display: flex; align-items: center; justify-content: center; gap: 16px; color: var(--teal); margin-top: 22px; font-size: 10px; }
+.ornament span { width: 58px; height: 1px; background: #286a6850; }
+.heroTagline { margin-top: 22px; font-family: Georgia, serif; font-size: 20px; font-style: italic; }
+.heroDate { margin-top: 30px; font-size: 19px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.heroVenue { margin-top: 2px; font-family: var(--font-tangerine), cursive; font-size: 45px; }
+.heroActions { display: flex; align-items: center; justify-content: center; gap: 26px; margin-top: 23px; font-size: 14px; }
+.primaryLink { display: inline-flex; align-items: center; gap: 20px; min-height: 48px; background: var(--ink); color: var(--ivory); padding: 14px 18px 14px 22px; }
+.primaryLink:hover { background: var(--teal); }
+.textLink { display: inline-flex; align-items: center; justify-content: center; gap: 14px; min-height: 48px; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 6px; }
+.textLink:hover { color: var(--teal); }
+.arrow { width: 22px; height: 22px; flex-shrink: 0; }
+.heroRibbon { background: var(--tiffany); padding: 20px 24px; text-align: center; font-family: Georgia, serif; font-size: 17px; }
+.details { padding-block: 88px 72px; scroll-margin-top: 100px; }
+.eyebrow { color: var(--teal); font-size: 14px; font-weight: 500; letter-spacing: .025em; }
+.page h2 { max-width: 30ch; margin-top: 19px; font-family: Georgia, serif; font-size: clamp(36px, 3.7vw, 52px); font-weight: 400; letter-spacing: -.04em; text-wrap: balance; }
+.eventDetails { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 48px; margin-top: 48px; border-top: 1px solid #17191825; padding-top: 28px; }
+.eventDetails dt { font-size: 14px; font-weight: 500; }
+.eventDetails dd { margin-top: 15px; font-family: Georgia, serif; font-size: 25px; color: #454a48; }
+.detailNote { display: block; margin-top: 9px; font-family: var(--font-inter), Arial, sans-serif; font-size: 14px; line-height: 1.7; }
+.detailsNote { margin-top: 40px; font-size: 14px; color: #616762; }
+.split { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px; align-items: center; }
+.story { background: #ecede5; padding-block: 96px; }
+.storyCopy h2 em { color: var(--teal); font-weight: 400; }
+.storyCopy > p:not(.eyebrow), .presentationCopy > p { max-width: 48ch; margin-top: 24px; color: #4f5551; font-size: 16px; line-height: 1.85; text-wrap: pretty; }
+.storyCopy cite { font-style: italic; }
+.storyLink { margin-top: 28px; font-size: 14px; }
+.flyer { padding: 0 32px; }
+.flyer a { display: block; }
+.flyer img { width: 100%; height: auto; box-shadow: 0 16px 40px #17191818; }
+.flyer figcaption { margin-top: 20px; font-family: Georgia, serif; font-size: 16px; font-style: italic; text-align: center; color: #59615b; }
+.presentation { background: var(--ink); color: var(--ivory); padding-block: 90px; }
+.presentation .eyebrow { color: var(--tiffany); }
+.presentation .split { align-items: start; }
+.presentationCopy > p { color: #d1d5cf; }
+.presentationCopy > p:first-child { margin-top: 0; }
+.presentationCopy > .familyNote { border-top: 1px solid #ffffff25; padding-top: 24px; font-size: 14px; color: var(--tiffany); }
+.closing { background: var(--tiffany); padding-block: 90px 82px; text-align: center; }
+.closing .eyebrow { color: #274d4b; }
+.closing h2 { margin-inline: auto; max-width: 22ch; }
+.closingScript { margin-top: 10px; font-family: var(--font-tangerine), cursive; font-size: 72px; }
+.closingDate { margin-top: 25px; font-size: 16px; }
+.closingDate span { padding-inline: 10px; }
+.closingActions { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px 32px; margin-top: 25px; font-size: 14px; }
+.closing .textLink:hover { color: #294d4b; }
+@media (min-width: 1600px) {
+  .heroInner { min-height: 840px; }
+}
+@media (max-width: 1023px) {
+  .heroArt { opacity: .58; }
+  .heroCopy { background: radial-gradient(ellipse at center, #f8f6efff 0%, #f8f6efed 30%, #f8f6ef00 70%); }
+  .flyer { padding-inline: 0; }
+  .eventDetails, .split { gap: 32px; }
+}
+@media (max-width: 767px) {
+  .container { padding-inline: 24px; }
+  .stripes { height: 18px; background: repeating-linear-gradient(90deg, var(--ink) 0 20px, var(--ivory) 20px 40px); }
+  .heroInner { min-height: 0; padding-bottom: 230px; overflow: hidden; }
+  .heroArt { opacity: 1; object-fit: cover; object-position: center bottom; top: auto !important; height: 310px !important; }
+  .heroCopy { padding: 48px 24px 26px; background: var(--ivory); }
+  .invitationFrame { inset: 12px; z-index: 2; }
+  .presenter { font-size: 16px; letter-spacing: .04em; }
+  .edition { font-size: 16px; max-width: 26ch; margin-inline: auto; }
+  .title { margin-top: 26px; font-size: clamp(32px, 8vw, 54px); }
+  .heroTagline { font-size: 18px; }
+  .heroDate { font-size: 18px; margin-top: 26px; }
+  .heroActions { gap: 12px; flex-direction: column; font-size: 16px; margin-top: 18px; }
+  .heroRibbon { font-size: 16px; padding-inline: 30px; }
+  .details, .story, .presentation, .closing { padding-block: 56px; }
+  .eyebrow, .eventDetails dt, .detailNote, .detailsNote, .storyLink, .closingActions, .presentationCopy > .familyNote { font-size: 16px; }
+  .eventDetails, .split { grid-template-columns: 1fr; gap: 32px; }
+  .eventDetails { margin-top: 32px; }
+  .eventDetails > div + div { border-top: 1px solid #17191818; padding-top: 24px; }
+  .eventDetails dd { margin-top: 8px; }
+  .detailsNote { line-height: 1.7; }
+  .storyCopy > p:not(.eyebrow), .presentationCopy > p { font-size: 18px; line-height: 1.8; }
+  .flyer { max-width: 420px; margin-inline: auto; }
+  .closingScript { font-size: 62px; }
+  .closingDate { line-height: 1.8; }
+  .closingActions { flex-direction: column; align-items: center; }
+}
