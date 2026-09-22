@@ -230,79 +230,121 @@ export default function Home() {
 
                 <div className="space-y-6 text-lg text-gray-700 leading-relaxed font-serif">
                   <p>
-                    The Odessa Symphony Guild has supported and promoted the arts in
-                    the Permian Basin for 67 years. What began as a small group of
-                    dedicated music supporters has grown into an organization that
-                    partners with families, students, musicians, and community
-                    leaders to keep live symphonic music thriving in West Texas.
-                    Each season, the Guild focuses on both financial support and
-                    hands-on service so the West Texas Symphony can continue
-                    presenting high-quality performances and educational programs.
+                    It is a privilege to serve as President of the Odessa Symphony
+                    Guild for the 2026–2027 season. For nearly seven decades, the
+                    Guild has been an important part of the cultural life of West
+                    Texas, bringing together people who share a love for the arts,
+                    a commitment to service, and a desire to ensure that symphonic
+                    music continues to thrive in our community.
                   </p>
 
                   <p>
-                    During the 2024–2025 season, the Guild donated $33,000 to the
-                    West Texas Symphony. In addition to this financial support, our
-                    108 Belles and Beaux collectively volunteered 1,246 hours of
-                    service to the symphony and the Guild. The Guild co-sponsored
-                    the first concert of the season with the Midland Symphony Guild
-                    and provided meals for the directors and musicians during events
-                    throughout the year, helping to support the musicians who bring
-                    this music to our community. We are already planning to increase
-                    our annual contribution to the West Texas Symphony to $35,000 in
-                    the coming season.
+                    Since its founding in 1958, the Odessa Symphony Guild has grown
+                    from a small group of dedicated music supporters into an
+                    organization whose impact reaches far beyond the concert hall.
+                    Through our partnership with the West Texas Symphony, our
+                    members provide both financial support and countless hours of
+                    volunteer service. We are proud to stand alongside the
+                    musicians, directors, students, families, and community members
+                    who make the arts such a meaningful part of life in the Permian
+                    Basin.
                   </p>
 
                   <p>
-                    The Guild also invested in arts education and outreach across
-                    the region. We donated $10,000 to support arts initiatives
-                    throughout West Texas and awarded six $2,500 scholarships to
-                    graduating senior Belles and Beaux. Beginning next season, we
-                    plan to increase our contributions to arts initiatives to
-                    $15,000 and to expand our scholarship program to support eight
-                    graduating seniors. We are proud to continue this opportunity to
-                    recognize our outgoing seniors and thank them for their years of
-                    service.
+                    One of the Guild’s greatest sources of pride is our Belles and
+                    Beaux program. Each year, more than 100 students in grades 9–12
+                    learn the importance of giving back through service to the
+                    Guild, the West Texas Symphony, and other organizations
+                    throughout our community. In a single season, our Belles and
+                    Beaux have contributed more than 1,200 volunteer hours. Watching
+                    these young people grow in leadership, responsibility, and
+                    service is one of the most rewarding parts of our mission.
                   </p>
 
                   <p>
-                    On February 7, 2026, we will host our annual fundraising event,
-                    The Symphony Ball. This year’s theme is “Wicked / Emerald City.”
-                    At this event, we will honor the Belles and Beaux who have
-                    served during the 2025–2026 season. Our ball chair, Hali Jolley,
-                    and the ball committee have been hard at work planning a
-                    beautiful and memorable evening.
+                    The Guild is equally committed to investing in the future of
+                    the arts. Our support includes significant annual contributions
+                    to the West Texas Symphony, grants for arts initiatives
+                    throughout West Texas, and scholarships for graduating senior
+                    Belles and Beaux. In recent seasons, we have continued to expand
+                    that commitment. This year we were able to give $15,000 in
+                    grants to support arts initiatives in West Texas, and we were
+                    able to award eight $2,500 scholarships to very deserving belles
+                    and beaux. These investments allow us not only to support the
+                    arts today, but also to encourage the young people who will
+                    carry that appreciation forward.
+                  </p>
+
+                  <p>
+                    Our members serve in many other ways throughout the year. We
+                    help sponsor symphony performances and provide meals for
+                    directors and musicians through our Sound Bytes program. Behind
+                    each of these efforts are Guild members generously giving their
+                    time, talents, and resources to support the people who bring
+                    exceptional live music to West Texas.
+                  </p>
+
+                  <p>
+                    Each February, we also come together for one of our most
+                    cherished traditions, the Symphony Ball. This special evening
+                    is both a celebration and a culmination of the Belles and Beaux
+                    season, giving us the opportunity to recognize our senior
+                    Belles and Beaux for their years of service while celebrating
+                    the dedication of all of our participating students and
+                    families. This year’s theme is Breakfast at Tiffany’s, and our
+                    ball committee has been working diligently to plan an
+                    unforgettable evening!
+                  </p>
+
+                  <p>
+                    As we begin the 2026–2027 season, I am grateful for the
+                    generations of women who built this organization and for the
+                    members who continue their legacy today. Their commitment has
+                    allowed the Odessa Symphony Guild to remain a strong advocate
+                    for music, education, and the arts for nearly 70 years.
                   </p>
 
                   <p className="font-medium text-[#1a1a2e]">
-                    We invite you to continue your support of the Guild through a
-                    patron membership. As a patron, you receive all the privileges
-                    of active membership except the ability to hold office or vote.
-                    Patron dues for the 2025–2026 year are $100. Please submit your
-                    dues payment to our treasurer, Britni Veretto, by January 12,
-                    2026. Please note “PATRON” on any form of payment.
+                    We hope you will continue supporting the Odessa Symphony Guild
+                    by becoming a Patron Member. Patron membership offers the same
+                    benefits and privileges as active membership, with the exception
+                    of voting or holding office within the Guild. Patron dues for
+                    the 2026-2027 year are $100 and should be submitted to our
+                    treasurer, Katie Sparks, by January 12, 2026. When submitting
+                    your payment, please be sure to include “PATRON” on the form of
+                    payment so it can be properly designated.
                   </p>
 
                   <p>
-                    Our patron liaisons, Elizabeth Ulate and Connie Drager, are
-                    planning a patron event this spring, so please watch for an
-                    invitation. As president, I sincerely appreciate your continued
-                    support of the Guild, which allows us to serve the West Texas
-                    Symphony and the arts across our community.
+                    Our Patron Liaisons, Ashley Capellini and Connie Drager, are
+                    looking forward to hosting a special event for our patrons this
+                    spring. Additional details and invitations will be shared as
+                    the event approaches. I am truly grateful for your continued
+                    support of the Odessa Symphony Guild. Your generosity and
+                    involvement make it possible for us to continue supporting the
+                    West Texas Symphony while strengthening and celebrating the
+                    arts throughout our community.
+                  </p>
+
+                  <p>
+                    I look forward to all that we will accomplish together this
+                    year. Thank you for supporting the Odessa Symphony Guild, the
+                    West Texas Symphony, and the arts that enrich our entire West
+                    Texas community.
                   </p>
                 </div>
 
                 <div className="mt-10 pt-6">
-                  <p className="text-gray-700 font-serif">Sincerely,</p>
+                  <p className="text-gray-700 font-serif">With gratitude,</p>
                   <div className="mt-4">
                     {/* Using your specific title font for the signature */}
                     <p className="font-tangerine text-5xl text-[#d4af37] mb-2">
-                      Regan Weaver
+                      Shaylee Ford
                     </p>
                     <p className="text-sm uppercase tracking-widest text-gray-500 font-sans">
-                      Odessa Symphony Guild President
+                      President, 2026–2027
                       <br />
-                      2025-2026
+                      Odessa Symphony Guild
                     </p>
                   </div>
                 </div>
