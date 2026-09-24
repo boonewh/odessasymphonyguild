@@ -2,6 +2,10 @@
 
 A modern Next.js website for the Odessa Symphony Guild, supporting the West Texas Symphony since 1958.
 
+## Gala 2027 planning
+
+See [GALA_2027_PLAN.md](GALA_2027_PLAN.md) for approved page structure, flyer prices, payment research, unresolved decisions, and the testing/release plan. The purchasing features are still in planning; no payment approach or launch date has been selected.
+
 ## Features
 
 - **Modern Design**: Built with Next.js 16, React 19, and Tailwind CSS 3
