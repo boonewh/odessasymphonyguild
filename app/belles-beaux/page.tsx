@@ -43,22 +43,38 @@ export default function BellesBeaux() {
     <div className="min-h-screen bg-white">
       <Header />
 
-      {/* Hero Header */}
-      <section className="bg-gradient-to-br from-[#1a1a2e] to-[#2d3748] py-20 text-center text-white">
-        <div className="max-w-4xl mx-auto px-6">
-          <h1 className="text-5xl sm:text-6xl font-light tracking-widest mb-6">
-            Our <span className="text-[#d4af37]">Belles & Beaux</span>
+      {/* Welcome the current program year */}
+      <section aria-labelledby="program-year-heading" className="bg-gradient-to-br from-[#1a1a2e] to-[#2d3748] py-16 sm:py-20 text-center text-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <p className="text-lg text-[#d4af37] mb-4">
+            Odessa Symphony Guild
+          </p>
+          <h1 id="program-year-heading" className="text-4xl sm:text-5xl lg:text-6xl font-light tracking-tight text-balance max-w-[30ch] mx-auto mb-6">
+            Belles &amp; Beaux <span className="whitespace-nowrap">2026–27</span>
           </h1>
-          <div className="h-1 w-24 bg-[#d4af37] mx-auto mb-8" />
-          <p className="text-lg opacity-90 leading-relaxed max-w-2xl mx-auto font-light">
-            Recognizing the exceptional young men and women of West Texas who 
-            dedicate their time to community service and the preservation of the arts.
+          <p className="text-xl text-pretty max-w-[48ch] mx-auto text-white/90">
+            A new year of service, friendship, and leadership begins.
+          </p>
+          <div className="max-w-3xl mx-auto mt-10 sm:mt-12">
+            <Image
+              src="/images/osg-group-26-27-cropped.jpg"
+              alt="Belles and Beaux gathered together on a staircase for their new program year"
+              width={800}
+              height={803}
+              sizes="(max-width: 815px) calc(100vw - 48px), 768px"
+              className="h-auto w-full rounded-[min(2vw,12px)]"
+              priority
+            />
+          </div>
+          <p className="text-lg text-pretty max-w-[48ch] mx-auto mt-8 text-white/90">
+            Welcoming our 2026–27 Belles &amp; Beaux as they serve West Texas,
+            support the arts, and grow together.
           </p>
         </div>
       </section>
 
       {/* SENIORS SECTION - UPDATED */}
-      <section className="py-20 bg-gray-50 border-b border-gray-100">
+      <section className="pt-24 pb-20 sm:pt-32 bg-gray-50 border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-6">
           
           {/* Section Title */}
@@ -101,7 +117,6 @@ export default function BellesBeaux() {
                     // Tablet takes half (50vw)
                     // Desktop takes third (33vw)
                     sizes="(max-width: 768px) 100vw, 50vw"
-                    priority={id <= 3} // Load top 3 immediately for speed
                   />
                   
                   {/* Optional: Gold Hover Border Effect */}
