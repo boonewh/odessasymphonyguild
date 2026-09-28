@@ -405,7 +405,7 @@ export default function Home() {
             arts
           </p>
 
-          {/* Main Content with Offset Images */}
+          {/* Program introduction and current group photo */}
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center mb-16">
             {/* Text Content */}
             <div className="order-2 lg:order-1">
@@ -466,34 +466,15 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Offset Images Grid */}
-            <div className="order-1 lg:order-2 relative">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="relative h-64 sm:h-80 rounded-lg overflow-hidden shadow-2xl transform hover:scale-105 transition-transform">
-                  <Image
-                    src="/images/volunteer.jpg"
-                    alt="Student volunteers at symphony event"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <div className="relative h-64 sm:h-80 rounded-lg overflow-hidden shadow-2xl mt-12 transform hover:scale-105 transition-transform">
-                  <Image
-                    src="/images/beaus_belles_2026.jpg"
-                    alt="Belles and Beaux presentation"
-                    fill
-                    className="object-cover object-top"
-                  />
-                </div>
-              </div>
-              <div className="relative h-48 sm:h-64 rounded-lg overflow-hidden shadow-2xl mt-4 transform hover:scale-105 transition-transform">
-                <Image
-                  src="/images/movie.jpg"
-                  alt="Symphony gala event"
-                  fill
-                  className="object-cover object-top"
-                />
-              </div>
+            <div className="order-1 lg:order-2 w-full max-w-lg justify-self-center">
+              <Image
+                src="/images/osg-group-26-27.jpg"
+                alt="The 2026–27 Odessa Symphony Guild Belles and Beaux gathered on a staircase"
+                width={600}
+                height={900}
+                sizes="(max-width: 560px) calc(100vw - 48px), (max-width: 1023px) 512px, (max-width: 1279px) calc((100vw - 112px) / 2), 512px"
+                className="h-auto w-full rounded-[min(2vw,12px)]"
+              />
             </div>
           </div>
 
