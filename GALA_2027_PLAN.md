@@ -1,12 +1,25 @@
 # Gala 2027: decisions, payment research, and implementation handoff
 
-Last updated: September 24, 2026 (America/Chicago).
+Last updated: September 28, 2026 (America/Chicago).
 
 ## Resume here
 
-The Guild wants to automate table/ticket sales, celebration gifts, and mailed-invitation requests. The three-page structure below is approved. Payment implementation is **not selected**. The buyer must leave the Guild website to enter card details on the payment provider's website. Ordinary QuickBooks payment links do not have a verified automatic unpaid-cancellation mechanism suitable for limited inventory.
+The Guild wants to automate table/ticket sales, celebration gifts, and mailed-invitation requests. The three-page structure below is approved. **Stripe redirect Checkout with QuickBooks synchronization has initial approval.** Card details must be entered on Stripe's website. Dues may also move to Stripe, but that is a separate decision still awaiting confirmation.
 
-Two remaining candidates are (1) Intuit invoice checkout with automatic invoice voiding, subject to strict feasibility tests, or (2) Stripe's redirect Checkout with explicit session expiration and a separate QuickBooks accounting integration. Neither has been implemented or tested for the Guild.
+The Intuit research below is historical background. Stripe is the current direction, but no payment integration has been implemented or tested for the Guild. See `GALA_RELEASE_CHECKLIST.md` for launch blockers and local preview instructions.
+
+## September 28 decisions and first implementation
+
+- Use **La Hacienda** for now; the venue name could still change.
+- Use **20 Platinum, 20 Gold, and 20 Silver tables exclusively as development placeholders**. Firm board-confirmed quantities are mandatory before launch. Never silently treat these values as approved capacity.
+- Current Guild policy: **all sales final, no refunds**. Display it and require acknowledgment in paid-order forms. Future policy changes or exceptional provider disputes still need a deliberate workflow.
+- Keep Gala work on `codex/gala-2027-planning`, away from main and production until ready, tested, and explicitly approved for launch. The user specifically requested resisting premature launch even if they later casually ask to publish.
+- Keep expired unpaid orders separate from paid seating and fulfillment. No unpaid order is sent to QuickBooks. Retention duration for abandoned contact data remains undecided.
+- Treasurer wants detailed fulfillment in the website and all Gala revenue categorized as **Symphony Ball** in QuickBooks. This is not an instruction to erase individual transaction records. Donations and Dues remain separate revenue categories.
+- First local preview: `/gala/tables`, `/gala/gifts`, `/gala/invitations`, `/gala/preview/admin`. Orders use fictional details and browser-only storage. Admin defaults to paid purchases and can simulate payment/verified expiry, assign tables, review gift recipients, and advance invitation mailing statuses.
+- The preview routes return 404 in production and hosted environments, regardless of other configuration. No payment endpoints, live database migrations, public Gala links, Stripe charges, emails, or QuickBooks records are added.
+- This prototype is not evidence of safe concurrent reservations or payment settlement. Production requires a separate transactional server adapter and verified Stripe events. Browser state is never acceptable as production inventory authority.
+- Temporary preview limits: one table per order, up to ten ticket units, up to twenty gift/invitation recipients. These are review boundaries, not approved final business rules.
 
 Launch timing is unknown. Work belongs on a separate branch and eventually a reviewable PR; do not merge or deploy this feature until launch is authorized. The current local documentation branch is `codex/gala-2027-planning`. This document does not authorize production charges, account changes, or deployment.
 
@@ -30,7 +43,7 @@ Launch timing is unknown. Work belongs on a separate branch and eventually a rev
 - Public wording chosen by the user: **Odessa Symphony Ball 2027 — An Evening of Timeless Elegance**.
 - Hero cleanup already published: small event identifier, followed by the prominent two-part heading “An Evening of” / “Timeless Elegance.” The duplicate large event title and extra slogan were removed.
 - Preserve the established teal, ivory, black, and elegant invitation-inspired styling.
-- The original flyer named La Hacienda. The new ticket flyer names Black Gold Event Center. The user says these venues share an address and is checking the correct name. Do not silently replace the venue.
+- The original flyer named La Hacienda. The new ticket flyer names Black Gold Event Center. Use La Hacienda per the September 28 instruction; revisit only if the contact supplies a new decision.
 - Although the new flyers use the movie name, that does not reverse the user's choice of public hero wording. Earlier instructions limited the naming change to the hero; movie references may remain elsewhere. A broader wording review is a separate decision, not already authorized by the flyers.
 - Existing relevant files: `app/gala/page.tsx`, `app/gala/gala.module.css`, `app/gala/opengraph-image.tsx`, `public/symphony-ball-2027.ics`, and Gala images under `public/images/`.
 - The homepage president letter was previously updated to Shaylee Ford, President 2026–2027. No further president-letter changes are part of this feature.
@@ -178,11 +191,11 @@ These are proposed engineering requirements, not implemented behavior.
 
 | Question | Status / owner |
 |---|---|
-| Correct venue name: La Hacienda or Black Gold Event Center? | User will check with board; shared address reported. |
-| Number of Platinum, Gold, and Silver tables; individual-ticket capacity; total venue capacity? | User will obtain; do not invent stock. |
-| Intuit-only processing required, or willing to add Stripe? | Not decided. |
+| Correct venue name: La Hacienda or Black Gold Event Center? | La Hacienda selected for now, subject to later change. |
+| Number of Platinum, Gold, and Silver tables; individual-ticket capacity; total venue capacity? | 20 of each tier for development only. Firm counts required for launch; ticket/venue capacity still unknown. |
+| Intuit-only processing required, or willing to add Stripe? | Stripe sales with QuickBooks sync has initial approval. |
 | Short checkout window while entering card details, and its duration? | Needs board agreement; processing-only hold is already approved. |
-| Refunds, cancellations, substitutions, and restocking policy? | Not decided. |
+| Refunds, cancellations, substitutions, and restocking policy? | No refunds is current policy. Exceptional corrections, substitutions, and restocking still need rules. |
 | Cards only initially, or bank transfers/checks/offline purchases? | Cards recommended for immediate confirmation; final policy not decided. |
 | Allow multiple tables per order and later extra-seat purchases? | Not decided; would affect inventory and payment-limit checks. |
 | Gift cutoff year/time, timezone, and production/fulfillment rules? | January 29 flyer deadline; exact cutoff unconfirmed. |
@@ -228,7 +241,7 @@ Mocks are useful for screens and logic but do not prove payment cancellation, pr
 5. Prepare a PR with evidence, remaining limitations, and launch instructions.
 6. Obtain launch authorization before merging/deploying; earlier authorization to publish the Gala hero does not authorize these sales features.
 
-## Work completed at this handoff
+## Original documentation handoff (September 24)
 
 - Decisions, source material, corrections, unresolved questions, and testing requirements documented.
 - Documentation branch created locally.
