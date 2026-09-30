@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { clientReviewAllowed, clientReviewRequest } from "./lib/gala/client-review";
 
 /**
  * Middleware — protects /admin/* routes with an httpOnly session cookie.
@@ -30,6 +31,19 @@ async function expectedToken(): Promise<string> {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Client review hosts expose only the Gala designs and their static assets.
+  // No existing student, admin, payment, or QuickBooks endpoint is reachable.
+  if (clientReviewAllowed(process.env.VERCEL_ENV, process.env.GALA_CLIENT_REVIEW)) {
+    const access = clientReviewRequest(pathname, request.method);
+    const response = access === "redirect"
+      ? NextResponse.redirect(new URL("/gala/tables", request.url))
+      : access === "allowed" ? NextResponse.next()
+      : new NextResponse("Not found", { status: 404 });
+    response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+    response.headers.set("Cache-Control", "no-store");
+    return response;
+  }
+
   // Allow the login page and login API through without a session check
   if (pathname === "/admin/login" || pathname === "/api/admin/login") {
     return NextResponse.next();
@@ -53,5 +67,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*"],
+  matcher: ["/:path*"],
 };

@@ -1,5 +1,9 @@
 .page { --ink:#172b2a; --teal:#256b69; --mint:#b8e3df; --gold:#b88b36; --paper:#faf7ef; background:var(--paper); color:var(--ink); font-family:var(--font-inter),Arial,sans-serif; min-height:100vh; }
 .page * { box-sizing:border-box; }
+.reviewHeader { display:flex; align-items:center; justify-content:center; gap:20px; padding:18px 24px; background:#171918; color:#b8e3df; font:400 16px Georgia,serif; letter-spacing:.1em; }
+.reviewHeader img { background:white; border-radius:8px; padding:5px; }
+.reviewFooter { background:#171918; color:#b8e3df; text-align:center; padding:32px 24px; font-size:14px; }
+.field input:disabled,.formSection:disabled input { background:#eeeee7; color:#626963; cursor:not-allowed; }
 .page a:focus-visible,.page button:focus-visible { outline:3px solid var(--teal); outline-offset:3px; }
 .container { max-width:1240px; margin:auto; padding:0 28px 88px; }
 .previewNotice { padding:14px 28px; background:#fff0ce; color:#634514; font-size:14px; line-height:1.6; text-align:center; }

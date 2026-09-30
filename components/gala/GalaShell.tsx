@@ -6,18 +6,18 @@ import { EVENT } from "@/lib/gala/model";
 import styles from "./gala-sales.module.css";
 
 const links = [["tables", "Tables & tickets"], ["gifts", "Celebration gifts"], ["invitations", "Send an invitation"], ["preview/admin", "Preview admin"]];
-export default function GalaShell({ current, title, intro, children }: {
-  current: string; title: string; intro: string; children: React.ReactNode;
+export default function GalaShell({ current, title, intro, children, clientReview = false }: {
+  current: string; title: string; intro: string; children: React.ReactNode; clientReview?: boolean;
 }) {
   const isAdmin = current === "preview/admin";
   const isGift = current === "gifts";
   return <div className={styles.page}>
-    <Header theme="gala" />
+    {clientReview ? <header className={styles.reviewHeader}><Image src="/images/osg-logo.png" alt="Odessa Symphony Guild" width={64} height={64} /><span>Odessa Symphony Guild</span></header> : <Header theme="gala" />}
     <aside className={styles.previewNotice} aria-label="Development preview">
-      <strong>Local preview · Sales are closed.</strong> Use fictional details only. Orders stay in this browser. No payments, emails, or QuickBooks entries are created.
+      {clientReview ? <><strong>Client preview · Sales are not open.</strong> Explore the designs and pricing. Personal information and submissions are disabled.</> : <><strong>Local preview · Sales are closed.</strong> Use fictional details only. Orders stay in this browser. No payments, emails, or QuickBooks entries are created.</>}
     </aside>
     <nav className={styles.nav} aria-label="Gala pages">
-      {links.map(([path, label]) => <Link key={path} href={`/gala/${path}`} aria-current={current === path ? "page" : undefined}>{label}</Link>)}
+      {links.filter(([path]) => !clientReview || path !== "preview/admin").map(([path, label]) => <Link key={path} href={`/gala/${path}`} aria-current={current === path ? "page" : undefined}>{label}</Link>)}
     </nav>
     <div className={isAdmin ? "" : styles.flyerStage}>
       <main className={isAdmin ? styles.container : styles.invitationPaper} data-page={current}>
@@ -62,6 +62,6 @@ export default function GalaShell({ current, title, intro, children }: {
       </main>
     </div>
     <div className={styles.stripes} aria-hidden="true" />
-    <Footer theme="gala" />
+    {clientReview ? <footer className={styles.reviewFooter}>Odessa Symphony Guild · Gala 2027 client review</footer> : <Footer theme="gala" />}
   </div>;
 }

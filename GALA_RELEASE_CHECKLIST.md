@@ -13,9 +13,24 @@ Run `npm run dev` and open:
 
 Use fictional data only. Preview orders are stored in this browser under `osg-gala-local-preview-v1`. Clear them in the preview admin. No information is sent to Stripe, Supabase, QuickBooks, the Guild, or an email provider. This is not a production admin or secure persistent order store.
 
-`requireGalaPreview()` requires local development and rejects any Vercel environment. All four routes return 404 in production. This code guard is intentionally stricter than an environment toggle. Do not remove it until the checklist below is complete and launch is authorized.
+`requireGalaPreview()` requires local development and rejects any Vercel environment. All four routes return 404 in production. Do not remove the production or admin guard until the checklist below is complete and launch is authorized.
+
+## Authorized client design review (September 29)
+
+The user approved sharing the designs through a separate Vercel Preview deployment. This is not a sales launch or authorization to merge to main.
+
+- Set `GALA_CLIENT_REVIEW=true` in Vercel's **Preview** environment for `codex/gala-2027-planning` only. A new deployment is required after saving the variable.
+- Both `VERCEL_ENV=preview` and the exact opt-in value are required; production is blocked even if the flag is accidentally enabled there.
+- `requireGalaPage()` permits only the three customer-facing designs in this mode. Local development retains its sample-order workflow.
+- Hosted review never mounts the local order storage adapter. Personal-information inputs and submission buttons are disabled; selections/totals remain interactive.
+- Middleware limits the review host to those three pages and static assets. All API routes, admin pages, student registration, and non-GET/HEAD requests return 404 before reaching handlers. Root redirects to `/gala/tables`.
+- Review responses carry `X-Robots-Tag: noindex, nofollow, noarchive`. Page metadata also disables indexing. Noindex is not access control.
+- Share only a verified **Preview** deployment using Vercel's Share dialog; do not promote it or change the production branch. Keep existing deployment protection and use a shareable link for external reviewers.
+- Verify all three pages, disabled information/submission controls, blocked APIs/admin, noindex, and absence of client order-storage access before handing out links.
 
 ## Mandatory release gates
+
+Client-review verification, September 29: all 10 model/access tests passed; preview-mode and production-mode builds passed. A local production-mode server configured as Vercel Preview returned 200/noindex for the three designs and 404 for admin, existing APIs, student registration, and submission requests. Browser review confirmed interactive Platinum + two seats totals $6,875 while buyer fields and submission remain disabled. A separately built production configuration returned 404 for all four Gala prototype routes even with the review flag set to true; the existing homepage remained 200. Actual hosted deployment verification is still required after Vercel setup.
 
 - [ ] Board confirms firm Platinum, Gold, and Silver quantities. **20 each is test data only.** Record who confirmed the figures and when.
 - [ ] Confirm ticket and total venue capacity, including rules for extra seats.

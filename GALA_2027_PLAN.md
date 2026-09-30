@@ -10,6 +10,8 @@ The Intuit research below is historical background. Stripe is the current direct
 
 ## September 29 flyer design direction
 
+- User subsequently approved a shareable client-review deployment on Vercel Preview, with guidance through setup. This permits reviewing the three designs only; production, admin, APIs, saved orders, and payment flows remain blocked. See the client-review section in `GALA_RELEASE_CHECKLIST.md`.
+
 - Recreate the three supplied flyers as responsive webpages, not full flyer images with clickable overlays. Prices, descriptions, headings, links, and forms remain actual accessible HTML.
 - Match the ivory paper, black-and-ivory stripes, double gold borders, teal satin bows, flowers, pearls, script headings, and teal price ribbons. Separate decorative images support the layout without carrying essential information.
 - The tables, celebration gifts, and mailed-invitation pages share this visual treatment; the preview admin retains its functional dashboard layout.
