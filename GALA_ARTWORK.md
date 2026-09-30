@@ -29,6 +29,14 @@ Use the invitation flyer as the style reference. Create an isolated stationery s
 
 ## Presentation
 
+### Capitalized invitation lettering
+
+Current invitation artwork: `public/images/gala-2027-envelope-invited-cursive.png` (1536 × 1024). The user requested a flowing cursive capital I in “Invited,” permitting natural overlap beneath the bow. Edited with the built-in image-generation tool; the original lower-case version is retained. A first capital-I attempt was refined to replace its stiff serif form with a looped calligraphy initial.
+
+Final prompt:
+
+> Precise lettering edit on this existing image. Card reads “You’re Invited”. Replace ONLY the stiff serif-style capital I at the beginning of Invited with a beautiful fully CURSIVE, LOOPED, FLOURISHED uppercase I in formal Copperplate/Spencerian wedding-invitation calligraphy. It must be a handwritten curving pen stroke with an oval entry loop at the TOP and a graceful looping lower exit joining the n, matching the ornate flowing Y in You're. NO straight typeset serif I, NO block letter I, NO Roman italic capital, NO dotted lowercase i. Give the cursive capital I enough room by slightly repositioning the second line if needed. Keep “Invited” legible. Lower flourishes may be occluded by the foreground bow naturally. Preserve exact wording, gold ink, tilted-card perspective, all other lettering as much as possible, and every surrounding object and color. Preserve dimensions and transparent alpha background. This is a tiny typography correction, not a new composition.
+
 ### Invitation lettering refinement
 
 Edited with the built-in image-generation tool, using `gala-2027-envelope-art.png` as the edit target. Final prompt:

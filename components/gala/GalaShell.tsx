@@ -53,7 +53,7 @@ export default function GalaShell({ current, title, intro, children }: {
                 <span className={styles.invitationActionCopy}><strong>Click here</strong><span>to submit your</span><span>invitation information</span></span>
               </a>
               <p className={styles.mailPromise}>We will beautifully address and mail<br />your invitations for you.</p>
-              <Image src="/images/gala-2027-envelope-invited-art.png" alt="" width={1536} height={1024} sizes="(max-width: 700px) 90vw, 600px" className={styles.envelopeArt} />
+              <Image src="/images/gala-2027-envelope-invited-cursive.png" alt="" width={1536} height={1024} sizes="(max-width: 700px) 90vw, 600px" className={styles.envelopeArt} />
             </>}
           </div>
         </>}
