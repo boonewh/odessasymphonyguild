@@ -44,9 +44,16 @@ export default function GalaShell({ current, title, intro, children }: {
             <p className={styles.intro}>{intro}</p>
             {isGift && <p className={styles.scriptLine}>Don’t forget to celebrate your friends, too!</p>}
             {current === "invitations" && <>
-              <a href="#gala-order-details" className={styles.invitationAction}>Submit your invitation information<span aria-hidden="true">↓</span></a>
+              <a href="#gala-order-details" className={styles.invitationAction}>
+                <svg className={styles.invitationTicket} viewBox="0 0 500 160" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+                  <defs><linearGradient id="invitation-ticket-teal" x2="1" y2="1"><stop stopColor="#21868d" /><stop offset="1" stopColor="#37a7ac" /></linearGradient></defs>
+                  <path d="M18 2H482Q482 18 498 18V142Q482 142 482 158H18Q18 142 2 142V18Q18 18 18 2Z" fill="#fffaf0" stroke="#b88b36" strokeWidth="1.5" />
+                  <path d="M23 7H477Q479 23 493 23V137Q479 137 477 153H23Q21 137 7 137V23Q21 23 23 7Z" fill="url(#invitation-ticket-teal)" stroke="#b88b36" strokeWidth="1" />
+                </svg>
+                <span className={styles.invitationActionCopy}><strong>Click here</strong><span>to submit your</span><span>invitation information</span></span>
+              </a>
               <p className={styles.mailPromise}>We will beautifully address and mail<br />your invitations for you.</p>
-              <Image src="/images/gala-2027-envelope-art.png" alt="" width={1536} height={1024} sizes="(max-width: 700px) 90vw, 600px" className={styles.envelopeArt} />
+              <Image src="/images/gala-2027-envelope-invited-art.png" alt="" width={1536} height={1024} sizes="(max-width: 700px) 90vw, 600px" className={styles.envelopeArt} />
             </>}
           </div>
         </>}
