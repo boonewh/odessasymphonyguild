@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ZodError } from "zod";
 import { TABLES, contactSchema, giftsSchema, recipientsSchema, quotePurchase, quoteGifts, money,
   type Product, type Gift, type Recipient, type DemoOrder } from "@/lib/gala/model";
@@ -73,30 +74,33 @@ export default function OrderForm({ kind }: { kind: Kind }) {
     <fieldset disabled={!!saved} className={styles.formSection}>
       <legend className="sr-only">{kind === "tables" ? "Choose your table or tickets" : kind === "gifts" ? "Choose your celebration gifts" : "Invitation details"}</legend>
       {kind === "tables" && <>
-        <h2 className={styles.sectionTitle}>A place for every celebration</h2>
-        <div className={styles.tiers}>{TABLES.map((tier, index) => <article className={styles.tier} key={tier.id}>
-          <div><p className={styles.number}>0{index + 1}</p><h3>{tier.name}</h3><p className={styles.price}>{money(tier.price)}</p>
+        <h2 className={styles.flyerSectionTitle}>Table options</h2>
+        <div className={styles.tiers}>{TABLES.map((tier) => <article className={styles.tier} key={tier.id}>
+          <div><p className={styles.tierOrnament} aria-hidden="true">❦</p><h3>{tier.name}</h3><p className={styles.price}>{money(tier.price)}</p>
             <p className={styles.tagline}>{tier.description}</p>
             <ul className={styles.benefits} role="list">{tier.benefits.map((benefit) => <li key={benefit}>{benefit}</li>)}</ul>
             <p className={styles.extra}>Add up to 2 extra seats at {money(tier.extra)} each.</p></div>
           <label className={styles.choose}><input type="radio" name="product" value={tier.id} checked={product === tier.id} onChange={() => selectProduct(tier.id)} />Choose {tier.name.toLowerCase()}</label>
         </article>)}</div>
+        <h2 className={styles.flyerSectionTitle}>Individual ticket options</h2>
         <div className={styles.tickets}>
-          <article className={styles.ticket}><h3>Couples ticket · {money(30000)}</h3><p>Open seating for 2 adults.</p>
+          <article className={styles.ticket}><h3>Couples ticket</h3><p className={styles.price}>{money(30000)}</p><p>Open seating for 2 adults.</p>
             <label className={styles.choose}><input name="product" type="radio" checked={product === "couples"} onChange={() => selectProduct("couples")} />Choose couples tickets</label></article>
-          <article className={styles.ticket}><h3>Student date ticket · {money(10000)}</h3><p>Admission for 1 student.</p>
+          <article className={styles.ticket}><h3>Student date ticket</h3><p className={styles.price}>{money(10000)}</p><p>Admission for 1 student.</p>
             <label className={styles.choose}><input name="product" type="radio" checked={product === "student-date"} onChange={() => selectProduct("student-date")} />Choose student date tickets</label></article>
         </div>
         <p className={styles.ribbon}>Belle &amp; Beau tickets are included with their membership fees.</p>
       </>}
       {kind === "gifts" && <>
+        <div className={styles.giftArtwork}><Image src="/images/gala-2027-gifts-art.png" alt="" width={2172} height={724} sizes="(max-width: 700px) 90vw, 960px" /></div>
         <div className={styles.giftIntro}>
-          <div><h2>A rose to remember</h2><p>A single rose for your Belle or Beau.</p><p>{money(1000)} each</p></div>
-          <div><h2>A sweet celebration</h2><p>Two chocolate chip cookies in every bag.</p><p>{money(1000)} per bag</p></div>
+          <div><h2>Single roses</h2><p>A rose for your Belle or Beau.</p><p className={styles.price}>{money(1000)} <small>each</small></p></div>
+          <div><h2>Chocolate chip cookies</h2><p>Two cookies in every bag.</p><p className={styles.price}>{money(1000)} <small>per bag</small></p></div>
         </div>
         <p className={styles.ribbon}>Order by January 29. No late orders; flowers and cookies will not be sold at the Ball.</p>
       </>}
       {kind === "invitations" && <p className={styles.ribbon}>The Guild will address and mail your invitations for you. An invitation does not reserve a seat.</p>}
+      <h2 id="gala-order-details" className={styles.flyerSectionTitle}>{kind === "invitations" ? "Your invitation information" : "Your order details"}</h2>
       <div className={styles.orderLayout}>
         <div>
           {kind === "tables" && <fieldset className={styles.formSection}><legend>Your selection</legend>

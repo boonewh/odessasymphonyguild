@@ -91,3 +91,102 @@
 @media (max-width:900px) { .tiers { grid-template-columns:1fr; } .tier { padding:24px; } .orderLayout { grid-template-columns:1fr; gap:32px; } }
 @media (max-width:600px) { .container { padding-inline:24px; } .hero { padding:40px 0 36px; } .nav { justify-content:flex-start; } .tickets,.giftIntro,.fields { grid-template-columns:1fr; } .previewNotice { text-align:left; padding:12px 24px; } .intro { font-size:16px; } .summary { padding:24px; } .tableScroll { margin-inline:-24px; } .tableInner { padding-inline:24px; } .event { line-height:1.8; } }
 @media (pointer:coarse) { .secondary { min-height:48px; } }
+
+/* Rebuild the printed invitation in HTML; imagery is decoration only. */
+.flyerStage { padding:54px 44px 64px; background:repeating-linear-gradient(90deg,#101211 0 34px,#fbf8ee 34px 68px); }
+.invitationPaper { position:relative; isolation:isolate; max-width:1220px; margin:auto; border:3px double #ac751e; border-radius:58px 58px 26px 26px; background:radial-gradient(ellipse at 15% 25%,#fff 0,transparent 42%),linear-gradient(110deg,#f8f2e4,#fffdf7 45%,#f8f1e3); box-shadow:0 12px 40px #0003; }
+.invitationPaper::before { content:""; position:absolute; z-index:-1; inset:7px; border:1px solid #c89638; border-radius:49px 49px 19px 19px; pointer-events:none; }
+.flyerHero { position:relative; min-height:610px; display:grid; align-items:center; text-align:center; padding:114px 20px 40px; }
+.heroDecor { position:absolute; inset:-45px -30px auto; width:calc(100% + 60px); height:650px; max-width:none; object-fit:fill; pointer-events:none; z-index:-1; }
+.flyerHeading { position:relative; }
+.guildName { font:400 19px Georgia,serif; letter-spacing:.2em; text-transform:uppercase; margin:0 auto 10px; max-width:36ch; }
+.annual { font:400 15px Georgia,serif; letter-spacing:.24em; text-transform:uppercase; }
+.flyerTitle { margin:30px auto 12px; font:400 clamp(28px,3.7vw,50px) Georgia,serif; max-width:24ch; text-wrap:balance; }
+.flyerTitle > span { display:block; font-variant:small-caps; letter-spacing:.015em; }
+.flyerTitle em { display:block; margin-top:8px; color:#168d94; font-family:var(--font-tangerine),"Brush Script MT",cursive; font-style:normal; font-weight:700; font-size:clamp(64px,7.8vw,108px); line-height:1; letter-spacing:-.025em; text-wrap:balance; }
+.flourish { display:flex; align-items:center; justify-content:center; gap:14px; color:#b78429; font:32px Georgia,serif; margin:20px auto; }
+.flourish span { width:90px; height:1px; background:linear-gradient(90deg,transparent,#b78429); }
+.flourish span:last-child { transform:rotate(180deg); }
+.pagePurpose { font:400 19px Georgia,serif; letter-spacing:.16em; text-transform:uppercase; max-width:30ch; margin:0 auto; text-wrap:balance; }
+.flyerDate { margin:24px auto 0; font:400 16px/1.7 Georgia,serif; letter-spacing:.09em; }
+.flyerDate span { display:block; text-transform:uppercase; letter-spacing:.16em; }
+.flyerIntroduction { text-align:center; padding:12px 24px 36px; position:relative; }
+.flyerIntroduction .intro { font:400 19px/1.65 Georgia,serif; max-width:62ch; color:#242d28; }
+.scriptLine { font:400 clamp(40px,4.5vw,62px) var(--font-tangerine),"Brush Script MT",cursive; margin:0 auto 18px; text-wrap:balance; }
+.flyerIntroduction .intro + .scriptLine { margin-top:18px; }
+.flyerContent { padding:0 40px 32px; }
+.flyerSectionTitle { display:flex; align-items:center; gap:20px; justify-content:center; text-align:center; font:400 clamp(21px,2.4vw,30px) Georgia,serif; letter-spacing:.12em; text-transform:uppercase; margin:30px 0; text-wrap:balance; scroll-margin-top:115px; }
+.flyerSectionTitle::before,.flyerSectionTitle::after { content:""; height:1px; flex:1; min-width:14px; background:linear-gradient(90deg,transparent,#278e90); }
+.flyerSectionTitle::after { transform:rotate(180deg); }
+.invitationPaper .tiers { gap:18px; }
+.invitationPaper .tier { border:3px double #b68835; border-radius:28px 5px 28px 5px; padding:12px 20px 20px; background:#fffdf780; text-align:center; }
+.invitationPaper .tier:has(input:checked) { outline-color:#238d91; outline-offset:4px; }
+.tierOrnament { font:400 60px Georgia,serif; color:#b1832a; height:68px; }
+.invitationPaper .tier h3 { font:400 clamp(23px,2.2vw,30px) Georgia,serif; text-transform:uppercase; margin:12px 0; }
+.invitationPaper .price { position:relative; display:table; min-width:160px; margin:10px auto 16px; padding:6px 20px; background:linear-gradient(105deg,#65bdbb,#238e94 50%,#60c1c2); color:#fff; font:400 34px Georgia,serif; clip-path:polygon(7px 0,calc(100% - 7px) 0,100% 7px,100% calc(100% - 7px),calc(100% - 7px) 100%,7px 100%,0 calc(100% - 7px),0 7px); }
+.invitationPaper .price small { font-size:18px; }
+.invitationPaper .tagline { font:400 14px Georgia,serif; color:#177b82; text-transform:uppercase; letter-spacing:.035em; margin:12px 0 20px; }
+.invitationPaper .benefits { text-align:left; list-style: "❧  "; padding-left:20px; font:400 17px/1.6 Georgia,serif; margin-bottom:14px; }
+.invitationPaper .extra { font:400 16px/1.55 Georgia,serif; text-align:left; color:#292f2a; }
+.invitationPaper .choose { justify-content:center; border:1px solid #29898b66; border-radius:3px; background:#e3f2ed; padding:10px 8px; font-size:14px; }
+.invitationPaper .choose:hover { background:#cce8e3; }
+.invitationPaper .tickets { margin-top:0; gap:18px; }
+.invitationPaper .ticket { border:3px double #b68835; border-radius:5px 24px 5px 24px; padding:24px; text-align:center; }
+.invitationPaper .ticket h3 { text-transform:uppercase; font-size:25px; }
+.invitationPaper .ticket > p:not(.price) { font:400 17px Georgia,serif; margin-bottom:20px; color:#242d28; }
+.invitationPaper .ribbon { position:relative; background:linear-gradient(100deg,#c2e9de,#80c9c6 28%,#b8e2d9 70%,#78c7c6); border-block:1px solid #ad8b41; outline:1px solid #bd9857; outline-offset:4px; padding:24px; margin:34px 12px 50px; font:400 19px/1.5 Georgia,serif; text-wrap:balance; }
+.invitationPaper .orderLayout { margin-top:34px; border-top:1px solid #bf985455; padding-top:28px; gap:40px; }
+.invitationPaper .summary { border:3px double #b68835; border-radius:20px 4px; background:linear-gradient(120deg,#f1f7ed,#e1f1e9); }
+.invitationPaper .formSection legend { font-family:Georgia,serif; }
+.invitationPaper .formSection { margin-bottom:26px; }
+.flyerSignoff { text-align:center; color:#3b4c43; font:400 14px/1.8 Georgia,serif; letter-spacing:.1em; text-transform:uppercase; padding:12px 24px 44px; }
+.flyerSignoff span { color:#247a7d; }
+.giftArtwork { margin:-10px auto -60px; max-width:820px; pointer-events:none; }
+.giftArtwork img { display:block; width:100%; height:auto; }
+.invitationPaper .giftIntro { position:relative; gap:18px; border:0; padding:0; }
+.invitationPaper .giftIntro > div { text-align:center; border:3px double #b68835; border-radius:20px 4px; padding:28px 20px; background:#fffcf1; }
+.invitationPaper .giftIntro h2 { text-transform:uppercase; font-size:25px; text-wrap:balance; }
+.invitationPaper .giftIntro p:not(.price) { font:400 17px/1.6 Georgia,serif; }
+.invitationAction { display:flex; align-items:center; justify-content:center; gap:22px; max-width:480px; margin:32px auto 24px; background:linear-gradient(120deg,#21868d,#37a7ac); color:white; outline:1px solid #b88b36; outline-offset:5px; padding:25px; font:400 23px/1.4 Georgia,serif; letter-spacing:.06em; text-transform:uppercase; }
+.invitationAction:hover { background:#216e73; }
+.invitationAction span { font-size:28px; }
+.mailPromise { font:italic 22px/1.5 Georgia,serif; margin:32px auto 0; }
+.envelopeArt { display:block; width:min(100%,580px); height:auto; margin:4px auto -35px; pointer-events:none; }
+@media(min-width:901px) { .invitationPaper[data-page=invitations] .flyerHero { min-height:600px; } }
+@media(max-width:1000px) { .flyerStage { padding-inline:24px; } .flyerContent { padding-inline:28px; } .flyerHero { min-height:580px; padding-top:100px; } .heroDecor { inset-inline:-12px; width:calc(100% + 24px); height:610px; } .pagePurpose { font-size:16px; max-width:25ch; } }
+@media(max-width:700px) {
+  .flyerStage { padding:28px 13px 36px; background-size:44px auto; background-image:repeating-linear-gradient(90deg,#101211 0 22px,#fbf8ee 22px 44px); }
+  .invitationPaper { border-radius:28px 28px 14px 14px; }
+  .invitationPaper::before { inset:5px; border-radius:22px 22px 9px 9px; }
+  .flyerHero { min-height:0; padding:104px 22px 20px; }
+  .heroDecor { inset:-22px -9px auto; width:calc(100% + 18px); height:230px; object-fit:fill; opacity:.95; }
+  .guildName { font-size:14px; letter-spacing:.08em; max-width:19ch; }
+  .annual { font-size:12px; letter-spacing:.1em; }
+  .flyerTitle { margin-top:72px; font-size:30px; }
+  .flyerTitle em { font-size:66px; margin-top:14px; }
+  .flourish { margin-block:18px; font-size:26px; }
+  .flourish span { width:52px; }
+  .pagePurpose { font-size:17px; letter-spacing:.1em; }
+  .flyerDate { font-size:16px; margin-top:18px; }
+  .flyerIntroduction { padding:24px 24px 14px; }
+  .flyerIntroduction .intro { font-size:18px; }
+  .scriptLine { font-size:44px; }
+  .flyerContent { padding:0 20px 16px; }
+  .flyerSectionTitle { font-size:20px; letter-spacing:.07em; gap:10px; margin-block:32px; }
+  .invitationPaper .tier { padding:16px 20px 22px; }
+  .invitationPaper .tier h3 { font-size:28px; }
+  .invitationPaper .tagline { font-size:16px; }
+  .invitationPaper .benefits,.invitationPaper .extra { font-size:18px; }
+  .invitationPaper .choose { font-size:16px; }
+  .invitationPaper .ticket { padding:22px 18px; }
+  .invitationPaper .ribbon { padding:20px 14px; margin-inline:5px; font-size:17px; }
+  .invitationPaper .orderLayout { gap:24px; }
+  .invitationPaper .summary { padding:22px 16px; }
+  .invitationPaper .field,.invitationPaper .agreement,.invitationPaper .fine { font-size:16px; }
+  .giftArtwork { margin:0 -18px -12px; }
+  .invitationPaper .giftIntro { grid-template-columns:1fr; }
+  .invitationAction { font-size:18px; padding:20px 12px; gap:12px; }
+  .mailPromise { font-size:19px; }
+  .envelopeArt { margin-bottom:-12px; }
+  .flyerSignoff { padding:10px 24px 32px; font-size:13px; }
+}

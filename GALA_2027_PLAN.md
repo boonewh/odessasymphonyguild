@@ -1,12 +1,21 @@
 # Gala 2027: decisions, payment research, and implementation handoff
 
-Last updated: September 28, 2026 (America/Chicago).
+Last updated: September 29, 2026 (America/Chicago).
 
 ## Resume here
 
 The Guild wants to automate table/ticket sales, celebration gifts, and mailed-invitation requests. The three-page structure below is approved. **Stripe redirect Checkout with QuickBooks synchronization has initial approval.** Card details must be entered on Stripe's website. Dues may also move to Stripe, but that is a separate decision still awaiting confirmation.
 
 The Intuit research below is historical background. Stripe is the current direction, but no payment integration has been implemented or tested for the Guild. See `GALA_RELEASE_CHECKLIST.md` for launch blockers and local preview instructions.
+
+## September 29 flyer design direction
+
+- Recreate the three supplied flyers as responsive webpages, not full flyer images with clickable overlays. Prices, descriptions, headings, links, and forms remain actual accessible HTML.
+- Match the ivory paper, black-and-ivory stripes, double gold borders, teal satin bows, flowers, pearls, script headings, and teal price ribbons. Separate decorative images support the layout without carrying essential information.
+- The tables, celebration gifts, and mailed-invitation pages share this visual treatment; the preview admin retains its functional dashboard layout.
+- Preserve approved wording: An Evening of Timeless Elegance and La Hacienda. Flyer imagery does not override these decisions.
+- Artwork provenance and generation prompts are documented in `GALA_ARTWORK.md`.
+- This is a local visual revision only. All release blockers and production route guards remain in place.
 
 ## September 28 decisions and first implementation
 
