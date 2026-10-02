@@ -1,8 +1,17 @@
 # Gala 2027: decisions, payment research, and implementation handoff
 
-Last updated: September 29, 2026 (America/Chicago).
+Last updated: October 2, 2026 (America/Chicago).
 
 ## Resume here
+
+### October 2: Stripe development account
+
+- Will confirmed that the development sandbox is under **his personal-email Stripe login**. Do not confuse this with an OSG-owned account. The exact sandbox name and account ID have not yet been verified; the proposed name is `OSG Gala Development`.
+- OSG does not yet have its own Stripe account. The treasurer will create the Guild's account and handle business verification and banking separately.
+- Use a dedicated isolated sandbox under Will's account for fictional-data development, alongside an isolated test database. Never use his live payments, customers, or accounting for OSG testing.
+- Move the integration to OSG's own sandbox and repeat acceptance tests when that account is ready. This is a configuration handoff, not a transfer of Will's personal Stripe account. Recreate account-specific settings/resources and webhook configuration as needed; test transactions are not live sales.
+- Board design approval is still pending. Backend development may proceed, but all existing production launch requirements remain in force. Keep the client design preview stable while payment work is tested separately.
+- Sandbox credentials have not been connected to the application. Guide setup one screen at a time; do not ask for secret keys in chat.
 
 The Guild wants to automate table/ticket sales, celebration gifts, and mailed-invitation requests. The three-page structure below is approved. **Stripe redirect Checkout with QuickBooks synchronization has initial approval.** Card details must be entered on Stripe's website. Dues may also move to Stripe, but that is a separate decision still awaiting confirmation.
 
