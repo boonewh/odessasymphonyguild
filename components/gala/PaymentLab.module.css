@@ -26,4 +26,16 @@
 .table small { display: block; color: #58616a; }
 .error { background: #fff0e9; color: #923f20; border-left: 3px solid #a65d37; padding: 14px; }
 .success { background: #e7f4e9; color: #245e39; padding: 14px; }
+.assignmentForm { display: grid; gap: 8px; min-width: 180px; }
+.tools a { color: #246c65; text-decoration: underline; }
+.assignmentTable td { overflow-wrap: anywhere; }
+@media(max-width: 650px) {
+  .assignmentTable table { min-width: 0; }
+  .assignmentTable thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .assignmentTable tbody, .assignmentTable tr, .assignmentTable td { display: block; }
+  .assignmentTable tr { margin-top: 18px; border: 1px solid #dde4e0; border-radius: 8px; }
+  .assignmentTable td::before { content: attr(data-label); display: block; font-weight: 700; color: #246c65; margin-bottom: 6px; }
+  .assignmentTable td:last-child { border-bottom: 0; }
+  .assignmentForm { min-width: 0; }
+}
 @media(max-width: 650px) { .form, .inventory { grid-template-columns: 1fr; } .lab { padding: 24px 14px; } .panel { padding: 18px; } }

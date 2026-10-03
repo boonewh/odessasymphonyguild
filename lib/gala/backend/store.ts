@@ -1,5 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { Order, OrderStore, priceRequest } from "./domain";
+import type { TableAssignment } from "../assignments";
 
 export class SupabaseOrderStore implements OrderStore {
   private db: SupabaseClient;
@@ -9,6 +10,15 @@ export class SupabaseOrderStore implements OrderStore {
   async verifyEnvironment() {
     const { data, error } = await this.db.from("gala_environment").select("name").eq("id", 1).single();
     if (error || data?.name !== "osg-gala-development") throw new Error("Development database marker is missing.");
+  }
+  async assignments(): Promise<TableAssignment[]> {
+    const { data, error } = await this.db.rpc("gala_assignment_list");
+    if (error) throw new Error("Cannot load table assignments.");
+    return data as TableAssignment[];
+  }
+  async assignTable(input: {orderId: string; tableNumber: number | null; revision: number}) {
+    const { error } = await this.db.rpc("gala_assign_table", {p_order: input.orderId, p_number: input.tableNumber, p_revision: input.revision});
+    if (error) throw new Error("Table assignment conflict or invalid order.");
   }
   private async rpc(name: string, args: Record<string, unknown>): Promise<Order> {
     const { data, error } = await this.db.rpc(name, args);

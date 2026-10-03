@@ -4,6 +4,10 @@ Last updated: October 3, 2026 (America/Chicago).
 
 ## Resume here
 
+### October 3: table assignments implemented and tested in development
+
+Paid-table assignment controls, global duplicate-number protection, revision checks, audit history, filters and CSV export are implemented on the Gala branch. All 42 automated checks and the production build pass; assignment APIs/exports remain blocked in production and client design review. Migration 003 is applied to OSG Gala Development. Browser assignment/clearing/filter checks and hosted simultaneous/stale-edit tests pass. The existing fictional Gold purchase is assigned to demonstration table 7. See `GALA_BACKEND_DEVELOPMENT.md`. Assignment numbers are placeholders, do not approve inventory, and do not include Belles/Beaux or individual-ticket seating.
+
 ### October 3: flyer checkout wiring and pending accounting decisions
 
 The tables/tickets and gift flyer forms now use the existing isolated Stripe backend when local sandbox mode is enabled. Buyer and recipient details are saved before redirecting to Stripe-hosted card entry. The same attempt is retained across reloads and retries; the return page reads verified server state. Hosted client design review remains read-only, and production remains blocked. Invitations still use the local demonstration workflow. See `GALA_BACKEND_DEVELOPMENT.md` for the new browser-test evidence.

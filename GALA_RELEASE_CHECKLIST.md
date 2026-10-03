@@ -11,7 +11,7 @@ Run `npm run dev` and open:
 - `/gala/invitations`: multiple mailing recipients and requester details.
 - `/gala/preview/admin`: sample orders, inventory, paid/unpaid filters, table assignment, gifts and mailing statuses.
 
-Use fictional data only. Flyer-page prototype orders are stored in this browser under `osg-gala-local-preview-v1`. These forms send no information to Stripe, Supabase, QuickBooks, the Guild, or an email provider. When `GALA_BACKEND_ENABLED=true` locally, `/gala/preview/admin` instead displays the isolated development database, and `/gala/preview/testing` makes actual sandbox purchases. See `GALA_BACKEND_DEVELOPMENT.md` for that separate workflow. No production admin is implemented.
+Use fictional data only. Without the backend flag, prototype orders are stored in this browser under `osg-gala-local-preview-v1` and send no information to providers. When `GALA_BACKEND_ENABLED=true` locally, the table/gift flyer forms and `/gala/preview/testing` make actual sandbox purchases, and `/gala/preview/admin` displays the isolated development database. Invitations remain a browser-only demo. See `GALA_BACKEND_DEVELOPMENT.md`. No production admin is implemented.
 
 `requireGalaPreview()` requires local development and rejects any Vercel environment. All four routes return 404 in production. Do not remove the production or admin guard until the checklist below is complete and launch is authorized.
 
@@ -29,6 +29,8 @@ The user approved sharing the designs through a separate Vercel Preview deployme
 - Verify all three pages, disabled information/submission controls, blocked APIs/admin, noindex, and absence of client order-storage access before handing out links.
 
 ## Mandatory release gates
+
+October 3 assignments: paid-only assignment controls, filters, CSV, uniqueness and stale-edit protection are implemented and covered by the 42-test suite. Migration 003 is applied only to OSG Gala Development; browser assign/clear/filter checks and hosted conflicting-edit/CSV checks pass. Changes preserve orders, inventory and accounting; audit rows record old/new assignments. Table numbers are development labels; neither actual layout nor inventory is approved. Production admin permissions and all existing launch gates still apply.
 
 October 3 form integration: the local table/ticket and gift flyer forms now submit to the isolated sandbox backend, retain the original checkout attempt for retries, and display server-verified return status. Actual browser tests completed a $60 two-student gift payment and verified unpaid expiration of a $2,500 Silver-plus-two-seats checkout. All 38 Gala tests and the production build pass. Production route checks block the forms, payment return, and supported new API methods; client-review checks preserve design access/noindex and block all payment APIs/admin. This is local-only progress, not launch approval. Invitation persistence, public authentication/fulfillment, scheduling, deadline/capacity rules and broader acceptance tests remain unfinished.
 
