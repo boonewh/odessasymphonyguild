@@ -280,6 +280,10 @@ Mocks are useful for screens and logic but do not prove payment cancellation, pr
 5. Prepare a PR with evidence, remaining limitations, and launch instructions.
 6. Obtain launch authorization before merging/deploying; earlier authorization to publish the Gala hero does not authorize these sales features.
 
+## October 3 gift fulfillment progress
+
+Paid-gift preparation and handout tracking now persist in the development database, one complete bundle per order/recipient. The local admin includes status filters, quantity totals, CSV and audited corrections with stale-edit protection. Migration 004, 46 automated tests, production build, browser workflows and hosted conflict/audit checks pass; details and limitations are in `GALA_BACKEND_DEVELOPMENT.md`. No new payment, QuickBooks posting, push or production deployment was performed. Final cutoff, volunteer access, workflow acceptance and all release requirements remain pending. Invitations are still a browser-only demonstration and need persistence.
+
 ## Original documentation handoff (September 24)
 
 - Decisions, source material, corrections, unresolved questions, and testing requirements documented.

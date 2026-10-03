@@ -6,6 +6,7 @@ import { money, TABLES, quotePurchase, type Product } from "@/lib/gala/model";
 import styles from "./PaymentLab.module.css";
 import QuickBooksSandbox from "./QuickBooksSandbox";
 import TableAssignments from "./TableAssignments";
+import GiftFulfillment from "./GiftFulfillment";
 type Dashboard = { orders: Order[]; inventory: {tier:string;capacity:number;available:number;held:number;paid:number}[]; accounting: {order_id:string;status:string}[] };
 const attemptKey = "osg-gala-sandbox-attempt";
 export default function PaymentLab({ mode = "testing" }: { mode?: "testing" | "admin" }) {
@@ -76,6 +77,7 @@ export default function PaymentLab({ mode = "testing" }: { mode?: "testing" | "a
         <td>{o.details.contact.name}<small>{o.details.contact.email}</small><small>{o.id}</small></td><td>{o.description}{o.details.kind==="gifts"&&o.details.gifts.map((g,i)=><small key={i}>{g.student}, grade {g.grade}: {g.roses} roses / {g.cookies} cookie bags</small>)}</td><td>{money(o.amount)}</td><td>{o.status.replaceAll("_"," ")}</td><td>{data.accounting.find(a=>a.order_id===o.id)?.status||"—"}{["reserved","awaiting_payment"].includes(o.status)&&o.stripe_session_id&&<button disabled={busy} onClick={()=>void action("/api/gala/expire",{orderId:o.id})}>Expire test checkout</button>}</td>
       </tr>)}</tbody></table></div></section>
       {mode==="admin" && <TableAssignments />}
+      {mode==="admin" && <GiftFulfillment />}
       <QuickBooksSandbox refresh={refresh} orders={data.orders.filter(o=>o.status==="paid").map(o=>({id:o.id,label:`${o.description} · ${money(o.amount)} · ${o.id.slice(0,8)}`,accountingStatus:data.accounting.find(a=>a.order_id===o.id)?.status||"not queued"}))}/>
     </>}
   </main>;

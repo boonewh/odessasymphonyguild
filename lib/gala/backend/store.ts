@@ -1,6 +1,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { Order, OrderStore, priceRequest } from "./domain";
 import type { TableAssignment } from "../assignments";
+import type { GiftRow, GiftStatus } from "../gift-fulfillment";
 
 export class SupabaseOrderStore implements OrderStore {
   private db: SupabaseClient;
@@ -15,6 +16,16 @@ export class SupabaseOrderStore implements OrderStore {
     const { data, error } = await this.db.rpc("gala_assignment_list");
     if (error) throw new Error("Cannot load table assignments.");
     return data as TableAssignment[];
+  }
+  async gifts(): Promise<GiftRow[]> {
+    const {data,error}=await this.db.rpc("gala_gift_list");
+    if(error) throw new Error("Cannot load paid gifts.");
+    return data as GiftRow[];
+  }
+  async setGiftStatus(input:{orderId:string;recipientIndex:number;status:GiftStatus;revision:number;reason:string}) {
+    const {error}=await this.db.rpc("gala_set_gift_status",{p_order:input.orderId,p_recipient:input.recipientIndex,
+      p_status:input.status,p_revision:input.revision,p_reason:input.reason});
+    if(error) throw new Error("Gift fulfillment conflict or invalid update.");
   }
   async assignTable(input: {orderId: string; tableNumber: number | null; revision: number}) {
     const { error } = await this.db.rpc("gala_assign_table", {p_order: input.orderId, p_number: input.tableNumber, p_revision: input.revision});

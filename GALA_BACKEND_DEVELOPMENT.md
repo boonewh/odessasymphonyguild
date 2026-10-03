@@ -1,6 +1,15 @@
 # Gala backend development
 
-This is a local, sandbox-only backend on `codex/gala-2027-planning`. It is not enabled on the customer preview or production. The flyer pages retain the browser-only prototype. When the backend is enabled locally, the admin reads the development database and a separate payment-testing page creates actual Stripe sandbox checkouts.
+This is a local, sandbox-only backend on `codex/gala-2027-planning`. It is not enabled on the customer preview or production. When enabled locally, the table/gift flyer forms and separate testing page create Stripe sandbox checkouts; the admin reads the development database. Invitations remain a browser-only prototype.
+
+## October 3: paid gift fulfillment
+
+- Added a paid-only gift panel below table assignments. Each order/recipient has its own bundle of roses and cookie bags, student/grade and buyer contact details. Same-name students are never silently merged. Filters show needs preparation, prepared, handed out or all; totals and CSV reflect the selected view and all matching paid orders, not only the latest 100.
+- Migration `supabase/gala-development/004_gala_gifts.sql` adds private fulfillment and audit tables plus service-only functions. It was applied successfully to **OSG Gala Development** (`rhjwjfyjjdsfahlegqvd`). Status changes do not update orders, inventory, payments or accounting. Bundles must be prepared before handout; correcting to an earlier status requires a reason. Every actual change records prior/new status, revision and the shared `local-development-admin` identity. Production per-user attribution is still required.
+- `GET /api/gala/gifts` reads the list; `?format=csv&filter=all|pending|prepared|delivered` exports it. POST accepts only order ID, recipient index, status, revision and optional correction reason. Existing local authentication/environment guards apply. Stale edits are rejected; uncertain saves require refresh before retry. Browser database roles cannot read the tables or invoke their functions. CSV quotes/escapes fields and neutralizes spreadsheet formulas.
+- Verification: **46 Gala tests pass**, including actual SQL in isolated PGlite for paid-only eligibility, same-name separation, ordered transitions, no-op behavior, corrections, stale edits, audit history, browser-role denial and 125-row CSV. Production build passes. Actual production/client-review HTTP checks return 404 for gift GET/POST/CSV; unauthenticated local calls return 401. The added client-review path assertions also pass.
+- Hosted development checks found three existing fictional paid recipients, five roses and four cookie bags. Two simultaneous updates with the same revision returned one 200 and one 409; a reasoned correction restored the test row while a complete orders/inventory/accounting snapshot remained unchanged. Browser checks prepared and handed out one student bundle, verified filtered totals, and restored it with a reason. The other recipient on the same order stayed unchanged. Five expected audit events and correction reasons were confirmed in the hosted database. The actual export button downloaded a CSV containing all three recipients. No new payment or QuickBooks record was created.
+- Narrow-panel visual review confirms stacked rows and usable filters/export at the effective 596px browser width. Exact 390px testing remains outstanding. Fulfillment currently tracks whole bundles only; partial handouts, final cutoff enforcement, production permissions and board workflow acceptance remain pending. All test bundles are back to needs preparation. No push, production change or deployment.
 
 ## October 3: table assignments
 
@@ -186,9 +195,9 @@ API references: [SalesReceipt](https://developer.intuit.com/app/developer/qbo/do
 ## Next implementation steps
 
 1. Exercise repeated/out-of-order real events, outage recovery and payment at expiry. Broaden concurrent capacity tests beyond the initial two-request check.
-2. Implement durable reconciliation scheduling, operator exception handling, gift cutoff enforcement, ticket/venue limits, free invitation persistence, production access controls and retention. Add persistent table assignment and fulfillment/export workflows; the new database admin currently displays purchases and payment state only.
-3. Connect the approved customer forms to the backend in a separately authorized test environment; preserve the client design preview until approved.
-4. Connect and verify the implemented QuickBooks sandbox sync against actual Intuit responses. Add scheduling/operator recovery; review production mappings, tax treatment, fees and payouts with the treasurer. No refunds is the displayed policy; exceptional corrections and disputes still need handling.
+2. Implement durable reconciliation scheduling, operator exception handling, gift cutoff enforcement, ticket/venue limits, free invitation persistence, production access controls and retention. Table assignments and paid-gift status/export workflows now persist in development; production volunteer permissions and workflow acceptance remain pending.
+3. Broaden acceptance testing of the locally connected customer forms; preserve the client design preview until approved.
+4. Extend the verified QuickBooks sandbox sync with scheduling/operator recovery; confirm posting aggregation/cadence, production mappings, tax treatment, fees and payouts with the treasurer. No refunds is the displayed policy; exceptional corrections and disputes still need handling.
 5. Meet every item in `GALA_RELEASE_CHECKLIST.md` before enabling any public sales.
 
 The current dependency audit reports 29 findings (2 low, 7 moderate, 19 high, 1 critical), including an existing Next.js critical finding. No Stripe/Stripe CLI package was listed in the findings. No broad dependency upgrade was included in this feature; a separate dependency review is needed before release.

@@ -25,5 +25,7 @@ test('review host permits only designs and assets; blocks admin, APIs, other pag
   assert.equal(clientReviewRequest('/', 'GET'), 'redirect');
   assert.equal(clientReviewRequest('/api/gala/assignments', 'GET'), 'blocked');
   assert.equal(clientReviewRequest('/api/gala/assignments', 'POST'), 'blocked');
+  assert.equal(clientReviewRequest('/api/gala/gifts', 'GET'), 'blocked');
+  assert.equal(clientReviewRequest('/api/gala/gifts', 'POST'), 'blocked');
   assert.equal(clientReviewRequest('/', 'POST'), 'blocked');
 });
