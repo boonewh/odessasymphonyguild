@@ -1,13 +1,11 @@
 import "server-only";
-import { timingSafeEqual } from "node:crypto";
 import Stripe from "stripe";
 import { readBackendConfig, DEVELOPMENT_STRIPE_ACCOUNT } from "./config";
 import { SupabaseOrderStore } from "./store";
+import { authorizeLocalRequest } from "./auth";
 
 export function authorizeDevelopment(request: Request, token: string) {
-  const provided = request.headers.get("x-gala-development-token") || "";
-  if (provided.length !== token.length || !timingSafeEqual(Buffer.from(provided), Buffer.from(token)))
-    throw new Error("Development authentication required.");
+  authorizeLocalRequest(request, token, process.env.GALA_LOCAL_ORIGIN || "http://localhost:3000");
 }
 export async function backend() {
   const config = readBackendConfig(process.env);

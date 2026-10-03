@@ -7,6 +7,7 @@ import { priceRequest } from '../lib/gala/backend/domain.ts';
 import { startCheckout, reconcileSession, reconcilePending, sessionParameters } from '../lib/gala/backend/checkout.ts';
 import { backendEnabled, readBackendConfig } from '../lib/gala/backend/config.ts';
 import { parseWebhook } from '../lib/gala/backend/webhook.ts';
+import { createDevelopmentSession, validDevelopmentSession, authorizeLocalRequest, DEVELOPMENT_COOKIE } from '../lib/gala/backend/auth.ts';
 
 const request = () => ({ requestId: randomUUID(), kind:'tables', allSalesFinal:true,
   contact:{name:'Fictional Buyer',email:'gala-test@example.com',phone:'4325550100'},
@@ -32,6 +33,10 @@ async function setup(t) { const ctx=await testDatabase(); t.after(()=>ctx.db.clo
 
 test('server prices ignore no client totals; consent, quantities and extra seats are enforced',()=>{
   const input=request(); assert.equal(priceRequest(input).amount,437500);
+  const checkout=sessionParameters({id:input.requestId,details:input,amount:437500,description:'Gold table',created_at:new Date().toISOString()},'http://localhost:3000');
+  assert.deepEqual(checkout.allowed_payment_method_types,['card']);
+  assert.equal(checkout.wallet_options.link.display,'never');
+  assert.equal(checkout.after_expiration.recovery.enabled,false);
   assert.throws(()=>priceRequest({...input,amount:1}));
   assert.throws(()=>priceRequest({...input,allSalesFinal:false}));
   assert.throws(()=>priceRequest({...input,purchase:{...input.purchase,extraSeats:3}}));
@@ -45,6 +50,18 @@ test('local gates reject production, Vercel previews, review mode and live keys'
   for(const extra of [{NODE_ENV:'production'},{VERCEL_ENV:'preview'},{VERCEL:'1'},{GALA_CLIENT_REVIEW:'true'},{GALA_BACKEND_ENABLED:'false'}])
     assert.equal(backendEnabled({...env,...extra}),false);
   assert.throws(()=>readBackendConfig({...env,GALA_STRIPE_SECRET_KEY:'sk_live_fake'}));
+});
+test('local admin sessions require a valid unexpired signature and same-origin writes',()=>{
+  const token='a'.repeat(64);const now=Date.now();const cookie=createDevelopmentSession(token,now);
+  assert.equal(validDevelopmentSession(cookie,token,now),true);
+  assert.equal(validDevelopmentSession(cookie,'b'.repeat(64),now),false);
+  assert.equal(validDevelopmentSession(cookie,token,now+9*3600_000),false);
+  assert.equal(validDevelopmentSession(cookie.slice(0,-1)+'z',token,now),false);
+  const headers={cookie:`${DEVELOPMENT_COOKIE}=${cookie}`,origin:'http://localhost:3000'};
+  assert.doesNotThrow(()=>authorizeLocalRequest(new Request('http://localhost:3000/api/gala/checkout',{method:'POST',headers}),token,'http://localhost:3000'));
+  assert.throws(()=>authorizeLocalRequest(new Request('http://localhost:3000/api/gala/checkout',{method:'POST',headers:{...headers,origin:'https://attacker.example'}}),token,'http://localhost:3000'));
+  assert.throws(()=>authorizeLocalRequest(new Request('http://localhost:3000/api/gala/orders'),token,'http://localhost:3000'));
+  assert.doesNotThrow(()=>authorizeLocalRequest(new Request('http://localhost:3000/api/gala/orders',{headers:{'x-gala-development-token':token}}),token,'http://localhost:3000'));
 });
 test('database enforces last available table, repeated request IDs and changed payload conflicts',async t=>{
   const {db,store}=await setup(t); await db.exec("update gala_inventory set capacity=1 where tier='gold'");

@@ -1,0 +1,29 @@
+.lab { max-width: 1180px; margin: 0 auto; padding: 36px 24px 64px; color: #202a35; background: #faf8f1; }
+.lab h1 { font-size: clamp(1.8rem, 3vw, 2.8rem); margin: 12px 0; }
+.lab h2 { font-size: 1.4rem; margin: 0 0 18px; }
+.badge { display: inline-block; background: #d9efec; color: #185b56; padding: 6px 12px; border-radius: 20px; font: 700 12px/1.5 sans-serif; letter-spacing: .1em; }
+.note { color: #58616a; margin: 12px 0 24px; line-height: 1.6; }
+.nav, .tools { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin: 18px 0; }
+.nav a { color: #246c65; text-decoration: underline; }
+.panel { border: 1px solid #d4dcd6; background: white; border-radius: 12px; padding: 24px; margin: 24px 0; }
+.form { display: grid; gap: 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.lab label { display: grid; gap: 6px; font: 600 14px/1.5 sans-serif; }
+.lab input, .lab select { border: 1px solid #9baea9; border-radius: 6px; padding: 10px; width: 100%; background: white; color: #202a35; font: 16px/1.4 sans-serif; }
+.lab button { background: #246c65; color: white; padding: 11px 18px; border: 0; border-radius: 6px; cursor: pointer; font: 600 14px/1.4 sans-serif; }
+.lab button:disabled { opacity: .55; cursor: wait; }
+.lab :focus-visible { outline: 3px solid #c49637; outline-offset: 3px; }
+.wide { grid-column: 1/-1; }
+.check { display: flex !important; align-items: center; gap: 10px; }
+.check input { width: 18px; height: 18px; }
+.inventory { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.stock { border: 1px solid #b7cbc5; border-radius: 8px; padding: 18px; background: #eef6f3; }
+.stock strong { display: block; text-transform: capitalize; margin-bottom: 8px; }
+.stock span { font: 28px/1.2 sans-serif; }
+.table { overflow-x: auto; }
+.table table { border-collapse: collapse; width: 100%; min-width: 720px; font: 14px/1.5 sans-serif; }
+.table th, .table td { padding: 12px; text-align: left; vertical-align: top; border-bottom: 1px solid #dde4e0; }
+.table th { background: #edf3f0; }
+.table small { display: block; color: #58616a; }
+.error { background: #fff0e9; color: #923f20; border-left: 3px solid #a65d37; padding: 14px; }
+.success { background: #e7f4e9; color: #245e39; padding: 14px; }
+@media(max-width: 650px) { .form, .inventory { grid-template-columns: 1fr; } .lab { padding: 24px 14px; } .panel { padding: 18px; } }

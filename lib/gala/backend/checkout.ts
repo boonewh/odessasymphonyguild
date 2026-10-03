@@ -7,6 +7,8 @@ export const DEVELOPMENT_CHECKOUT_SECONDS = 35 * 60;
 export function sessionParameters(order: Order, origin: string): Stripe.Checkout.SessionCreateParams {
   return {
     mode: "payment", ui_mode: "hosted_page", allowed_payment_method_types: ["card"],
+    // Link can offer bank/financing methods even with card-only Checkout.
+    wallet_options: { link: { display: "never" } },
     client_reference_id: order.id,
     metadata: { gala_order_id: order.id, application: "osg-gala-development" },
     payment_intent_data: { metadata: { gala_order_id: order.id, application: "osg-gala-development" } },

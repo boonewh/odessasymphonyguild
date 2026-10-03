@@ -11,7 +11,7 @@ Run `npm run dev` and open:
 - `/gala/invitations`: multiple mailing recipients and requester details.
 - `/gala/preview/admin`: sample orders, inventory, paid/unpaid filters, table assignment, gifts and mailing statuses.
 
-Use fictional data only. Preview orders are stored in this browser under `osg-gala-local-preview-v1`. Clear them in the preview admin. No information is sent to Stripe, Supabase, QuickBooks, the Guild, or an email provider. This is not a production admin or secure persistent order store.
+Use fictional data only. Flyer-page prototype orders are stored in this browser under `osg-gala-local-preview-v1`. These forms send no information to Stripe, Supabase, QuickBooks, the Guild, or an email provider. When `GALA_BACKEND_ENABLED=true` locally, `/gala/preview/admin` instead displays the isolated development database, and `/gala/preview/testing` makes actual sandbox purchases. See `GALA_BACKEND_DEVELOPMENT.md` for that separate workflow. No production admin is implemented.
 
 `requireGalaPreview()` requires local development and rejects any Vercel environment. All four routes return 404 in production. Do not remove the production or admin guard until the checklist below is complete and launch is authorized.
 
@@ -30,7 +30,7 @@ The user approved sharing the designs through a separate Vercel Preview deployme
 
 ## Mandatory release gates
 
-October 2 backend progress: see `GALA_BACKEND_DEVELOPMENT.md`. Isolated database schema installed; first hosted last-table race, Stripe idempotency and verified-expiration tests passed; 21 automated checks and build passed. No successful card payment or actual webhook delivery has been tested yet. Public routes, UI/admin wiring, scheduling and QuickBooks remain incomplete; these partial results do not complete the broader release gates below.
+October 2 backend progress: see `GALA_BACKEND_DEVELOPMENT.md`. Isolated database schema, local payment lab and authenticated database admin implemented. Hosted last-table race, Stripe idempotency and verified-expiration tests passed; 22 automated checks and build passed. Actual hosted test-card success, decline, simulated 3D Secure and CLI-forwarded completion/expiration webhooks passed. Paid gifts retained student and item details; expired unpaid orders produced no accounting entry. All six APIs and local testing/admin/payment pages returned 404 in production mode. Public form wiring, production admin permissions/fulfillment, scheduling and QuickBooks remain incomplete; these partial results do not complete the broader release gates below.
 
 Client-review verification, September 29: all 10 model/access tests passed; preview-mode and production-mode builds passed. A local production-mode server configured as Vercel Preview returned 200/noindex for the three designs and 404 for admin, existing APIs, student registration, and submission requests. Browser review confirmed interactive Platinum + two seats totals $6,875 while buyer fields and submission remain disabled. A separately built production configuration returned 404 for all four Gala prototype routes even with the review flag set to true; the existing homepage remained 200. Actual hosted deployment verification is still required after Vercel setup.
 
@@ -49,8 +49,9 @@ Client-review verification, September 29: all 10 model/access tests passed; prev
 - [ ] Verify no-refund acknowledgment and receipt wording; provide an exceptional correction/dispute process without assuming refunds or restocking.
 - [ ] Test desktop/mobile checkout and admin with actual Stripe test payments, not only simulations.
 - [ ] Board/user explicitly authorizes launch after reviewing the results and final inventory.
+- [ ] Review and resolve applicable dependency security findings, including the current Next.js critical advisory.
 
-No launch date is currently authorized. No live integration or end-to-end payment tests are complete.
+No launch date is currently authorized. Initial sandbox payment flows pass; full acceptance testing and live integration remain incomplete.
 
 ## Model checks
 

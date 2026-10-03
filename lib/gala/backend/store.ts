@@ -37,4 +37,22 @@ export class SupabaseOrderStore implements OrderStore {
     if (error) throw new Error("Cannot load pending Gala orders.");
     return data as Order[];
   }
+  async dashboard() {
+    const [orders, inventory, outbox] = await Promise.all([
+      this.db.from("gala_orders").select("*").order("created_at", { ascending: false }).limit(100),
+      this.db.from("gala_inventory").select("tier,capacity,board_confirmed"),
+      this.db.from("gala_accounting_outbox").select("order_id,status").limit(1000),
+    ]);
+    if (orders.error || inventory.error || outbox.error) throw new Error("Cannot load Gala dashboard.");
+    const counts = await Promise.all(inventory.data.map(async tier => {
+      const [held, paid] = await Promise.all([
+        this.db.from("gala_orders").select("id", { count: "exact", head: true }).eq("tier", tier.tier).in("status", ["reserved", "awaiting_payment"]),
+        this.db.from("gala_orders").select("id", { count: "exact", head: true }).eq("tier", tier.tier).eq("status", "paid"),
+      ]);
+      if (held.error || paid.error) throw new Error("Cannot read inventory counts.");
+      return { ...tier, held: held.count || 0, paid: paid.count || 0,
+        available: Math.max(0, tier.capacity - (held.count || 0) - (paid.count || 0)) };
+    }));
+    return { orders: orders.data as Order[], inventory: counts, accounting: outbox.data };
+  }
 }

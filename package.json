@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test:gala": "node --import tsx --test tests/gala-model.test.mjs tests/gala-client-review.test.mjs tests/gala-backend.test.mjs"
+    "test:gala": "node --import tsx --test tests/gala-model.test.mjs tests/gala-client-review.test.mjs tests/gala-backend.test.mjs",
+    "gala:listen": "node --import tsx scripts/gala-listen.mts",
+    "gala:dev": "next dev --turbopack --hostname 127.0.0.1 --port 3000"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -26,6 +28,7 @@
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.8",
+    "@stripe/cli": "^1.53.0",
     "@types/node": "^22.10.5",
     "@types/react": "^19.0.6",
     "@types/react-dom": "^19.0.3",
