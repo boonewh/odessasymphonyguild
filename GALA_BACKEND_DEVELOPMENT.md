@@ -60,7 +60,7 @@ node --import tsx --test tests/gala-backend.test.mjs tests/gala-model.test.mjs t
 npm run build
 ```
 
-`npm run test:gala` now runs 33 tests covering pricing, consent, inventory limits, repeat requests, ambiguous creation, payment matching, duplicate/out-of-order transitions, denied browser database access, signatures, local session authentication, accounting recovery, provider failures and environment guards. Database tests execute the real SQL in ephemeral PGlite PostgreSQL. PGlite alone is not proof of multi-connection concurrency.
+`npm run test:gala` now runs 35 tests covering pricing, consent, inventory limits, repeat requests, ambiguous creation, payment matching, duplicate/out-of-order transitions, denied browser database access, signatures, local session authentication, accounting recovery, provider failures, process termination and environment guards. Database tests execute the real SQL in ephemeral PGlite PostgreSQL, including two disk-backed child-process crash cases. PGlite alone is not proof of hosted multi-connection concurrency.
 
 Additional checks used the actual Stripe sandbox and hosted development database:
 
@@ -125,7 +125,7 @@ Two sequential repeats of that same sync request each returned HTTP 200 / `busy_
 
 The full paid order, including Sample Student's two roses and one cookie bag, matched its original record after recovery. All table inventory counts were unchanged. The $4,375 table and $30 gift accounting jobs are now synced. The public sync flag remained false throughout this harness test; it invokes the same worker with a separate explicit test opt-in and holds the normal database connection lease. No live books, invoice emails or charges were involved.
 
-These were **controlled application-side fault injections around real sandbox operations**, not actual Intuit downtime, dropped network packets, or a disabled database. They demonstrate the worker's recovery under those injected conditions. Process termination/lease expiry, actual token refresh, broader payment races, fees/payouts and treasurer review remain open. All 11 accounting regression tests passed again; the new smoke script passed a dedicated TypeScript check.
+These were **controlled application-side fault injections around real sandbox operations**, not actual Intuit downtime, dropped network packets, or a disabled database. They demonstrate the worker's recovery under those injected conditions. Subsequent refresh and local process-termination tests are described below; broader payment races, actual hosted outages, fee/payout posting and treasurer review remain open. All 11 accounting regression tests passed again; the new smoke script passed a dedicated TypeScript check.
 
 To run this one-shot test against another explicitly authorized, fresh paid sandbox gift order, set `NODE_ENV=development` and `GALA_QB_RECOVERY_TEST=true`, then run:
 
@@ -134,6 +134,16 @@ node --env-file=.env.local --import tsx scripts/gala-accounting-recovery-smoke.m
 ```
 
 It refuses jobs that already entered accounting. Do not reset dispatch markers or replay this against receipt 146; inspect and recover any interrupted run using the normal lookup-only worker.
+
+### Token refresh, process interruption and fee evidence, October 2
+
+- `scripts/gala-qb-refresh-smoke.mts` passed an **actual Intuit sandbox refresh** through the existing `qbAccessToken` path. The harness presented an expired access-token timestamp in memory, without first overwriting the saved connection. Under the normal connection lease, new credentials were encrypted and persisted, API mapping reads succeeded with the refreshed token, and the next normal call reused that token without another refresh. No secret values were printed. Run with local development settings and the explicit `GALA_QB_REFRESH_TEST=true` opt-in.
+- `tests/gala-accounting-crash.test.mjs` starts a real child worker using a disk-backed disposable PGlite database and the production SQL/worker, then terminates it with SIGKILL at two dispatch boundaries. On restart, active leases block another worker. After **simulating elapsed lease time in that local database only**, a saved fake-provider receipt is recovered by lookup; a dispatched job with no provider receipt remains in review without another POST. Paid state is retained and the old worker owner cannot finalize the job. This is real process termination with a fake provider and simulated lease expiry, not a hosted Intuit crash test. Both scenarios pass, bringing `npm run test:gala` to **35 passing tests**.
+- `scripts/gala-fee-audit.mts` reads all paid development orders with pagination, verifies their Stripe payments and linked balance transactions, rejects refunds/disputes/mismatched amounts, and reports missing fees as unknown rather than zero. It performs no payment, payout or accounting writes. The actual read-only sandbox run found two orders: **$4,405.00 gross, $128.80 fees, $4,276.20 net**. Gold: $4,375 gross / $127.18 fee / $4,247.82 net. Gifts: $30 gross / $1.62 fee / $28.38 net. Both balance transactions were pending; no sandbox payout existed. These are sandbox evidence, not a quote for OSG's eventual live rates, available funds, or a completed bank reconciliation.
+
+Fee/payout work still needs an approved QuickBooks fee-expense account and bank/deposit account, a decision about who owns bank-feed matching, and a tested source of payout membership. Keep the existing gross Symphony Ball sales separate from fee expense and payout movements; never record a payout as a second sale. Stripe's balance transactions supply amount/fee/net, and the payout filter applies to automatic payouts only: [Stripe balance transactions](https://docs.stripe.com/api/balance_transactions/list). Support for a payout must verify the whole payout, including non-Gala adjustments or other sales, rather than equating the two test orders' net total with a bank deposit. Payout failure/reversal and duplicate-safe accounting writes remain unimplemented. No fee or payout entries were sent to QuickBooks.
+
+The refresh and fee-audit scripts passed dedicated TypeScript checks. Sandbox receipt sync remains disabled; all production release gates remain in force.
 
 ### Setup procedure (steps 1–4 completed locally)
 
@@ -149,7 +159,7 @@ The current sandbox payload uses `TaxCodeRef=NON` purely as a test assumption. I
 
 ### Evidence and limits
 
-The automated tests execute the migration and worker using real local PostgreSQL semantics plus a **fake QuickBooks transport**. They cover one POST across repeated/concurrent workers, lookup recovery after lost responses or database-save failure, unknown dispatch retained for review, immutable company/payload, expired lease rejection, mapping conflicts, encrypted token integrity and denied browser access. TypeScript and production build passed for the implementation. Actual sandbox OAuth, record/mapping checks, table and gift receipts, normal retries and controlled response-loss/save-failure recovery now pass as described above. Token refresh, process-crash recovery and genuine provider/database outages remain unverified. No accounting release gate is complete from these tests alone.
+The automated tests execute the migration and worker using real local PostgreSQL semantics plus a **fake QuickBooks transport**. They cover one POST across repeated/concurrent workers, lookup recovery after lost responses or database-save failure, unknown dispatch retained for review, immutable company/payload, expired lease rejection, mapping conflicts, encrypted token integrity, denied browser access and local worker termination. TypeScript and production build passed for the implementation. Actual sandbox OAuth/refresh, record/mapping checks, table and gift receipts, normal retries and controlled response-loss/save-failure recovery now pass as described above. Genuine hosted provider/database outages, complete payout reconciliation and production accounting decisions remain unverified. No accounting release gate is complete from these tests alone.
 
 API references: [SalesReceipt](https://developer.intuit.com/app/developer/qbo/docs/api/accounting/most-commonly-used/salesreceipt), [item-to-income-account mapping](https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/Item), [sandbox testing](https://developer.intuit.com/app/developer/qbo/docs/develop/sandboxes?no_link=1).
 

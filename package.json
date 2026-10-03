@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test:gala": "node --import tsx --test tests/gala-model.test.mjs tests/gala-client-review.test.mjs tests/gala-backend.test.mjs tests/gala-accounting.test.mjs",
+    "test:gala": "node --import tsx --test tests/gala-model.test.mjs tests/gala-client-review.test.mjs tests/gala-backend.test.mjs tests/gala-accounting.test.mjs tests/gala-accounting-crash.test.mjs",
     "gala:listen": "node --import tsx scripts/gala-listen.mts",
     "gala:dev": "next dev --turbopack --hostname 127.0.0.1 --port 3000"
   },
