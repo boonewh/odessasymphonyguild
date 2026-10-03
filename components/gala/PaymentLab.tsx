@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { CheckoutRequest, Order } from "@/lib/gala/backend/domain";
 import { money, TABLES, quotePurchase, type Product } from "@/lib/gala/model";
 import styles from "./PaymentLab.module.css";
+import QuickBooksSandbox from "./QuickBooksSandbox";
 type Dashboard = { orders: Order[]; inventory: {tier:string;capacity:number;available:number;held:number;paid:number}[]; accounting: {order_id:string;status:string}[] };
 const attemptKey = "osg-gala-sandbox-attempt";
 export default function PaymentLab({ mode = "testing" }: { mode?: "testing" | "admin" }) {
@@ -69,10 +70,11 @@ export default function PaymentLab({ mode = "testing" }: { mode?: "testing" | "a
       <section className={styles.panel}><h2>Orders from the development database</h2><div className={styles.tools}>
         <label>Show<select value={filter} onChange={e=>setFilter(e.target.value)}><option value="paid">Paid orders</option><option value="pending">Pending / held</option><option value="expired">Expired unpaid</option><option value="all">All orders</option></select></label>
         <button disabled={busy} onClick={()=>void refresh().catch(e=>setError(e.message))}>Refresh</button><button disabled={busy} onClick={()=>void action("/api/gala/reconcile")}>Reconcile with Stripe</button>
-      </div><p className={styles.note}>Latest 100 orders. Only paid orders are ready for fulfillment. Accounting entries are queued locally; QuickBooks has not been contacted.</p>
+      </div><p className={styles.note}>Latest 100 orders. Only paid orders are ready for fulfillment. Accounting remains queued until explicitly synced to the QuickBooks sandbox below.</p>
       <div className={styles.table}><table><thead><tr><th>Buyer / order</th><th>Purchase</th><th>Total</th><th>Status</th><th>Accounting / action</th></tr></thead><tbody>{data.orders.filter(o=>filter==="all" || (filter==="pending" ? ["reserved","awaiting_payment"].includes(o.status) : o.status===filter)).map(o=><tr key={o.id}>
         <td>{o.details.contact.name}<small>{o.details.contact.email}</small><small>{o.id}</small></td><td>{o.description}{o.details.kind==="gifts"&&o.details.gifts.map((g,i)=><small key={i}>{g.student}, grade {g.grade}: {g.roses} roses / {g.cookies} cookie bags</small>)}</td><td>{money(o.amount)}</td><td>{o.status.replaceAll("_"," ")}</td><td>{data.accounting.find(a=>a.order_id===o.id)?.status||"—"}{["reserved","awaiting_payment"].includes(o.status)&&o.stripe_session_id&&<button disabled={busy} onClick={()=>void action("/api/gala/expire",{orderId:o.id})}>Expire test checkout</button>}</td>
       </tr>)}</tbody></table></div></section>
+      <QuickBooksSandbox refresh={refresh} orders={data.orders.filter(o=>o.status==="paid").map(o=>({id:o.id,label:`${o.description} · ${money(o.amount)} · ${o.id.slice(0,8)}`,accountingStatus:data.accounting.find(a=>a.order_id===o.id)?.status||"not queued"}))}/>
     </>}
   </main>;
 }

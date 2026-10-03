@@ -11,7 +11,7 @@ This is a local, sandbox-only backend on `codex/gala-2027-planning`. It is not e
 - Stable Stripe idempotency keys. Creation retries older than four minutes retain inventory for investigation rather than risk creating a second checkout. This is a conservative recovery limit, not the customer's checkout duration.
 - Signature verification using the raw webhook body. Payment state is fetched from Stripe; matching order/session/account mode/currency/amount and successful PaymentIntent checks are required. Completed-but-unpaid sessions remain pending.
 - Atomic paid/expired transitions and duplicate event protection. A paid order cannot become expired, and an expired order cannot become paid automatically. Conflicts require investigation.
-- Exactly one pending accounting-outbox row per paid order under `Symphony Ball`. **No QuickBooks sync worker or external accounting writes yet.**
+- Exactly one accounting-outbox row per paid order under `Symphony Ball`. A manually triggered sandbox sync now records one SalesReceipt per order, with one Symphony Ball line. No QuickBooks transaction has been sent yet; sandbox authorization and company mappings are still pending.
 - Reconciliation can verify/expire linked pending sessions. Unknown creation outcomes remain held for review. The endpoint is manual, limited to 100 pending records per call; scheduling, paging and operator recovery are still needed.
 - Local payment lab and database admin, protected by an eight-hour signed HttpOnly/SameSite cookie and same-origin write checks. The development token is never embedded in page source. This is not production staff authentication.
 - The official Stripe CLI forwards sandbox events locally. Link is disabled per Checkout Session because its wallet can offer bank/financing choices even when the allowed payment method is card.
@@ -39,7 +39,7 @@ npm run gala:dev
 
 `gala:listen` verifies the pinned Stripe account, obtains the CLI signing secret, generates a development token if needed, and saves the local settings in ignored `.env.local` without printing secrets. Keep the listener running. Restart the dev server if its signing secret changes. The server binds to loopback only.
 
-Open `http://localhost:3000/gala/preview/testing` and unlock it with `GALA_DEVELOPMENT_TOKEN` from `.env.local`. Use fictional details and Stripe test cards only. The admin is `http://localhost:3000/gala/preview/admin`. It shows paid orders by default, with separate pending and expired views. Successful sales enter the accounting outbox; QuickBooks is not connected.
+Open `http://localhost:3000/gala/preview/testing` and unlock it with `GALA_DEVELOPMENT_TOKEN` from `.env.local`. Use fictional details and Stripe test cards only. The admin is `http://localhost:3000/gala/preview/admin`. It shows paid orders by default, with separate pending and expired views. Successful sales enter the accounting outbox; its QuickBooks panel reports sandbox setup and permits individual test syncs only after configuration.
 
 The runtime pins both the development Stripe account and Supabase URL in `lib/gala/backend/config.ts`, checks a development database marker, rejects live keys, and rejects all Vercel environments and `NODE_ENV=production`. These are deliberate development barriers, not the eventual production configuration.
 
@@ -60,7 +60,7 @@ node --import tsx --test tests/gala-backend.test.mjs tests/gala-model.test.mjs t
 npm run build
 ```
 
-22 tests cover pricing, consent, inventory limits, repeat requests, ambiguous creation, payment matching, duplicate/out-of-order transitions, denied browser database access, signatures, local session authentication, provider failures and environment guards. Database tests execute the real SQL in ephemeral PGlite PostgreSQL. PGlite alone is not proof of multi-connection concurrency.
+`npm run test:gala` now runs 33 tests covering pricing, consent, inventory limits, repeat requests, ambiguous creation, payment matching, duplicate/out-of-order transitions, denied browser database access, signatures, local session authentication, accounting recovery, provider failures and environment guards. Database tests execute the real SQL in ephemeral PGlite PostgreSQL. PGlite alone is not proof of multi-connection concurrency.
 
 Additional checks used the actual Stripe sandbox and hosted development database:
 
@@ -87,12 +87,43 @@ node --env-file=.env.local --import tsx scripts/gala-hosted-smoke.mts
 
 The hosted smoke script changes development Gold capacity temporarily and keeps its audit record. Only run it while no other Gold reservations are active. It refuses a different project or Stripe account.
 
+## QuickBooks sandbox accounting, October 2
+
+### What is implemented
+
+- `002_gala_accounting.sql` was applied successfully to **OSG Gala Development**. It adds durable receipt payloads, worker leases, dispatch markers, provider receipt IDs and encrypted sandbox token storage. Production database migrations were not changed.
+- Dedicated local OAuth routes under `/api/gala/quickbooks/`: `connect` (POST), `callback` (GET), `status` (GET), `sync` (POST). Connect/sync require local authentication; the callback verifies the browser's random state cookie and exact configured sandbox company before exchanging its code. The four routes returned HTTP 404 in a production-mode server.
+- The existing `intuit-oauth` library and encrypted-token approach are reused, but Gala uses its own configuration and token table. There is no fallback to membership credentials or the live `qb_tokens` table. Token refresh/save is serialized by a database lease; failed refresh persistence requires reconnecting/review rather than overwriting a newer connection.
+- One gross paid order becomes one SalesReceipt with a single **Symphony Ball** item line, posting into an explicitly selected Stripe clearing account. It does not create an unpaid invoice, charge a card, or send a receipt email. The order UUID and Stripe PaymentIntent identify the sale; gift-recipient/contact information stays in the website database.
+- Receipt date comes from the successful Stripe charge in America/Chicago, not the sync date. Mapping checks require a US/USD sandbox, an active service/noninventory item mapped to the configured Symphony Ball income account, an explicit active customer and a Bank/Other Current Asset clearing account. A common sandbox customer is a test arrangement only; the treasurer must approve the eventual production customer policy.
+- The exact company and payload are frozen before dispatch. A database marker is saved before POST. All retries of a dispatched order are **lookup-only**: a matching receipt is recovered and verified; no match, conflicting totals/references, multiple matches or an uncertain provider result goes to review. No code automatically clears the dispatch marker. This favors stopping for review over risking duplicate revenue, including a crash immediately before the network request.
+- A stable QuickBooks `requestid` accompanies the first POST, but duplicate prevention does not assume unlimited provider idempotency retention. It relies on durable dispatch state and receipt lookup, with no blind second POST.
+- Pending/expired purchases cannot enter the sync worker. Accounting failure does not reverse the paid order or release its inventory.
+
+### Remaining setup (user is locating the older Intuit sandbox)
+
+The existing **OSG Belles & Beaux** app is marked **In Production**. That release label does not eliminate its Development credentials. Use **Keys and credentials → Development** in the Intuit Developer portal, then locate/create a separate sandbox company. [Intuit credential instructions](https://developer.intuit.com/app/developer/qbo/docs/get-started/get-client-id-and-client-secret).
+
+1. Register `http://localhost:3000/api/gala/quickbooks/callback` among the app's **Development** redirect URIs. Leave Production settings unchanged.
+2. Save its Development client ID/secret and sandbox company ID in ignored `.env.local` as `GALA_QB_CLIENT_ID`, `GALA_QB_CLIENT_SECRET`, `GALA_QB_REALM_ID`. Empty slots have been prepared locally. `GALA_QB_ENVIRONMENT=sandbox`, a new random encryption key, and `GALA_QB_SYNC_ENABLED=false` are already set. Never paste secrets into chat.
+3. Restart the local server if required, then select **Connect QuickBooks sandbox** in the authenticated local admin and authorize only the designated sandbox company.
+4. Inspect that sandbox's customer, product and account records. Select/create explicit sandbox test mappings for `GALA_QB_CUSTOMER_ID`, `GALA_QB_ITEM_ID`, `GALA_QB_INCOME_ACCOUNT_ID`, `GALA_QB_CLEARING_ACCOUNT_ID`. No automatic item-1 default or production account changes.
+5. Enable `GALA_QB_SYNC_ENABLED=true` locally only after checking the mappings. Sync one fictional paid order; verify its company, gross amount, date, item/income account and clearing account. Retry and prove exactly one receipt exists. Then repeat for gifts and failure scenarios.
+
+The current sandbox payload uses `TaxCodeRef=NON` purely as a test assumption. It is **not** an exemption determination or production tax setup. Tax treatment, fees, Stripe balance/payout reconciliation, exceptional refunds/disputes, receipt wording and production customer mapping require the treasurer's review. Never connect another Stripe-to-QuickBooks writer for the same sales without deciding which system owns those entries.
+
+### Evidence and limits
+
+The new automated tests execute the migration and worker using real local PostgreSQL semantics plus a **fake QuickBooks transport**. They cover one POST across repeated/concurrent workers, lookup recovery after lost responses or database-save failure, unknown dispatch retained for review, immutable company/payload, expired lease rejection, mapping conflicts, encrypted token integrity and denied browser access. TypeScript and production build passed. The live QuickBooks sandbox API, OAuth callback/refresh, account-specific response shapes and real provider duplicate recovery are **not yet verified**. No accounting release gate is complete from these tests alone.
+
+API references: [SalesReceipt](https://developer.intuit.com/app/developer/qbo/docs/api/accounting/most-commonly-used/salesreceipt), [item-to-income-account mapping](https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/Item), [sandbox testing](https://developer.intuit.com/app/developer/qbo/docs/develop/sandboxes?no_link=1).
+
 ## Next implementation steps
 
 1. Exercise repeated/out-of-order real events, outage recovery and payment at expiry. Broaden concurrent capacity tests beyond the initial two-request check.
 2. Implement durable reconciliation scheduling, operator exception handling, gift cutoff enforcement, ticket/venue limits, free invitation persistence, production access controls and retention. Add persistent table assignment and fulfillment/export workflows; the new database admin currently displays purchases and payment state only.
 3. Connect the approved customer forms to the backend in a separately authorized test environment; preserve the client design preview until approved.
-4. Implement and review QuickBooks sync, fees and payouts with the treasurer. No refunds is the displayed policy; exceptional corrections and disputes still need handling.
+4. Connect and verify the implemented QuickBooks sandbox sync against actual Intuit responses. Add scheduling/operator recovery; review production mappings, tax treatment, fees and payouts with the treasurer. No refunds is the displayed policy; exceptional corrections and disputes still need handling.
 5. Meet every item in `GALA_RELEASE_CHECKLIST.md` before enabling any public sales.
 
 The current dependency audit reports 29 findings (2 low, 7 moderate, 19 high, 1 critical), including an existing Next.js critical finding. No Stripe/Stripe CLI package was listed in the findings. No broad dependency upgrade was included in this feature; a separate dependency review is needed before release.
