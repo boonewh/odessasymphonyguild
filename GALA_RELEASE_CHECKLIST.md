@@ -30,6 +30,8 @@ The user approved sharing the designs through a separate Vercel Preview deployme
 
 ## Mandatory release gates
 
+October 2 backend progress: see `GALA_BACKEND_DEVELOPMENT.md`. Isolated database schema installed; first hosted last-table race, Stripe idempotency and verified-expiration tests passed; 21 automated checks and build passed. No successful card payment or actual webhook delivery has been tested yet. Public routes, UI/admin wiring, scheduling and QuickBooks remain incomplete; these partial results do not complete the broader release gates below.
+
 Client-review verification, September 29: all 10 model/access tests passed; preview-mode and production-mode builds passed. A local production-mode server configured as Vercel Preview returned 200/noindex for the three designs and 404 for admin, existing APIs, student registration, and submission requests. Browser review confirmed interactive Platinum + two seats totals $6,875 while buyer fields and submission remain disabled. A separately built production configuration returned 404 for all four Gala prototype routes even with the review flag set to true; the existing homepage remained 200. Actual hosted deployment verification is still required after Vercel setup.
 
 - [ ] Board confirms firm Platinum, Gold, and Silver quantities. **20 each is test data only.** Record who confirmed the figures and when.
