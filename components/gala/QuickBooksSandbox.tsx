@@ -31,7 +31,7 @@ export default function QuickBooksSandbox({ orders, refresh }: {
   const ready = setup?.connected && setup.mapped && setup.databaseReady && setup.syncEnabled;
   return <section className={styles.panel}>
     <h2>QuickBooks sandbox accounting</h2>
-    <p className={styles.note}>Each paid order becomes one sales receipt with one Symphony Ball line. This records the Stripe payment; it does not charge the buyer again or send an invoice. Fees and payouts are not synced yet.</p>
+    <p className={styles.note}>This sandbox currently records one sales receipt per paid order with one Symphony Ball line. Per-order versus combined-total posting still needs the treasurer’s decision. Syncing records the Stripe payment without charging again or sending an invoice. Fees and payouts are not synced yet.</p>
     <p>{!setup ? "Checking sandbox setup…" : !setup.configured ? "Sandbox credentials are not configured."
       : !setup.databaseReady ? "The development accounting migration is required."
       : !setup.connected ? "Ready to authorize the designated sandbox company."

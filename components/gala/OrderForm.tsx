@@ -10,6 +10,8 @@ import { useDemoOrders } from "@/lib/gala/use-demo-orders";
 import styles from "./gala-sales.module.css";
 
 type Kind = DemoOrder["kind"];
+export type PaidFormDetails = { kind: "tables"; contact: DemoOrder["contact"]; allSalesFinal: true; purchase: { product: Product; quantity: number; extraSeats: number } }
+  | { kind: "gifts"; contact: DemoOrder["contact"]; allSalesFinal: true; gifts: Gift[] };
 const blankGift = (): Gift => ({ student: "", grade: "9", roses: 1, cookies: 0 });
 const blankRecipient = (): Recipient => ({ name: "", address: "", address2: "", city: "", state: "TX", zip: "" });
 function Field({ label, name, value, onChange, type = "text", required = true, maxLength = 120, disabled = false }: {
@@ -34,7 +36,10 @@ function LocalOrderForm({ kind }: { kind: Kind }) {
   const store = useDemoOrders();
   return <OrderFormContent kind={kind} store={store} />;
 }
-function OrderFormContent({ kind, store, clientReview = false }: { kind: Kind; store?: ReturnType<typeof useDemoOrders>; clientReview?: boolean }) {
+export function OrderFormContent({ kind, store, clientReview = false, checkout, busy = false }: {
+  kind: Kind; store?: ReturnType<typeof useDemoOrders>; clientReview?: boolean;
+  checkout?: (details: PaidFormDetails) => Promise<void>; busy?: boolean;
+}) {
   const [product, setProduct] = useState<Product>("gold");
   const [quantity, setQuantity] = useState(1);
   const [extraSeats, setExtraSeats] = useState(0);
@@ -51,12 +56,17 @@ function OrderFormContent({ kind, store, clientReview = false }: { kind: Kind; s
   function selectProduct(next: Product) { setProduct(next); setQuantity(1); setExtraSeats(0); }
   function changeGift(index: number, patch: Partial<Gift>) { setGifts((items) => items.map((item, i) => i === index ? { ...item, ...patch } : item)); }
   function changeRecipient(index: number, patch: Partial<Recipient>) { setRecipients((items) => items.map((item, i) => i === index ? { ...item, ...patch } : item)); }
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setError("");
-    if (clientReview || !store || saved) return;
+    if (clientReview || (!store && !checkout) || saved || busy) return;
     try {
       const buyer = contactSchema.parse(contact);
       if (kind !== "invitations" && !agreed) throw new Error("Please acknowledge the no-refund policy.");
+      if (checkout && kind !== "invitations") {
+        await checkout(kind === "tables" ? { kind, contact: buyer, allSalesFinal: true, purchase }
+          : { kind, contact: buyer, allSalesFinal: true, gifts: giftsSchema.parse(gifts) });
+        return;
+      }
       const order: DemoOrder = {
         id: `PREVIEW-${crypto.randomUUID()}`, demo: true, kind, contact: buyer,
         createdAt: new Date().toISOString(), tableAssignment: "",
@@ -71,13 +81,13 @@ function OrderFormContent({ kind, store, clientReview = false }: { kind: Kind; s
         order.recipients = recipientsSchema.parse(recipients);
         order.description = `${recipients.length} invitation recipient${recipients.length === 1 ? "" : "s"}`;
       }
-      store.add(order); setSaved(order.id);
+      store!.add(order); setSaved(order.id);
     } catch (err) {
       setError(err instanceof ZodError ? err.issues[0].message : err instanceof Error ? err.message : "The preview order could not be saved.");
     }
   }
   return <form onSubmit={submit}>
-    <fieldset disabled={!!saved} className={styles.formSection}>
+    <fieldset disabled={!!saved || busy} className={styles.formSection}>
       <legend className="sr-only">{kind === "tables" ? "Choose your table or tickets" : kind === "gifts" ? "Choose your celebration gifts" : "Invitation details"}</legend>
       {kind === "tables" && <>
         <h2 className={styles.flyerSectionTitle}>Table options</h2>
@@ -154,8 +164,8 @@ function OrderFormContent({ kind, store, clientReview = false }: { kind: Kind; s
             {kind === "invitations" ? <div><dt>Recipients</dt><dd>{recipients.length}</dd></div> : <div className={styles.total}><dt>Total</dt><dd>{money(total)}</dd></div>}
           </dl>
           {kind !== "invitations" && <label className={styles.agreement}><input disabled={clientReview} name="refundAcknowledgment" type="checkbox" required checked={agreed} onChange={(event) => setAgreed(event.target.checked)} /><span>I understand that all sales are final and no refunds are offered.</span></label>}
-          <button type="submit" className={styles.primary} disabled={clientReview || !store?.ready || !!saved}>{clientReview ? "Not open yet" : kind === "invitations" ? "Save preview request" : "Create preview order"}</button>
-          <p className={styles.fine}>{clientReview ? "Design review only. No information is saved or submitted, and no payment can be made." : kind === "invitations" ? "Preview only. No request is sent to the Guild and no invitation is mailed." : "Preview only. Stripe is not connected. This creates an unpaid sample order for review in the preview admin."}</p>
+          <button type="submit" className={styles.primary} disabled={clientReview || (!checkout && !store?.ready) || !!saved || busy}>{clientReview ? "Not open yet" : checkout ? (busy ? "Opening checkout…" : "Continue to Stripe test checkout") : kind === "invitations" ? "Save preview request" : "Create preview order"}</button>
+          <p className={styles.fine}>{clientReview ? "Design review only. No information is saved or submitted, and no payment can be made." : checkout ? "Local sandbox only. Use fictional details and a Stripe test card. Card information is entered on Stripe’s website. A table is temporarily held while checkout is open." : kind === "invitations" ? "Preview only. No request is sent to the Guild and no invitation is mailed." : "Preview only. Stripe is not connected. This creates an unpaid sample order for review in the preview admin."}</p>
           {kind === "tables" && <p className={styles.fine}>{clientReview ? "Table availability will be announced when sales open." : "Development inventory: 20 of each table tier. Actual availability has not been confirmed. Sales cannot launch with these placeholders."}</p>}
           {kind === "gifts" && <p className={styles.fine}>The exact deadline time is awaiting confirmation. This preview does not enforce a sales cutoff.</p>}
         </aside>

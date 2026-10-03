@@ -1,13 +1,7 @@
 import { createHash } from "node:crypto";
-import { z } from "zod";
-import { contactSchema, purchaseSchema, quotePurchase, giftsSchema, quoteGifts } from "../model";
-
-const common = { requestId: z.uuid(), contact: contactSchema, allSalesFinal: z.literal(true) };
-export const checkoutRequest = z.discriminatedUnion("kind", [
-  z.object({ ...common, kind: z.literal("tables"), purchase: purchaseSchema }).strict(),
-  z.object({ ...common, kind: z.literal("gifts"), gifts: giftsSchema }).strict(),
-]);
-export type CheckoutRequest = z.infer<typeof checkoutRequest>;
+import { quotePurchase, quoteGifts } from "../model";
+import { checkoutRequest, type CheckoutRequest } from "../checkout-request";
+export { checkoutRequest, type CheckoutRequest } from "../checkout-request";
 export type Status = "reserved" | "awaiting_payment" | "paid" | "expired";
 export type Order = {
   id: string; request_hash: string; details: CheckoutRequest; amount: number; currency: "usd";

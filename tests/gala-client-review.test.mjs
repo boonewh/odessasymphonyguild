@@ -18,7 +18,7 @@ test('review host permits only designs and assets; blocks admin, APIs, other pag
     assert.equal(clientReviewRequest(path, 'HEAD'), 'allowed');
     for (const method of ['POST', 'PUT', 'PATCH', 'DELETE']) assert.equal(clientReviewRequest(path, method), 'blocked');
   }
-  for (const path of ['/gala/preview/admin', '/admin/login', '/api/admin/students', '/api/belles-beaux/submit', '/api/quickbooks/auth', '/api/quickbooks/webhook', '/belles-beaux/join', '/gala/tables/unknown']) {
+  for (const path of ['/gala/preview/admin', '/gala/preview/payment', '/api/gala/order', '/api/gala/session', '/api/gala/checkout', '/admin/login', '/api/admin/students', '/api/belles-beaux/submit', '/api/quickbooks/auth', '/api/quickbooks/webhook', '/belles-beaux/join', '/gala/tables/unknown']) {
     assert.equal(clientReviewRequest(path, 'GET'), 'blocked');
     assert.equal(clientReviewRequest(path, 'POST'), 'blocked');
   }

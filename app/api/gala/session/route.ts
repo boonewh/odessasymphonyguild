@@ -1,7 +1,14 @@
 import { NextResponse } from "next/server";
 import { backendEnabled, readBackendConfig } from "@/lib/gala/backend/config";
 import { createDevelopmentSession, DEVELOPMENT_COOKIE, equalSecret } from "@/lib/gala/backend/auth";
+import { authorizeDevelopment } from "@/lib/gala/backend/server";
 export const runtime = "nodejs";
+export async function GET(request: Request) {
+  if (!backendEnabled(process.env)) return new Response(null, { status: 404 });
+  try { authorizeDevelopment(request, readBackendConfig(process.env).token); }
+  catch { return new Response(null, { status: 401 }); }
+  return Response.json({ authenticated: true }, { headers: { "Cache-Control": "no-store" } });
+}
 export async function POST(request: Request) {
   if (!backendEnabled(process.env)) return new Response(null, { status: 404 });
   try {

@@ -1,8 +1,14 @@
 # Gala 2027: decisions, payment research, and implementation handoff
 
-Last updated: October 2, 2026 (America/Chicago).
+Last updated: October 3, 2026 (America/Chicago).
 
 ## Resume here
+
+### October 3: flyer checkout wiring and pending accounting decisions
+
+The tables/tickets and gift flyer forms now use the existing isolated Stripe backend when local sandbox mode is enabled. Buyer and recipient details are saved before redirecting to Stripe-hosted card entry. The same attempt is retained across reloads and retries; the return page reads verified server state. Hosted client design review remains read-only, and production remains blocked. Invitations still use the local demonstration workflow. See `GALA_BACKEND_DEVELOPMENT.md` for the new browser-test evidence.
+
+Britni's accounting answers may arrive Monday. Her messages establish one **Symphony Ball revenue category**, but do not settle whether QuickBooks should receive one transaction per order or combined totals, nor the grouping period. The existing one-SalesReceipt-per-order sandbox implementation is provisional, not a treasurer-approved requirement. A combined-total approach remains possible but needs its own durable grouping, retry and reconciliation design and tests before use. Keep individual paid orders and fulfillment details regardless of the accounting choice. Fee expense account, bank account, clearing-account setup and bank-feed matching responsibilities also await her answers. OSG still does not have its own Stripe account. No fee/payout writes or live accounting changes are authorized by this progress.
 
 ### October 2: first backend implementation
 

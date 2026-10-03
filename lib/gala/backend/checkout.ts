@@ -16,8 +16,8 @@ export function sessionParameters(order: Order, origin: string): Stripe.Checkout
     line_items: [{ quantity: 1, price_data: { currency: "usd", unit_amount: order.amount,
       product_data: { name: order.description } } }],
     expires_at: Math.floor(Date.parse(order.created_at) / 1000) + DEVELOPMENT_CHECKOUT_SECONDS,
-    success_url: `${origin}/gala/preview/payment?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${origin}/gala/preview/payment?cancelled=true`,
+    success_url: `${origin}/gala/preview/payment?order_id=${order.id}&session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${origin}/gala/preview/payment?order_id=${order.id}&cancelled=true`,
     custom_text: { submit: { message: "All sales are final. No refunds." } },
     // Recovery must stay off: it could create a payable copy after inventory is released.
     after_expiration: { recovery: { enabled: false } },
