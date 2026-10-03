@@ -7,6 +7,7 @@ import styles from "./PaymentLab.module.css";
 import QuickBooksSandbox from "./QuickBooksSandbox";
 import TableAssignments from "./TableAssignments";
 import GiftFulfillment from "./GiftFulfillment";
+import InvitationMailing from "./InvitationMailing";
 type Dashboard = { orders: Order[]; inventory: {tier:string;capacity:number;available:number;held:number;paid:number}[]; accounting: {order_id:string;status:string}[] };
 const attemptKey = "osg-gala-sandbox-attempt";
 export default function PaymentLab({ mode = "testing" }: { mode?: "testing" | "admin" }) {
@@ -78,6 +79,7 @@ export default function PaymentLab({ mode = "testing" }: { mode?: "testing" | "a
       </tr>)}</tbody></table></div></section>
       {mode==="admin" && <TableAssignments />}
       {mode==="admin" && <GiftFulfillment />}
+      {mode==="admin" && <InvitationMailing />}
       <QuickBooksSandbox refresh={refresh} orders={data.orders.filter(o=>o.status==="paid").map(o=>({id:o.id,label:`${o.description} · ${money(o.amount)} · ${o.id.slice(0,8)}`,accountingStatus:data.accounting.find(a=>a.order_id===o.id)?.status||"not queued"}))}/>
     </>}
   </main>;

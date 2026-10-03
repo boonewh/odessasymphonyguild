@@ -2,9 +2,25 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { Order, OrderStore, priceRequest } from "./domain";
 import type { TableAssignment } from "../assignments";
 import type { GiftRow, GiftStatus } from "../gift-fulfillment";
+import type { InvitationRequest, InvitationRow, InvitationStatus } from "../invitations";
 
 export class SupabaseOrderStore implements OrderStore {
   private db: SupabaseClient;
+  async invitations(): Promise<InvitationRow[]> {
+    const {data,error}=await this.db.rpc("gala_invitation_list");
+    if(error)throw new Error("Cannot load invitation requests.");
+    return data as InvitationRow[];
+  }
+  async requestInvitations(details:InvitationRequest) {
+    const {data,error}=await this.db.rpc("gala_request_invitations",{p_details:details});
+    if(error)throw new Error("Invitation request not confirmed.");
+    return data as string;
+  }
+  async setInvitationStatus(input:{requestId:string;recipientIndex:number;status:InvitationStatus;revision:number;reason:string}) {
+    const {error}=await this.db.rpc("gala_set_invitation_status",{p_request:input.requestId,p_recipient:input.recipientIndex,
+      p_status:input.status,p_revision:input.revision,p_reason:input.reason});
+    if(error)throw new Error("Invitation status conflict.");
+  }
   constructor(url: string, secret: string) {
     this.db = createClient(url, secret, { auth: { persistSession: false, autoRefreshToken: false } });
   }

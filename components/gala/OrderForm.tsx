@@ -36,9 +36,10 @@ function LocalOrderForm({ kind }: { kind: Kind }) {
   const store = useDemoOrders();
   return <OrderFormContent kind={kind} store={store} />;
 }
-export function OrderFormContent({ kind, store, clientReview = false, checkout, busy = false }: {
+export function OrderFormContent({ kind, store, clientReview = false, checkout, invite, busy = false }: {
   kind: Kind; store?: ReturnType<typeof useDemoOrders>; clientReview?: boolean;
   checkout?: (details: PaidFormDetails) => Promise<void>; busy?: boolean;
+  invite?: (details:{contact:DemoOrder["contact"];recipients:Recipient[]})=>Promise<void>;
 }) {
   const [product, setProduct] = useState<Product>("gold");
   const [quantity, setQuantity] = useState(1);
@@ -58,9 +59,13 @@ export function OrderFormContent({ kind, store, clientReview = false, checkout, 
   function changeRecipient(index: number, patch: Partial<Recipient>) { setRecipients((items) => items.map((item, i) => i === index ? { ...item, ...patch } : item)); }
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setError("");
-    if (clientReview || (!store && !checkout) || saved || busy) return;
+    if (clientReview || (!store && !checkout && !invite) || saved || busy) return;
     try {
       const buyer = contactSchema.parse(contact);
+      if(invite && kind==="invitations") {
+        await invite({contact:buyer,recipients:recipientsSchema.parse(recipients)});
+        return;
+      }
       if (kind !== "invitations" && !agreed) throw new Error("Please acknowledge the no-refund policy.");
       if (checkout && kind !== "invitations") {
         await checkout(kind === "tables" ? { kind, contact: buyer, allSalesFinal: true, purchase }
@@ -164,8 +169,8 @@ export function OrderFormContent({ kind, store, clientReview = false, checkout, 
             {kind === "invitations" ? <div><dt>Recipients</dt><dd>{recipients.length}</dd></div> : <div className={styles.total}><dt>Total</dt><dd>{money(total)}</dd></div>}
           </dl>
           {kind !== "invitations" && <label className={styles.agreement}><input disabled={clientReview} name="refundAcknowledgment" type="checkbox" required checked={agreed} onChange={(event) => setAgreed(event.target.checked)} /><span>I understand that all sales are final and no refunds are offered.</span></label>}
-          <button type="submit" className={styles.primary} disabled={clientReview || (!checkout && !store?.ready) || !!saved || busy}>{clientReview ? "Not open yet" : checkout ? (busy ? "Opening checkout…" : "Continue to Stripe test checkout") : kind === "invitations" ? "Save preview request" : "Create preview order"}</button>
-          <p className={styles.fine}>{clientReview ? "Design review only. No information is saved or submitted, and no payment can be made." : checkout ? "Local sandbox only. Use fictional details and a Stripe test card. Card information is entered on Stripe’s website. A table is temporarily held while checkout is open." : kind === "invitations" ? "Preview only. No request is sent to the Guild and no invitation is mailed." : "Preview only. Stripe is not connected. This creates an unpaid sample order for review in the preview admin."}</p>
+          <button type="submit" className={styles.primary} disabled={clientReview || (!checkout && !invite && !store?.ready) || !!saved || busy}>{clientReview ? "Not open yet" : invite ? (busy ? "Saving request…" : "Submit test invitation request") : checkout ? (busy ? "Opening checkout…" : "Continue to Stripe test checkout") : kind === "invitations" ? "Save preview request" : "Create preview order"}</button>
+          <p className={styles.fine}>{clientReview ? "Design review only. No information is saved or submitted, and no payment can be made." : invite ? "Local sandbox only. Fictional requests are saved to the development database. No invitation is mailed automatically, and no payment is required." : checkout ? "Local sandbox only. Use fictional details and a Stripe test card. Card information is entered on Stripe’s website. A table is temporarily held while checkout is open." : kind === "invitations" ? "Preview only. No request is sent to the Guild and no invitation is mailed." : "Preview only. Stripe is not connected. This creates an unpaid sample order for review in the preview admin."}</p>
           {kind === "tables" && <p className={styles.fine}>{clientReview ? "Table availability will be announced when sales open." : "Development inventory: 20 of each table tier. Actual availability has not been confirmed. Sales cannot launch with these placeholders."}</p>}
           {kind === "gifts" && <p className={styles.fine}>The exact deadline time is awaiting confirmation. This preview does not enforce a sales cutoff.</p>}
         </aside>

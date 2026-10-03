@@ -11,7 +11,7 @@ Run `npm run dev` and open:
 - `/gala/invitations`: multiple mailing recipients and requester details.
 - `/gala/preview/admin`: sample orders, inventory, paid/unpaid filters, table assignment, gifts and mailing statuses.
 
-Use fictional data only. Without the backend flag, prototype orders are stored in this browser under `osg-gala-local-preview-v1` and send no information to providers. When `GALA_BACKEND_ENABLED=true` locally, the table/gift flyer forms and `/gala/preview/testing` make actual sandbox purchases, and `/gala/preview/admin` displays the isolated development database. Invitations remain a browser-only demo. See `GALA_BACKEND_DEVELOPMENT.md`. No production admin is implemented.
+Use fictional data only. Without the backend flag, prototype orders are stored in this browser under `osg-gala-local-preview-v1` and send no information to providers. When `GALA_BACKEND_ENABLED=true` locally, table/gift forms and `/gala/preview/testing` make sandbox purchases, invitations save separate free requests, and `/gala/preview/admin` displays the development database. No physical mail or email is sent. See `GALA_BACKEND_DEVELOPMENT.md`. No production admin is implemented.
 
 `requireGalaPreview()` requires local development and rejects any Vercel environment. All four routes return 404 in production. Do not remove the production or admin guard until the checklist below is complete and launch is authorized.
 
@@ -29,6 +29,8 @@ The user approved sharing the designs through a separate Vercel Preview deployme
 - Verify all three pages, disabled information/submission controls, blocked APIs/admin, noindex, and absence of client order-storage access before handing out links.
 
 ## Mandatory release gates
+
+October 3 invitations: the flyer form now saves free requests to development with retry protection. Recipient-level preparation/mailed tracking, reasoned corrections, duplicate-review hints and CSV work in the local admin. Migration 005 is applied only to development; all 52 tests, final build, browser request/reload/status/export checks and hosted retry/conflict/audit checks pass. Invitations create no sales or accounting jobs. Production and client-review APIs remain blocked. Address corrections, duplicate resolution, mailing cutoff, retention and production access/acceptance remain pending.
 
 October 3 gifts: paid-only per-student bundle preparation/handout, reasoned corrections, filters/totals and CSV are implemented in the local admin. Migration 004 is applied only to OSG Gala Development. All 46 tests and production build pass; browser save/correction/download checks and hosted conflicting-edit/audit checks pass without changing payment/inventory/accounting records. Production and client-review APIs remain blocked. Final gift cutoff, production per-user access and board fulfillment acceptance are still outstanding; this does not complete the release gates.
 

@@ -7,7 +7,7 @@ import { checkoutUrl, FLYER_ATTEMPT_KEY, readAttempt } from "@/lib/gala/checkout
 import { money } from "@/lib/gala/model";
 import styles from "./gala-sales.module.css";
 
-export function SandboxAccess({ children }: { children: ReactNode }) {
+export function SandboxAccess({ children, invitations = false }: { children: ReactNode; invitations?: boolean }) {
   const [state, setState] = useState("loading"), [token, setToken] = useState(""), [error, setError] = useState("");
   useEffect(() => { void fetch("/api/gala/session", { cache: "no-store" }).then(r => setState(r.ok ? "ready" : "locked"))
     .catch(() => { setState("locked"); setError("Local server unavailable. Try again."); }); }, []);
@@ -21,8 +21,8 @@ export function SandboxAccess({ children }: { children: ReactNode }) {
   }
   if (state === "ready") return children;
   if (state === "loading") return <p role="status">Checking local sandbox access…</p>;
-  return <form onSubmit={unlock} className={styles.summary}><h2>Unlock local checkout testing</h2>
-    <p>Use fictional buyer details and Stripe test cards. No real payments are taken.</p>
+  return <form onSubmit={unlock} className={styles.summary}><h2>{invitations?"Unlock local invitation testing":"Unlock local checkout testing"}</h2>
+    <p>{invitations?"Use fictional names and mailing addresses. No invitations or emails are sent.":"Use fictional buyer details and Stripe test cards. No real payments are taken."}</p>
     <label className={styles.field}>Development token<input required type="password" autoComplete="off" value={token} onChange={e => setToken(e.target.value)} /></label>
     <button className={styles.primary} disabled={state === "unlocking"}>Unlock sandbox</button>
     {error && <p role="alert" className={styles.error}>{error}</p>}</form>;

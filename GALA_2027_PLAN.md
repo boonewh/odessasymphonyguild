@@ -4,6 +4,10 @@ Last updated: October 3, 2026 (America/Chicago).
 
 ## Resume here
 
+### October 3: invitation persistence and mailing workflow
+
+The invitation flyer form now saves free, multi-recipient requests to the development database with stable retry IDs. Local admin supports separate recipient preparation/mailed status, audited corrections, conservative duplicate name/address hints, filters and mailing CSV. Migration 005 is applied only to OSG Gala Development; all 52 tests, production build, actual browser submission/reload/status/export and hosted retry/conflict/audit checks pass. No payments, accounting entries, email or physical mailing occur. Production and client-review submissions remain blocked. Address correction/duplicate resolution, label printing, deadlines, retention, production permissions and board acceptance remain unfinished. See `GALA_BACKEND_DEVELOPMENT.md` for evidence and limits. Nothing pushed or deployed.
+
 ### October 3: table assignments implemented and tested in development
 
 Paid-table assignment controls, global duplicate-number protection, revision checks, audit history, filters and CSV export are implemented on the Gala branch. All 42 automated checks and the production build pass; assignment APIs/exports remain blocked in production and client design review. Migration 003 is applied to OSG Gala Development. Browser assignment/clearing/filter checks and hosted simultaneous/stale-edit tests pass. The existing fictional Gold purchase is assigned to demonstration table 7. See `GALA_BACKEND_DEVELOPMENT.md`. Assignment numbers are placeholders, do not approve inventory, and do not include Belles/Beaux or individual-ticket seating.
