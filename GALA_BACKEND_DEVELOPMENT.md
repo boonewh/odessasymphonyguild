@@ -100,7 +100,42 @@ The hosted smoke script changes development Gold capacity temporarily and keeps 
 - A stable QuickBooks `requestid` accompanies the first POST, but duplicate prevention does not assume unlimited provider idempotency retention. It relies on durable dispatch state and receipt lookup, with no blind second POST.
 - Pending/expired purchases cannot enter the sync worker. Accounting failure does not reverse the paid order or release its inventory.
 
-### Remaining setup (user is locating the older Intuit sandbox)
+### Sandbox setup verified, October 2
+
+The Development redirect URI was registered and OAuth completed successfully for **Sandbox Company US a37d**. The code verified the returned realm against the configured sandbox ID, exchanged the authorization code, and stored encrypted tokens in the isolated development database. A real sandbox CompanyInfo read returned HTTP 200. US/USD preferences were confirmed.
+
+With the user's authorization, four missing sandbox records were created and their IDs saved only in ignored `.env.local`: customer **Gala Sandbox Sales**, service item **Symphony Ball**, income account **Symphony Ball Revenue** (Income / OtherPrimaryIncome), and **Stripe Clearing - Gala Sandbox** (Other Current Asset / OtherCurrentAssets). The actual `SandboxQuickBooks.verifyMapping` check passed against Intuit, including the item's income-account reference. These are development mappings, not approved production bookkeeping settings.
+
+### First actual sandbox receipt and retry test, October 2
+
+With explicit user authorization, sandbox syncing was temporarily enabled and the existing fictional Gold table plus two extra seats order (`033779df-9a3d-45ac-914c-dbb2d5dc42a4`) was sent through the local sync API. The worker rechecked the successful Stripe test payment and created QuickBooks sandbox SalesReceipt **145**: **$4,375 USD**, dated **2026-10-02**, with one **Symphony Ball** sales line. A fresh provider lookup verified the receipt against the frozen payload, including customer, clearing account, date, amount and zero sandbox tax; the item-to-income-account mapping also passed its actual API check.
+
+Two sequential repeats of that same sync request each returned HTTP 200 / `busy_or_synced`. Another independent QuickBooks lookup still found exactly one matching receipt, ID 145. The outbox remained `synced` with one worker attempt, and both existing test orders remained paid. The $30 gift order is still pending accounting. No buyer was charged again and no invoice or email was sent.
+
+`GALA_QB_SYNC_ENABLED=false` was restored after the controlled test. No live books were changed. This first check proves a normal successful receipt and retries after success; the subsequent gift recovery test below extends that evidence.
+
+### Gift receipt with controlled failures against Intuit, October 2
+
+`scripts/gala-accounting-recovery-smoke.mts` exercised the real accounting worker, hosted development database and QuickBooks sandbox using the existing paid **$30** gift order (`e0dc2447-5994-47d3-9864-31f980d4acdd`). It revalidated the successful Stripe sandbox payment and accounting mapping before testing. No new charge was made.
+
+1. An injected lookup failure before dispatch left the paid order intact, placed accounting in review and made no receipt POST.
+2. The real QuickBooks create request succeeded, but the harness deliberately discarded its response before the worker could record success. The hosted job retained its dispatch marker and entered review. An independent provider lookup found exactly one receipt: **146**, $30 USD, dated **2026-10-02**.
+3. On retry, lookup found that receipt; an injected failure at the local success-save step kept the job in review without another receipt POST.
+4. An ordinary worker retry recovered receipt 146 by lookup and marked the job synced. Another retry returned `busy_or_synced`. A final provider query still found exactly one receipt, with one **Symphony Ball** line; the harness observed one create call across four worker attempts.
+
+The full paid order, including Sample Student's two roses and one cookie bag, matched its original record after recovery. All table inventory counts were unchanged. The $4,375 table and $30 gift accounting jobs are now synced. The public sync flag remained false throughout this harness test; it invokes the same worker with a separate explicit test opt-in and holds the normal database connection lease. No live books, invoice emails or charges were involved.
+
+These were **controlled application-side fault injections around real sandbox operations**, not actual Intuit downtime, dropped network packets, or a disabled database. They demonstrate the worker's recovery under those injected conditions. Process termination/lease expiry, actual token refresh, broader payment races, fees/payouts and treasurer review remain open. All 11 accounting regression tests passed again; the new smoke script passed a dedicated TypeScript check.
+
+To run this one-shot test against another explicitly authorized, fresh paid sandbox gift order, set `NODE_ENV=development` and `GALA_QB_RECOVERY_TEST=true`, then run:
+
+```sh
+node --env-file=.env.local --import tsx scripts/gala-accounting-recovery-smoke.mts <paid-gift-order-uuid>
+```
+
+It refuses jobs that already entered accounting. Do not reset dispatch markers or replay this against receipt 146; inspect and recover any interrupted run using the normal lookup-only worker.
+
+### Setup procedure (steps 1–4 completed locally)
 
 The existing **OSG Belles & Beaux** app is marked **In Production**. That release label does not eliminate its Development credentials. Use **Keys and credentials → Development** in the Intuit Developer portal, then locate/create a separate sandbox company. [Intuit credential instructions](https://developer.intuit.com/app/developer/qbo/docs/get-started/get-client-id-and-client-secret).
 
@@ -114,7 +149,7 @@ The current sandbox payload uses `TaxCodeRef=NON` purely as a test assumption. I
 
 ### Evidence and limits
 
-The new automated tests execute the migration and worker using real local PostgreSQL semantics plus a **fake QuickBooks transport**. They cover one POST across repeated/concurrent workers, lookup recovery after lost responses or database-save failure, unknown dispatch retained for review, immutable company/payload, expired lease rejection, mapping conflicts, encrypted token integrity and denied browser access. TypeScript and production build passed. The live QuickBooks sandbox API, OAuth callback/refresh, account-specific response shapes and real provider duplicate recovery are **not yet verified**. No accounting release gate is complete from these tests alone.
+The automated tests execute the migration and worker using real local PostgreSQL semantics plus a **fake QuickBooks transport**. They cover one POST across repeated/concurrent workers, lookup recovery after lost responses or database-save failure, unknown dispatch retained for review, immutable company/payload, expired lease rejection, mapping conflicts, encrypted token integrity and denied browser access. TypeScript and production build passed for the implementation. Actual sandbox OAuth, record/mapping checks, table and gift receipts, normal retries and controlled response-loss/save-failure recovery now pass as described above. Token refresh, process-crash recovery and genuine provider/database outages remain unverified. No accounting release gate is complete from these tests alone.
 
 API references: [SalesReceipt](https://developer.intuit.com/app/developer/qbo/docs/api/accounting/most-commonly-used/salesreceipt), [item-to-income-account mapping](https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/Item), [sandbox testing](https://developer.intuit.com/app/developer/qbo/docs/develop/sandboxes?no_link=1).
 
