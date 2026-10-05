@@ -1,7 +1,9 @@
 "use client";
 import { useCallback,useEffect,useState,type FormEvent } from "react";
-import { duplicateInvitations,filterInvitations,invitationKey,invitationLabels,type InvitationRow,type InvitationStatus } from "@/lib/gala/invitations";
+import { duplicateInvitations,filterInvitations,invitationKey,invitationLabels,isSuppressed,type InvitationRow,type InvitationStatus } from "@/lib/gala/invitations";
 import styles from "./PaymentLab.module.css";
+import InvitationAddressEditor from "./InvitationAddressEditor";
+import InvitationDuplicateEditor from "./InvitationDuplicateEditor";
 const states:InvitationStatus[]=["requested","prepared","mailed"];
 
 function MailingEditor({row,saved,started}:{row:InvitationRow;saved:()=>Promise<void>;started:()=>void}) {
@@ -32,7 +34,7 @@ export default function InvitationMailing(){
     setRows((await r.json()).invitations);setGeneration(g=>g+1);
   }catch(e){setError((e as Error).message);throw e;}finally{setBusy(false);}},[]);
   useEffect(()=>{void refresh().catch(()=>{});},[refresh]);
-  async function saved(){await refresh();setNotice("Mailing status saved. Other recipients are unchanged.");}
+  async function saved(){await refresh();setNotice("Invitation updated. Other recipients are unchanged.");}
   async function download(){setBusy(true);setError("");try{
     const r=await fetch(`/api/gala/invitations?format=csv&filter=${filter}`,{cache:"no-store"});
     if(!r.ok)throw new Error("Export unavailable. Refresh invitations and try again.");
@@ -42,25 +44,41 @@ export default function InvitationMailing(){
   const shown=filterInvitations(rows||[],filter),duplicates=duplicateInvitations(rows||[]);
   return <section className={styles.panel} aria-label="Invitation mailing"><h2>Invitation mailing</h2>
     <p className={styles.note}>Review addresses before preparing envelopes. Mark mailed only after the physical invitation has been sent. These requests are free and do not reserve seats. No mailing or email is sent automatically.</p>
-    <div className={styles.tools}><label>Invitation status<select value={filter} onChange={e=>setFilter(e.target.value)}><option value="all">All invitations</option>{states.map(s=><option key={s} value={s}>{invitationLabels[s]}</option>)}</select></label>
+    <div className={styles.tools}><label>Invitation status<select value={filter} onChange={e=>setFilter(e.target.value)}><option value="all">All active invitations</option>{states.map(s=><option key={s} value={s}>{invitationLabels[s]}</option>)}<option value="suppressed">Suppressed duplicates</option></select></label>
       <button disabled={busy} onClick={()=>{setNotice("");void refresh().catch(()=>{});}}>Refresh invitations</button>
-      <button disabled={busy||!rows||!!error} onClick={()=>void download()}>Export mailing list (CSV)</button>
+      <button disabled={busy||!rows||!!error||filter==="suppressed"} onClick={()=>void download()}>Export mailing list (CSV)</button>
     </div>
+    <details><summary>Prepare mailing labels</summary>
+      <p className={styles.note}>Review addresses and duplicate hints first. Preview 30 labels per Letter sheet (1 × 2⅝ inches); the actual label stock still needs confirmation. Suppressed and mailed entries are excluded. Previewing or printing never changes mailing status.</p>
+      <form action="/api/gala/invitations" method="get" target="_blank" rel="noopener" className={styles.tools}>
+        <input type="hidden" name="format" value="labels"/>
+        <label>Label batch<select name="filter" defaultValue="requested"><option value="requested">Needs preparation</option><option value="prepared">Prepared — reprint labels</option></select></label>
+        <label>Used labels to skip<input type="number" name="skip" min={0} max={29} step={1} defaultValue={0} required/></label>
+        <button disabled={busy||!rows||!!error}>Preview mailing labels</button>
+      </form>
+      <ol><li>Resolve duplicate hints and correct addresses.</li><li>Preview labels, test alignment on plain paper, then prepare the envelopes.</li><li>Mark each completed envelope Prepared. Mark Mailed only after sending it.</li></ol>
+      <p className={styles.note}>Reopen the preview after changes. Replace old labels after address corrections or duplicate suppression. Use the CSV export for a different label format.</p>
+    </details>
     {error&&<p role="alert" className={styles.error}>{error}</p>}{notice&&<p role="status" className={styles.success}>{notice}</p>}
     {rows&&<p><strong>This view:</strong> {shown.length} recipient entries · {shown.filter(r=>duplicates.has(invitationKey(r))).length} flagged for duplicate review. Includes all matching requests.</p>}
-    {duplicates.size>0&&<p className={styles.note}>Possible duplicates match the same name and address after ignoring capitalization and extra spaces. All entries are retained, including in exports. Review flagged entries before preparing or mailing; different spellings may not be detected.</p>}
+    <p className={styles.note}>Suppressed entries ({rows?.filter(isSuppressed).length||0}) stay in the review view and are excluded from every mailing export. Keep-separate decisions apply to the reviewed pair; address corrections require a fresh review.</p>
+    {duplicates.size>0&&<p className={styles.note}>Possible duplicates match the same name and address after ignoring capitalization and extra spaces. Review flagged entries before preparing or mailing; different spellings may not be detected.</p>}
     {!rows?<p>{busy?"Loading invitation requests…":"Invitation mailing unavailable."}</p>:!shown.length?<p>No invitations match this view.</p>:
     <div className={`${styles.table} ${styles.assignmentTable}`}><table><thead><tr><th>Recipient / address</th><th>Requested by</th><th>Current status</th><th>Update mailing</th></tr></thead><tbody>
       {shown.map(row=><tr key={invitationKey(row)}>
         <td data-label="Recipient / address">{row.recipient.name}<small>{row.recipient.address}</small>{row.recipient.address2&&<small>{row.recipient.address2}</small>}
           <small>{row.recipient.city}, {row.recipient.state} {row.recipient.zip}</small>
           {duplicates.has(invitationKey(row))&&<strong>Possible duplicate — review</strong>}
-          <small>Request {row.request_id} · recipient {row.recipient_index+1}</small></td>
+          <small>Request {row.request_id} · recipient {row.recipient_index+1}</small>
+          {!isSuppressed(row)&&(rows||[]).some(other=>other.duplicate_request_id===row.request_id&&other.duplicate_recipient_index===row.recipient_index)
+            ? <p>Restore linked duplicates before changing this retained address.</p>
+            : !isSuppressed(row)&&<InvitationAddressEditor key={`${invitationKey(row)}-${row.revision}-${generation}`} row={row} saved={saved} started={()=>setNotice("")}/>}</td>
         <td data-label="Requested by">{row.contact.name}<small>{row.contact.email}</small><small>{row.contact.phone}</small></td>
-        <td data-label="Current status">{invitationLabels[row.status]}</td>
-        <td data-label="Update mailing"><MailingEditor key={`${invitationKey(row)}-${row.revision}-${generation}`} row={row} saved={saved} started={()=>setNotice("")}/></td>
+        <td data-label="Current status">{isSuppressed(row)?"Suppressed duplicate":invitationLabels[row.status]}</td>
+        <td data-label="Update mailing">{!isSuppressed(row)&&<MailingEditor key={`${invitationKey(row)}-${row.revision}-${generation}`} row={row} saved={saved} started={()=>setNotice("")}/>}
+          <InvitationDuplicateEditor key={`duplicate-${invitationKey(row)}-${row.revision}-${generation}`} row={row} rows={rows||[]} saved={saved} started={()=>setNotice("")}/></td>
       </tr>)}
     </tbody></table></div>}
-    <p className={styles.note}>Corrections to an earlier status require a reason and are recorded. Address editing, duplicate suppression and the final mailing deadline are not enabled yet. Development only; use fictional addresses.</p>
+    <p className={styles.note}>Corrections and duplicate decisions require a reason and are recorded. No records are deleted. The final mailing deadline is not enabled yet. Development only; use fictional addresses.</p>
   </section>;
 }

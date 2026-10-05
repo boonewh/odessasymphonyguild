@@ -6,6 +6,8 @@ export function backendEnabled(env: NodeJS.ProcessEnv) {
 }
 export function readBackendConfig(env: NodeJS.ProcessEnv) {
   if (!backendEnabled(env)) throw new Error("Gala backend is restricted to opted-in local development.");
+  const accessMode = env.GALA_ACCESS_MODE || "development";
+  if (accessMode !== "development" && accessMode !== "individual") throw new Error("Unknown Gala access mode.");
   const key = env.GALA_STRIPE_SECRET_KEY || "";
   const url = env.GALA_SUPABASE_URL || "";
   const dbKey = env.GALA_SUPABASE_SECRET_KEY || "";
@@ -18,5 +20,5 @@ export function readBackendConfig(env: NodeJS.ProcessEnv) {
   if (!webhookSecret.startsWith("whsec_") || !/^[a-f0-9]{64}$/.test(token))
     throw new Error("Webhook signing secret and local development token are required.");
   if (!/^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)) throw new Error("A loopback return URL is required.");
-  return { key, url, dbKey, webhookSecret, token, origin };
+  return { key, url, dbKey, webhookSecret, token, origin, accessMode };
 }

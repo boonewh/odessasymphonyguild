@@ -1,17 +1,20 @@
 import { z } from "zod";
-import { backendEnabled, readBackendConfig } from "@/lib/gala/backend/config";
-import { authorizeDevelopment, backend } from "@/lib/gala/backend/server";
+import { backendEnabled } from "@/lib/gala/backend/config";
+import { backend } from "@/lib/gala/backend/server";
+import { authorizeOrder } from "@/lib/gala/backend/request-access";
 import { reconcileSession, verifySession } from "@/lib/gala/backend/checkout";
 export const runtime = "nodejs";
 export async function POST(request: Request) {
   if (!backendEnabled(process.env)) return new Response(null, { status: 404 });
-  try { authorizeDevelopment(request, readBackendConfig(process.env).token); }
+  let customerHash: string | undefined;
+  try { customerHash = await authorizeOrder(request); }
   catch { return new Response(null, { status: 403 }); }
   try {
     const raw = await request.text();
     if (raw.length > 1024) return new Response(null, { status: 413 });
     const { orderId } = z.object({ orderId: z.uuid() }).parse(JSON.parse(raw));
     const { store, stripe } = await backend();
+    store.customerHash = customerHash;
     const order = await store.get(orderId);
     if (!order.stripe_session_id) throw new Error("Checkout needs investigation.");
     const session = await stripe.checkout.sessions.retrieve(order.stripe_session_id);

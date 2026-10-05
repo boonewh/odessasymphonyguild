@@ -9,7 +9,16 @@ import styles from "./gala-sales.module.css";
 
 export function SandboxAccess({ children, invitations = false }: { children: ReactNode; invitations?: boolean }) {
   const [state, setState] = useState("loading"), [token, setToken] = useState(""), [error, setError] = useState("");
-  useEffect(() => { void fetch("/api/gala/session", { cache: "no-store" }).then(r => setState(r.ok ? "ready" : "locked"))
+  useEffect(() => { void fetch("/api/gala/session", { cache: "no-store" }).then(async r => {
+    if (r.ok) { setState("ready"); return; }
+    const result = await r.json();
+    if (result.accessMode === "individual") {
+      const session = await fetch("/api/gala/session", { method: "POST" });
+      if (!session.ok) throw new Error("Customer access unavailable.");
+      setState("ready"); return;
+    }
+    setState("locked");
+  })
     .catch(() => { setState("locked"); setError("Local server unavailable. Try again."); }); }, []);
   async function unlock(event: FormEvent) {
     event.preventDefault(); setState("unlocking"); setError("");
@@ -34,7 +43,7 @@ export function SandboxOrderStatus({ id, retry, startAnother }: { id: string; re
   const lock = useRef(false);
   const refresh = useCallback(async () => {
     const r = await fetch(`/api/gala/order?orderId=${encodeURIComponent(id)}`, { cache: "no-store" });
-    if (r.status === 401) throw new Error("Your local session expired. Reload to unlock testing again.");
+    if (r.status === 401) throw new Error("Your session expired. Keep this order reference and contact staff before starting another purchase.");
     const result = await r.json();
     if (!r.ok) throw new Error(result.error || "Cannot verify this order yet.");
     setOrder(result.order); setError(""); return result.order as Summary;

@@ -1,8 +1,85 @@
 # Gala 2027: decisions, payment research, and implementation handoff
 
-Last updated: October 3, 2026 (America/Chicago).
+Last updated: October 5, 2026 (America/Chicago).
 
 ## Resume here
+
+### Agreed development finish line (October 5)
+
+The user asked for a finite end to development, excluding other people's decisions and production setup. The remaining scope is **two closeout passes**, not an expanding improvements backlog:
+
+1. **Complete October 5 — recovery verification:** observed Stripe's real 35-minute checkout expiration and terminated/restarted recovery processes against hosted development. Both five-minute leases elapsed naturally; stale owners were rejected, the open hold remained protected, and the normal recovery CLI released the naturally expired checkout exactly once. Both new fixtures are unpaid/expired with no PaymentIntent or accounting job; preexisting records and unapproved inventory are unchanged. No application defect surfaced. The 13 focused recovery/database regression checks and the acceptance harness TypeScript check pass. Details are in `GALA_BACKEND_DEVELOPMENT.md`.
+2. Branch closeout: review the accumulated changes for concrete defects, resolve the shared membership OAuth rollout dependency, run final regression checks, consolidate the current checklist and save reviewed work in Git. The user's own full walkthrough is part of acceptance.
+
+After those passes, stop development pending decisions/deployment. Additional MFA, self-service recovery and monitoring work belongs in explicitly scoped production-access or improvement work; it must not silently expand this closeout. This does not waive launch requirements. Older dated “next” lists below are historical, not additional instructions to keep expanding development.
+
+### October 5: staff login abuse protection verified in development
+
+Staff sign-in now checks durable database limits before calling Auth: five attempts per normalized email in 15 minutes and 120 total admissions in five minutes. Counters use keyed hashes, survive application restarts, and serialize concurrent attempts; denials do not extend the fixed deadline. Missing/unavailable limit storage blocks sign-in, and oversized request bodies are rejected. The form explains the wait after throttling. These are provisional engineering limits, not approved production access settings.
+
+**99 Gala tests, 10 security tests and the build pass**. Migration 010 is applied only to OSG Gala Development. Hosted HTTP testing admitted exactly five of 20 concurrent attempts and throttled 15, rejected forged-IP-header bypass, preserved the deadline, and passed normal fictional-account login/logout. Hosted SQL verified private table/RPC permissions. Original business records and staff flags are unchanged; the fictional account is banned/disabled with no application sessions, and the usual development access mode is restored. See `GALA_BACKEND_DEVELOPMENT.md` for evidence and limits.
+
+Production-access follow-up (outside the bounded development closeout): staff MFA/account recovery, customer recovery, production access/deployment preparation and hosted monitoring. Production edge/per-network protections and denial monitoring remain necessary: an attacker can still consume an email's allowance or the global allowance for its bounded window. The separate membership OAuth migration remains unapplied to hosted databases and must be resolved in branch closeout. No push, production release or stock approval; **20 tables per tier remains unapproved placeholder inventory**.
+
+### October 4: customer/staff access separation prepared
+
+An opt-in local individual-access mode now gives customers browser-bound order ownership and staff separate named sign-in with revocable database sessions. Accounting endpoints require an additional permission; fulfillment/mailing/recovery edits recheck access transactionally and record the staff UUID. Production and hosted review remain blocked. **92 Gala tests, 10 security tests and the build pass**, with browser sign-in/form review and actual HTTP customer/staff separation and production 404 checks.
+
+Migration 009 is now **applied to OSG Gala Development** following the user's explicit instruction. All 11 hosted verification checks and independent Data API checks passed. A subsequent fictional-account rehearsal also passed real Auth login, role checks/changes, session rotation, named staff edits, revocation/logout and isolation between customer cookie sessions. Actual browser staff sign-in, invitation preparation and logout passed. A new unpaid sandbox checkout was verified expired with no PaymentIntent/accounting job; one fictional prepared invitation is retained as evidence. All preexisting records and inventory are unchanged. The fictional account is banned/disabled, its sessions removed, and individual mode disabled again after testing. Next: production HTTPS/cookies, abuse protection, staff MFA/recovery, customer recovery and deployment/worker preparation. See `GALA_BACKEND_DEVELOPMENT.md` for evidence and limits. No release, stock approval or OSG role decisions are implied; **20 tables per tier remains unapproved placeholder inventory**.
+
+### October 4: browser payment/expiration acceptance
+
+Actual Stripe sandbox browser checks now cover both outcomes: one $2,000 Silver-table payment won against a concurrent expiration attempt and produced exactly one charge/accounting job; a second checkout expired while authentication waited, and completing its stale challenge produced no charge or accounting job. Real Stripe completion/expiration webhooks returned 200. Both orders are settled, with no unresolved holds. Silver now has one retained paid fixture and 19 available of the unchanged **unapproved** capacity 20. QuickBooks was not synced. See `GALA_BACKEND_DEVELOPMENT.md` for order references and evidence.
+
+Next: hosted interruption/restart acceptance and natural-deadline timing. These explicit-expiration cases do not prove genuine infrastructure outages or all timing/payment-method combinations. Last automated baseline remains 84 Gala tests, 10 security tests and the build passing; only documentation and ignored evidence were added. No production release or inventory approval.
+
+### October 4: payment/recovery review and fixes
+
+The deeper review added 20-second database request deadlines, including stalled response bodies, and tightened canceled-payment verification before releasing inventory. Five new tests cover stalled networking, a recovery claim committed before its response times out, preserved holds/leases, stale-owner rejection and mismatched payment identities. **84 Gala tests and the build pass**; the separate security suite last passed 10 tests. The local recovery worker was restarted successfully. See `GALA_BACKEND_DEVELOPMENT.md` for scope, evidence and limits.
+
+Next: real browser payment-versus-expiration and hosted interruption/restart acceptance. Missing-checkout investigation, production operations/access and accounting decisions remain open. No migrations applied, new charge, accounting write, production deployment or inventory change. **20 tables per tier remains unapproved placeholder stock.**
+
+### October 4: membership OAuth state protection
+
+The older membership QuickBooks connection now validates browser-bound, ten-minute, single-use state before exchanging a code. Atomic database consumption rejects simultaneous/replayed callbacks; missing storage fails closed. **10 security tests and the build pass**. The migration is prepared and tested only in disposable local SQL, not applied to any hosted database. A fresh sandbox authorization and migration verification are required before an authorized release of these shared routes. Existing tokens and Gala OAuth are untouched. Details and remaining work are in `GALA_DEPENDENCY_SECURITY.md`; continue with deeper payment/recovery review. No production release or inventory approval.
+
+### October 4: dependency security review
+
+Compatible dependency updates reduced the npm audit from **29 affected packages to 10 (seven high, three moderate; zero critical)**. Next.js and its ESLint configuration are now 16.3.8; Intuit OAuth is 4.2.5. All **79 Gala tests, three security tests and the production build pass**. Local production-mode HTTP checks still block Gala customer/admin/payment/recovery routes. The local development server and sandbox recovery worker were restarted successfully.
+
+Two advisory chains remain: build/lint pattern parsing through `braces`, and the Intuit SDK's legacy URI decoder. All application token-exchange entry points now bound and normalize callback fields before that decoder, with actual SDK regression coverage; this mitigation does not remove the audit finding. The separate, older membership OAuth flow also needs state validation in a deeper security review. See `GALA_DEPENDENCY_SECURITY.md` for evidence and remaining work. No release gate is waived; **20 tables per tier remains unapproved placeholder stock**. Nothing pushed or deployed.
+
+### October 4: durable recovery worker and staff review queue
+
+All **79 tests and the production build pass**. Migration 008 is installed only in OSG Gala Development. The local worker (`npm run gala:recover`) polls due payments every minute in bounded passes, with durable retries, expiring claims and backoff; it covers the full pending queue beyond 100 orders. Admin staff can see unresolved cases and queue an audited retry without forcing payment or inventory changes. Hosted/browser checks verified competing claims, stale-token rejection, staff retry audit and automatic settlement of a real expired sandbox checkout with no accounting entry.
+
+The development worker is running but requires this computer/process to stay active. Production hosting/monitoring, named staff access, missing-checkout investigation controls and remaining payment acceptance are still open. No production release, new card charge, QuickBooks write or inventory approval. **20 tables per tier remains unapproved placeholder stock.** See `GALA_BACKEND_DEVELOPMENT.md` for operation and evidence.
+
+### October 4: payment failure testing expanded
+
+All **72 tests and the production build pass**. Eight new local payment tests cover expiration races, lost responses, database saves, lookup outages, concurrent reservations and repeated/out-of-order notifications. An isolated hosted exercise passed 24 requests competing for three temporary slots, real Stripe create/expire response-loss recovery, repeated signed HTTP requests and paid-session replay into disposable local SQL. The three hosted test orders are expired; no accounting entries were created for them, and Platinum inventory is restored to its original **unapproved** 20. No new card charge or QuickBooks write occurred.
+
+The browser payment-at-expiry race and genuine infrastructure outages still need acceptance testing; simulated interleavings and injected failures do not close those gates. See `GALA_BACKEND_DEVELOPMENT.md` for exact evidence. Scheduled reconciliation/operator recovery remains the next engineering task. Production remains blocked and all board decisions are still required.
+
+### October 4: invitation label preview and phone verification
+
+Development admin now offers a printable label preview using fresh invitation data, with a provisional 30-per-Letter-sheet layout and a 0–29 used-label offset. It blocks unresolved duplicate matches (including other mailing statuses), excludes suppressed/mailed recipients, supports explicit prepared-label reprints, and changes no mailing state. Long addresses that cannot fit at readable size block printing. Actual stock and physical printer alignment still need confirmation. All **64 tests and the production build pass**; authenticated hosted-data label checks, production 404, and browser fit/overflow checks pass. Expanded duplicate controls also passed at an actual 390px viewport. See `GALA_BACKEND_DEVELOPMENT.md` for the volunteer walkthrough and evidence.
+
+Next engineering work: scheduled payment reconciliation and operator recovery. Remaining mailing decisions: stock/alignment, cutoff, retention, production volunteer permissions and board workflow acceptance. No production launch or inventory approval; **20 tables per tier remains unapproved placeholder inventory**.
+
+### October 4: duplicate resolution implemented in development
+
+Local admin now records keep-separate decisions for specific pairs, suppresses reviewed duplicates with a retained-entry link, and restores suppressed entries. Suppressed invitations cannot enter mailing or any mailing export. Mailed entries, retained addresses, revision conflicts and duplicate chains are protected; original submissions and financial records are preserved. Migration 007 is applied only to OSG Gala Development. All **62 tests and the production build pass**; actual browser keep-separate/suppress/restore and hosted audit/CSV/concurrent-restore checks pass. Narrow 596px layout passes; exact 390px duplicate-control verification remains open. See `GALA_BACKEND_DEVELOPMENT.md` for evidence and limits.
+
+Next: remaining mailing operations (labels, cutoff/retention, volunteer permissions and acceptance), plus the payment/accounting release backlog. No production launch, push or inventory approval. **20 tables per tier remains unapproved test inventory.**
+
+### October 4: address editing implemented in development
+
+Quick overview review completed on `89c30ad` with 52 passing tests, followed by documentation cleanup and invitation address editing. All **57 tests and the production build pass on October 4**. Migration 006 is applied only to OSG Gala Development. Browser correction, hosted audit/conflict/retry/mailed-lock checks, corrected CSV response and actual 390px layout pass. Address edits preserve the original request, require reasons, reset prepared envelopes to needs preparation, and block changes to mailed addresses. See `GALA_BACKEND_DEVELOPMENT.md` for evidence and limits.
+
+Duplicate resolution was subsequently completed as described above; remaining mailing operations and acceptance are still pending. Broader payment failure tests, reconciliation scheduling, production permissions, deadlines/retention and treasurer decisions remain open. No release gate was waived: 20 tables per tier is unapproved test inventory and no production launch is authorized. Nothing pushed or deployed.
+
+Dated entries below record progress at that time; use this resume section and the backend development document for current status.
 
 ### October 3: invitation persistence and mailing workflow
 
@@ -14,7 +91,7 @@ Paid-table assignment controls, global duplicate-number protection, revision che
 
 ### October 3: flyer checkout wiring and pending accounting decisions
 
-The tables/tickets and gift flyer forms now use the existing isolated Stripe backend when local sandbox mode is enabled. Buyer and recipient details are saved before redirecting to Stripe-hosted card entry. The same attempt is retained across reloads and retries; the return page reads verified server state. Hosted client design review remains read-only, and production remains blocked. Invitations still use the local demonstration workflow. See `GALA_BACKEND_DEVELOPMENT.md` for the new browser-test evidence.
+The tables/tickets and gift flyer forms now use the existing isolated Stripe backend when local sandbox mode is enabled. Buyer and recipient details are saved before redirecting to Stripe-hosted card entry. The same attempt is retained across reloads and retries; the return page reads verified server state. Hosted client design review remains read-only, and production remains blocked. Invitations subsequently gained database persistence and mailing tracking; see the invitation section above. See `GALA_BACKEND_DEVELOPMENT.md` for the new browser-test evidence.
 
 Britni's accounting answers may arrive Monday. Her messages establish one **Symphony Ball revenue category**, but do not settle whether QuickBooks should receive one transaction per order or combined totals, nor the grouping period. The existing one-SalesReceipt-per-order sandbox implementation is provisional, not a treasurer-approved requirement. A combined-total approach remains possible but needs its own durable grouping, retry and reconciliation design and tests before use. Keep individual paid orders and fulfillment details regardless of the accounting choice. Fee expense account, bank account, clearing-account setup and bank-feed matching responsibilities also await her answers. OSG still does not have its own Stripe account. No fee/payout writes or live accounting changes are authorized by this progress.
 
@@ -22,7 +99,7 @@ Britni's accounting answers may arrive Monday. Her messages establish one **Symp
 
 Accounting follow-up: separate sandbox OAuth, encrypted token storage and manual SalesReceipt sync are implemented; development migration 002 is applied. Actual OAuth, refresh, mapping and receipt tests pass for Sandbox Company US a37d. The fictional $4,375 Gold purchase synced to receipt 145 without duplicate retries. The $30 gift purchase created receipt 146; injected lookup, lost-response and save failures around real sandbox operations recovered that receipt with one POST, preserving paid gift details and inventory. Two local disk-backed process-termination tests also pass, using fake provider receipts and simulated lease expiry. All 35 Gala tests pass. Read-only Stripe fee evidence is $4,405 gross / $128.80 fees / $4,276.20 net, still pending with no payout; it is not an OSG live-rate quote. Both jobs are synced; public sandbox syncing remains disabled. No live connection changed. Hosted outage tests, fee/payout posting and treasurer acceptance remain pending. See `GALA_BACKEND_DEVELOPMENT.md` for evidence and limitations.
 
-The sandbox backend and local payment lab are implemented; see `GALA_BACKEND_DEVELOPMENT.md` for setup, tests and remaining work. The development schema is installed in OSG Gala Development. Actual hosted concurrent reservations and Stripe checkout creation/idempotency/expiration passed. Browser tests now also cover successful table payment, card decline followed by verified release, and a gift payment with simulated 3D Secure. Actual Stripe CLI webhooks updated the development database and paid admin without manual reconciliation. The local admin reads this database when the backend flag is enabled; the client flyer preview remains unchanged. Test credentials stay local; production and hosted previews reject the APIs. Full race/outage acceptance testing, production admin/fulfillment, customer form integration, scheduled reconciliation and QuickBooks sync are still outstanding. The account-setup notes below describe the earlier steps; their statements about the then-unimplemented schema are historical.
+The sandbox backend and local payment lab are implemented; see `GALA_BACKEND_DEVELOPMENT.md` for setup, tests and remaining work. The development schema is installed in OSG Gala Development. Actual hosted concurrent reservations and Stripe checkout creation/idempotency/expiration passed. Browser tests now also cover successful table payment, card decline followed by verified release, and a gift payment with simulated 3D Secure. Actual Stripe CLI webhooks updated the development database and paid admin without manual reconciliation. The local admin reads this database when the backend flag is enabled; the client flyer preview remains unchanged. Test credentials stay local; production and hosted previews reject the APIs. Customer forms, local fulfillment and provisional QuickBooks sandbox sync have since been implemented. Full race/outage acceptance testing, production access/fulfillment, scheduled reconciliation and final accounting acceptance remain outstanding. The account-setup notes below describe the earlier steps; their statements about the then-unimplemented schema are historical.
 
 ### October 2: Stripe development account
 
@@ -188,7 +265,7 @@ Stripe documents expiration of an open session and states that an expired sessio
 
 Proposed flow: reserve inventory → redirect to Stripe → verify payment → confirm order → synchronize the accounting record to QuickBooks. For abandonment, confirm provider-side expiration before releasing inventory. Any recovered/new session must obtain a fresh availability check and reservation.
 
-This is the stronger documented cancellation capability of the two candidates. It is not implemented, account-approved, or tested. It requires a Guild Stripe account, review of fees/eligibility, a chosen checkout duration supported by the final implementation, refunds/reconciliation, and reliable QuickBooks synchronization. QuickBooks remains the accounting system; Stripe processes these purchases.
+This was the stronger documented cancellation capability of the two candidates. Stripe has since been selected and implemented in an isolated sandbox; see the current development evidence above. It requires a Guild Stripe account, review of fees/eligibility, a chosen checkout duration supported by the final implementation, refunds/reconciliation, and reliable QuickBooks synchronization. QuickBooks remains the accounting system; Stripe processes these purchases.
 
 ### Accounting and account checks
 
@@ -211,11 +288,11 @@ Read-only source inspection; no fixes were made during this planning discussion.
 
 Zero invoice balance alone must never be treated as proof of successful payment: a void also zeros the invoice. Gala events must never accidentally update student membership payment status.
 
-Local `.env.local` was absent at the last check. No sandbox charges, refunds, account-limit checks, or production payment tests have been run in this discussion. Older README/setup status statements may not reflect current production; verify rather than rely on them.
+At the original September planning check, local `.env.local` was absent and sandbox testing had not begun. Sandbox credentials and payment tests were added in October; refunds, account-limit checks and production payment tests remain unverified. Older README/setup status statements may not reflect current production; verify rather than rely on them.
 
 ## Inventory and recovery requirements
 
-These are proposed engineering requirements, not implemented behavior.
+These are engineering requirements. Several now have development implementations; see the backend document for verified behavior and remaining gaps.
 
 - The database, not a displayed availability count, must enforce capacity with atomic reservations.
 - Keep order, inventory reservation, payment attempt, and accounting-sync status distinct.
@@ -248,7 +325,7 @@ These are proposed engineering requirements, not implemented behavior.
 
 ## Test plan and release gates
 
-All tests below are pending. Start with an isolated database/test company and provider sandbox/test credentials; preview environments must not use production payment or student data.
+The scenarios below remain the acceptance plan; several have partial development evidence documented in `GALA_BACKEND_DEVELOPMENT.md`. They are not all complete. Tests must use an isolated database/test company and provider sandbox credentials; preview environments must not use production payment or student data.
 
 ### First feasibility test
 
@@ -286,7 +363,7 @@ Mocks are useful for screens and logic but do not prove payment cancellation, pr
 
 ## October 3 gift fulfillment progress
 
-Paid-gift preparation and handout tracking now persist in the development database, one complete bundle per order/recipient. The local admin includes status filters, quantity totals, CSV and audited corrections with stale-edit protection. Migration 004, 46 automated tests, production build, browser workflows and hosted conflict/audit checks pass; details and limitations are in `GALA_BACKEND_DEVELOPMENT.md`. No new payment, QuickBooks posting, push or production deployment was performed. Final cutoff, volunteer access, workflow acceptance and all release requirements remain pending. Invitations are still a browser-only demonstration and need persistence.
+Paid-gift preparation and handout tracking now persist in the development database, one complete bundle per order/recipient. The local admin includes status filters, quantity totals, CSV and audited corrections with stale-edit protection. Migration 004, 46 automated tests, production build, browser workflows and hosted conflict/audit checks pass; details and limitations are in `GALA_BACKEND_DEVELOPMENT.md`. No new payment, QuickBooks posting, push or production deployment was performed. Final cutoff, volunteer access, workflow acceptance and all release requirements remain pending. Invitations subsequently gained database persistence and mailing tracking; see the invitation section above.
 
 ## Original documentation handoff (September 24)
 

@@ -1,4 +1,5 @@
 import OAuthClient from "intuit-oauth";
+import { oauthCallbackForTokenExchange } from "./oauth-callback";
 
 /**
  * QuickBooks Online API Client
@@ -69,7 +70,7 @@ export class QuickBooksClient {
    * Exchange authorization code for access tokens
    */
   async createToken(authCode: string): Promise<void> {
-    const authResponse = await this.oauthClient.createToken(authCode);
+    const authResponse = await this.oauthClient.createToken(oauthCallbackForTokenExchange(authCode));
     this.tokens = {
       access_token: authResponse.token.access_token,
       refresh_token: authResponse.token.refresh_token,

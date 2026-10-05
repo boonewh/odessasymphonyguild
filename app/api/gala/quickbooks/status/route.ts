@@ -1,12 +1,12 @@
-import { backendEnabled, readBackendConfig } from "@/lib/gala/backend/config";
-import { authorizeDevelopment } from "@/lib/gala/backend/server";
+import { authorizeStaff } from "@/lib/gala/backend/request-access";
+import { backendEnabled } from "@/lib/gala/backend/config";
 import { QB_SETUP_KEYS, readQbConfig, readQbMapping } from "@/lib/gala/backend/qb-config";
 import { openTokens } from "@/lib/gala/backend/qb-tokens";
 import { AccountingDatabase } from "@/lib/gala/backend/accounting-store";
 export const runtime = "nodejs";
 export async function GET(request: Request) {
   if (!backendEnabled(process.env)) return new Response(null, { status: 404 });
-  try { authorizeDevelopment(request, readBackendConfig(process.env).token); }
+  try { await authorizeStaff(request, true); }
   catch { return new Response(null, { status: 401 }); }
   const missing = QB_SETUP_KEYS.filter(k => !process.env[k]);
   let configured = false, connected = false, mapped = false, databaseReady = false;

@@ -1,14 +1,15 @@
+import { authorizeStaff } from "@/lib/gala/backend/request-access";
 import { backendEnabled, readBackendConfig } from "@/lib/gala/backend/config";
-import { authorizeDevelopment } from "@/lib/gala/backend/server";
 import { SupabaseOrderStore } from "@/lib/gala/backend/store";
 import { assignmentRequest, assignmentsCsv, filterAssignments, type AssignmentFilter } from "@/lib/gala/assignments";
 export const runtime = "nodejs";
 async function handle(request: Request, write: boolean) {
   if (!backendEnabled(process.env)) return new Response(null, { status: 404 });
-  try { authorizeDevelopment(request, readBackendConfig(process.env).token); }
+  let staffSession: string | undefined;
+  try { staffSession = await authorizeStaff(request); }
   catch { return new Response(null, { status: 401 }); }
   const config = readBackendConfig(process.env);
-  const store = new SupabaseOrderStore(config.url, config.dbKey);
+  const store = new SupabaseOrderStore(config.url, config.dbKey); store.staffSession = staffSession;
   try {
     await store.verifyEnvironment();
     if (write) {

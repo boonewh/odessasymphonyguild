@@ -31,6 +31,12 @@ export function verifySession(order: Order, session: Stripe.Checkout.Session) {
     || session.recovered_from || (order.stripe_session_id && order.stripe_session_id !== session.id))
     throw new Error("Checkout does not match the reserved order.");
 }
+function verifyPayment(order: Order, payment: Stripe.PaymentIntent, paymentId: string) {
+  if (payment.id !== paymentId || payment.livemode || payment.currency !== "usd"
+    || payment.amount !== order.amount || payment.metadata.gala_order_id !== order.id
+    || payment.metadata.application !== "osg-gala-development")
+    throw new Error("Payment does not match the reserved order.");
+}
 export async function startCheckout(store: OrderStore, stripe: StripeGateway, raw: unknown, origin: string, now = Date.now()) {
   const order = await store.reserve(priceRequest(raw));
   if (order.status === "paid" || order.status === "expired") throw new Error("This order is already closed.");
@@ -55,9 +61,8 @@ export async function reconcileSession(store: OrderStore, stripe: StripeGateway,
   const paymentId = typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id;
   if (session.status === "complete" && session.payment_status === "paid" && paymentId) {
     const payment = await stripe.paymentIntents.retrieve(paymentId);
-    if (payment.livemode || payment.status !== "succeeded" || payment.currency !== "usd"
-      || payment.amount !== order.amount || payment.amount_received !== order.amount
-      || payment.metadata.gala_order_id !== order.id || payment.metadata.application !== "osg-gala-development")
+    verifyPayment(order, payment, paymentId);
+    if (payment.status !== "succeeded" || payment.amount_received !== order.amount)
       throw new Error("Payment does not match the reserved order.");
     await store.apply(order.id, session.id, "paid", payment.id, eventId);
     return "paid";
@@ -66,6 +71,8 @@ export async function reconcileSession(store: OrderStore, stripe: StripeGateway,
     if (paymentId) {
       const payment = await stripe.paymentIntents.retrieve(paymentId);
       if (payment.livemode || payment.status !== "canceled") return "pending";
+      verifyPayment(order, payment, paymentId);
+      if (payment.amount_received !== 0) throw new Error("Canceled payment requires review.");
     }
     await store.apply(order.id, session.id, "expired", null, eventId);
     return "expired";

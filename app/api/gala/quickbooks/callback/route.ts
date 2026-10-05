@@ -6,12 +6,15 @@ import { readQbConfig } from "@/lib/gala/backend/qb-config";
 import { qbOAuth } from "@/lib/gala/backend/qb-client";
 import { sealTokens } from "@/lib/gala/backend/qb-tokens";
 import { AccountingDatabase } from "@/lib/gala/backend/accounting-store";
+import { oauthCallbackForTokenExchange } from "@/lib/quickbooks/oauth-callback";
+import { authorizeStaff } from "@/lib/gala/backend/request-access";
 export const runtime = "nodejs";
 export async function GET(request: NextRequest) {
   if (!backendEnabled(process.env)) return new Response(null, { status: 404 });
   let origin: string;
   let connected = false;
   try {
+    if (process.env.GALA_ACCESS_MODE === "individual") await authorizeStaff(request, true);
     const config = readQbConfig(process.env); origin = config.origin;
     const params = request.nextUrl.searchParams;
     const state = params.get("state") || "";
@@ -20,7 +23,7 @@ export async function GET(request: NextRequest) {
     const db = new AccountingDatabase(config.url, config.dbKey); await db.verify();
     const owner = randomUUID(); await db.lock(owner);
     try {
-      const { token } = await qbOAuth(config).createToken(`${config.redirectUri}?${params.toString()}`);
+      const { token } = await qbOAuth(config).createToken(oauthCallbackForTokenExchange(request.url));
       await db.saveTokens(owner, sealTokens({ realmId: config.realmId, accessToken: token.access_token,
         refreshToken: token.refresh_token, expiresAt: Date.now() + token.expires_in * 1000,
         refreshExpiresAt: Date.now() + token.x_refresh_token_expires_in * 1000 }, config.encryptionKey));

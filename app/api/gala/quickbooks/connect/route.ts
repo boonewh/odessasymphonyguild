@@ -1,14 +1,14 @@
+import { authorizeStaff } from "@/lib/gala/backend/request-access";
 import { NextResponse } from "next/server";
 import { randomBytes } from "node:crypto";
 import OAuthClient from "intuit-oauth";
-import { backendEnabled, readBackendConfig } from "@/lib/gala/backend/config";
-import { authorizeDevelopment } from "@/lib/gala/backend/server";
+import { backendEnabled } from "@/lib/gala/backend/config";
 import { readQbConfig } from "@/lib/gala/backend/qb-config";
 import { qbOAuth } from "@/lib/gala/backend/qb-client";
 export const runtime = "nodejs";
 export async function POST(request: Request) {
   if (!backendEnabled(process.env)) return new Response(null, { status: 404 });
-  try { authorizeDevelopment(request, readBackendConfig(process.env).token); }
+  try { await authorizeStaff(request, true); }
   catch { return new Response(null, { status: 403 }); }
   try {
     const config = readQbConfig(process.env);

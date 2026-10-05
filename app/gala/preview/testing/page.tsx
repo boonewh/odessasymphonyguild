@@ -5,5 +5,5 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Local Gala Payment Testing", robots: { index: false, follow: false } };
 export default function TestingPage() {
   if (!backendEnabled(process.env)) notFound();
-  return <PaymentLab />;
+  return <PaymentLab individual={process.env.GALA_ACCESS_MODE === "individual"} />;
 }

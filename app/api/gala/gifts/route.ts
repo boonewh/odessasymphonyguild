@@ -1,14 +1,15 @@
+import { authorizeStaff } from "@/lib/gala/backend/request-access";
 import { backendEnabled, readBackendConfig } from "@/lib/gala/backend/config";
-import { authorizeDevelopment } from "@/lib/gala/backend/server";
 import { SupabaseOrderStore } from "@/lib/gala/backend/store";
 import { filterGifts, giftsCsv, giftUpdate } from "@/lib/gala/gift-fulfillment";
 export const runtime="nodejs";
 async function handle(request:Request,write:boolean) {
   if(!backendEnabled(process.env)) return new Response(null,{status:404});
-  try { authorizeDevelopment(request,readBackendConfig(process.env).token); }
+  let staffSession: string | undefined;
+  try { staffSession = await authorizeStaff(request); }
   catch { return new Response(null,{status:401}); }
   try {
-    const config=readBackendConfig(process.env),store=new SupabaseOrderStore(config.url,config.dbKey);
+    const config=readBackendConfig(process.env),store=new SupabaseOrderStore(config.url,config.dbKey); store.staffSession = staffSession;
     await store.verifyEnvironment();
     if(write) {
       const body=await request.text(); if(body.length>2048)return new Response(null,{status:413});

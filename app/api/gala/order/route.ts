@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { backendEnabled, readBackendConfig } from "@/lib/gala/backend/config";
-import { authorizeDevelopment, backend } from "@/lib/gala/backend/server";
+import { backend } from "@/lib/gala/backend/server";
+import { authorizeOrder } from "@/lib/gala/backend/request-access";
 import { reconcileSession, verifySession } from "@/lib/gala/backend/checkout";
 import type { Order } from "@/lib/gala/backend/domain";
 import { SupabaseOrderStore } from "@/lib/gala/backend/store";
@@ -8,12 +9,14 @@ export const runtime = "nodejs";
 const publicOrder = (order: Order) => ({ id: order.id, status: order.status, kind: order.details.kind, amount: order.amount, description: order.description });
 async function handle(request: Request, mutate: boolean) {
   if (!backendEnabled(process.env)) return new Response(null, { status: 404 });
-  try { authorizeDevelopment(request, readBackendConfig(process.env).token); }
+  let customerHash: string | undefined;
+  try { customerHash = await authorizeOrder(request); }
   catch { return new Response(null, { status: 401 }); }
   try {
     const orderId = z.uuid().parse(new URL(request.url).searchParams.get("orderId"));
     const config = readBackendConfig(process.env);
     const store = new SupabaseOrderStore(config.url, config.dbKey); await store.verifyEnvironment();
+    store.customerHash = customerHash;
     let order = await store.get(orderId);
     let url: string | null = null;
     if (mutate && order.stripe_session_id) {

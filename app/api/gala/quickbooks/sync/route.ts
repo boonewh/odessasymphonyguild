@@ -1,7 +1,8 @@
+import { authorizeStaff } from "@/lib/gala/backend/request-access";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
-import { backendEnabled, readBackendConfig } from "@/lib/gala/backend/config";
-import { authorizeDevelopment, backend } from "@/lib/gala/backend/server";
+import { backendEnabled } from "@/lib/gala/backend/config";
+import { backend } from "@/lib/gala/backend/server";
 import { readQbConfig, readQbMapping } from "@/lib/gala/backend/qb-config";
 import { qbAccessToken, SandboxQuickBooks } from "@/lib/gala/backend/qb-client";
 import { AccountingDatabase } from "@/lib/gala/backend/accounting-store";
@@ -9,7 +10,7 @@ import { receiptFor, syncReceipt } from "@/lib/gala/backend/accounting";
 export const runtime = "nodejs";
 export async function POST(request: Request) {
   if (!backendEnabled(process.env)) return new Response(null, { status: 404 });
-  try { authorizeDevelopment(request, readBackendConfig(process.env).token); }
+  try { await authorizeStaff(request, true); }
   catch { return new Response(null, { status: 403 }); }
   if (process.env.GALA_QB_SYNC_ENABLED !== "true") return Response.json({ error: "QuickBooks sandbox writes are disabled." }, { status: 409 });
   try {
