@@ -4,7 +4,14 @@ User instruction, September 28, 2026: keep this feature away from live until rea
 
 ## Development closeout boundary, October 5
 
-Development completion and launch approval are separate milestones. The user agreed to two remaining passes: (1) real natural-expiration and recovery interruption/restart verification, fixing demonstrated defects; (2) review/closeout of accumulated branch changes, including the shared membership OAuth dependency, final regression checks, a consolidated checklist and saving reviewed work in Git. The user's full walkthrough remains part of acceptance. **Pass 1 completed October 5; pass 2 remains.**
+Development completion and launch approval are separate milestones. **Both engineering closeout passes completed October 5. The development MVP is ready for the user's walkthrough.** The current checklist is:
+
+- [x] Recovery verification: real natural expiration and actual process interruption/restart against hosted development, with protected holds and no duplicate accounting.
+- [x] Branch review: one session-rotation defect fixed and regression-tested; unrelated membership OAuth changes preserved separately on `codex/membership-oauth-hardening`, with their unapplied migration removed from the current Gala checkout.
+- [x] Final validation: **100 Gala tests, 3 retained OAuth security tests, build, 33 production-mode HTTP checks and 18 development HTTP checks passed**. Development processes restarted. Reviewed work saved locally in Git; nothing pushed or deployed.
+- [ ] User completes the full development walkthrough and reports any blocking defects. This is acceptance of the MVP, not authorization to expand features or launch.
+
+The older combined launch gates below remain separate: OSG decisions, approved inventory and production setup/acceptance are not engineering work queued before this walkthrough. The seven membership state tests moved with their implementation; the lower security-suite count is a scope separation, not lost Gala coverage.
 
 Pass 1 evidence: Stripe naturally expired an unpaid checkout after its real 35-minute deadline; the normal recovery CLI released its held table exactly once, and a closed-order retry was rejected. Two actual child-process terminations exercised interruption after a hosted claim and after a verified expiration was saved but before queue completion. After the real five-minute leases elapsed, fresh recovery finished safely and rejected both stale owners. Both fixtures have no PaymentIntent/accounting job, and preexisting business records are unchanged. Thirteen focused regression checks and the harness TypeScript check pass. No application change, migration or launch action was needed. This completes the agreed development exercise, not every possible provider outage or production-hosting test; detailed evidence is in `GALA_BACKEND_DEVELOPMENT.md`.
 
@@ -79,9 +86,9 @@ Client-review verification, September 29: all 10 model/access tests passed; prev
 - [ ] Board confirms firm Platinum, Gold, and Silver quantities. **20 each is test data only.** Record who confirmed the figures and when.
 - [ ] Confirm ticket and total venue capacity, including rules for extra seats.
 - [ ] Approve checkout hold duration, payment methods, and delayed-payment handling.
-- [ ] Configure an isolated Stripe test account/environment and isolated database; no production credentials in previews.
-- [ ] Implement server-side price validation and atomic inventory reservations; browser storage is replaced entirely.
-- [ ] Implement Stripe redirect Checkout, signed events, amount/currency/order matching, duplicate protection, and reconciliation.
+- [x] Configure an isolated Stripe test account/environment and isolated database; no production credentials in previews. Completed for development; live account setup remains separate.
+- [x] Implement server-side price validation and atomic inventory reservations. Enabled development forms use the database; read-only design/prototype mode remains separate.
+- [x] Implement Stripe redirect Checkout, signed events, amount/currency/order matching, duplicate protection, and reconciliation in development.
 - [ ] Test the last-table race, double submits, old checkout pages, payment at expiry, interrupted responses, outages, and duplicate/out-of-order notifications.
 - [ ] Prove inventory releases only after verified provider expiration; uncertain or processing payments retain their hold.
 - [ ] Confirm administrative access, audit logs, contact-data retention, and paid-only fulfillment exports.
@@ -91,7 +98,7 @@ Client-review verification, September 29: all 10 model/access tests passed; prev
 - [ ] Verify no-refund acknowledgment and receipt wording; provide an exceptional correction/dispute process without assuming refunds or restocking.
 - [ ] Test desktop/mobile checkout and admin with actual Stripe test payments, not only simulations.
 - [ ] Board/user explicitly authorizes launch after reviewing the results and final inventory.
-- [ ] Review and resolve applicable dependency security findings. Next.js critical findings are cleared by the October 4 upgrade; remaining advisory chains and follow-up are in `GALA_DEPENDENCY_SECURITY.md`. Membership OAuth state protection is implemented locally; verify its migration and fresh sandbox authorization before releasing these shared changes.
+- [ ] Review and resolve applicable dependency security findings for production. Next.js critical findings were cleared by the October 4 upgrade; remaining advisory chains and follow-up are in `GALA_DEPENDENCY_SECURITY.md`. Membership OAuth state protection is now preserved on a separate local branch and is not a migration dependency of this Gala MVP.
 
 No launch date is currently authorized. Initial sandbox payment flows pass; full acceptance testing and live integration remain incomplete.
 

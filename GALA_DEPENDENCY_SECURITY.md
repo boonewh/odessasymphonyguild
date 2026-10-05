@@ -2,6 +2,12 @@
 
 Development branch: `codex/gala-2027-planning`. No merge, deployment, live OAuth authorization, charge or accounting write was performed. This is a dependency review, not a complete application security audit.
 
+## October 5 closeout and scope separation
+
+The Gala MVP retains the compatible dependency updates and callback-parser mitigation, with **100 Gala tests, 3 OAuth SDK tests and the build passing**. The membership state-validation implementation, migration and seven tests are preserved on local branch `codex/membership-oauth-hardening` at `14803d4`; they are absent from the current Gala checkout. No new shared-database migration is required to run this MVP. No hosted membership migration or fresh OAuth authorization was performed.
+
+This separation preserves the existing membership flow apart from callback normalization. Its previously identified state-validation gap is **not fixed in the current Gala checkout** and must be handled as separate membership security/release work. Do not present the three decoder tests as proof of membership CSRF/replay protection. The historical membership section below describes the implementation on the preserved branch. The remaining dependency findings also remain production release considerations; neither this review nor the local MVP authorizes launch.
+
 ## Result
 
 `npm audit` decreased from 29 affected packages (one critical, 19 high, seven moderate, two low) to **10 affected packages (seven high, three moderate)**. Those ten entries represent two underlying advisory chains, including their dependent packages. The security release gate remains open.
@@ -32,7 +38,7 @@ Next.js critical advisories are no longer reported, including [Windows path trav
 - Local production-mode server: homepage 200; Gala tables, gifts, invitations, admin, invitation labels/PATCH, checkout/webhook POST, recovery GET/POST and Gala OAuth callback all 404.
 - Local development server and sandbox recovery worker restarted successfully; first recovery pass checked zero orders. These remain foreground processes, not reboot-persistent services.
 
-## Membership OAuth state follow-up
+## Membership OAuth state follow-up (preserved on separate branch)
 
 The earlier review found that membership authorization generated state without persisting or validating it. The development branch now fixes this flow separately from Gala OAuth. It follows Intuit's requirement to validate returned state against the initiating authorization attempt ([Intuit OAuth documentation](https://developers.intuit.com/app/developer/qbpayments/docs/develop/authentication-and-authorization/oauth-2.0)).
 
