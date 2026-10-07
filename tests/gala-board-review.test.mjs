@@ -35,9 +35,10 @@ test('board backend opens only the pinned opted-in Preview branch, project and H
 test('hosted config rejects live resources, shared signing/access secrets and accounting writes', () => {
   const config=readBackendConfig(env);
   assert.equal(config.hosted,true);assert.equal(config.origin,BOARD_ORIGIN);assert.equal(config.accessCode,env.GALA_BOARD_ACCESS_CODE);
+  assert.equal(readBackendConfig({...env,GALA_BOARD_ACCESS_CODE:'HallTest123'}).accessCode,'HallTest123');
   for(const patch of [{GALA_STRIPE_SECRET_KEY:'sk_live_fake'}, {GALA_SUPABASE_URL:'https://live.supabase.co'},
     {GALA_SUPABASE_SECRET_KEY:'other'}, {GALA_DEVELOPMENT_TOKEN:'short'}, {GALA_STRIPE_WEBHOOK_SECRET:''},
-    {GALA_BOARD_ACCESS_CODE:''},{GALA_BOARD_ACCESS_CODE:env.GALA_DEVELOPMENT_TOKEN},
+    {GALA_BOARD_ACCESS_CODE:''},{GALA_BOARD_ACCESS_CODE:'short'},{GALA_BOARD_ACCESS_CODE:env.GALA_DEVELOPMENT_TOKEN},
     {GALA_QB_SYNC_ENABLED:'true'},{GALA_ACCESS_MODE:'individual'}]) assert.throws(()=>readBackendConfig({...env,...patch}));
 });
 

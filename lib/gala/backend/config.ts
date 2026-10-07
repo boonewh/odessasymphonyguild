@@ -20,7 +20,7 @@ export function readBackendConfig(env: NodeJS.ProcessEnv) {
   const token = env.GALA_DEVELOPMENT_TOKEN || "";
   const origin = hosted ? BOARD_ORIGIN : env.GALA_LOCAL_ORIGIN || "http://localhost:3000";
   const accessCode = hosted ? env.GALA_BOARD_ACCESS_CODE || "" : token;
-  if (hosted && (!/^[A-Za-z0-9_-]{24,128}$/.test(accessCode) || accessCode === token))
+  if (hosted && (!/^[A-Za-z0-9_-]{8,128}$/.test(accessCode) || accessCode === token))
     throw new Error("A separate board test access code is required.");
   if (hosted && env.GALA_QB_SYNC_ENABLED === "true") throw new Error("Board review cannot send accounting entries.");
   if (!/^(sk|rk)_test_\S+$/.test(key)) throw new Error("A Stripe sandbox key is required.");

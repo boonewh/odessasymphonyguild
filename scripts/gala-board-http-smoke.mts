@@ -12,7 +12,7 @@ const fake = {
   GALA_BACKEND_ENABLED:'true', GALA_CLIENT_REVIEW:'false', GALA_ACCESS_MODE:'development', GALA_QB_SYNC_ENABLED:'false',
   GALA_STRIPE_SECRET_KEY:'sk_test_fake', GALA_SUPABASE_URL:DEVELOPMENT_SUPABASE_URL,
   GALA_SUPABASE_SECRET_KEY:'sb_secret_fake', GALA_STRIPE_WEBHOOK_SECRET:'whsec_fake',
-  GALA_DEVELOPMENT_TOKEN:'a'.repeat(64), GALA_BOARD_ACCESS_CODE:'b'.repeat(32), GALA_RECOVERY_SECRET:'c'.repeat(64),
+  GALA_DEVELOPMENT_TOKEN:'a'.repeat(64), GALA_BOARD_ACCESS_CODE:'HallTest123', GALA_RECOVERY_SECRET:'c'.repeat(64),
 };
 let checks=0;
 type TestRequest = { method?: string; headers?: Record<string,string>; body?: string };
