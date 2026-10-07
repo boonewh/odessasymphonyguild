@@ -5,12 +5,21 @@
 .note { color: #58616a; margin: 12px 0 24px; line-height: 1.6; }
 .nav, .tools { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin: 18px 0; }
 .nav a { color: #246c65; text-decoration: underline; }
+.testHelp { margin: 16px 0; padding: 14px 18px; border: 1px solid #d4dcd6; border-radius: 8px; background: #edf3f0; }
+.testHelp summary { cursor: pointer; font-weight: 600; }
+.testHelp ol { list-style: decimal; padding-left: 24px; margin: 12px 0; }
+.testHelp li { margin: 8px 0; }
 .panel { border: 1px solid #d4dcd6; background: white; border-radius: 12px; padding: 24px; margin: 24px 0; }
 .form { display: grid; gap: 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .lab label { display: grid; gap: 6px; font: 600 14px/1.5 sans-serif; }
 .lab input, .lab select { border: 1px solid #9baea9; border-radius: 6px; padding: 10px; width: 100%; background: white; color: #202a35; font: 16px/1.4 sans-serif; }
 .lab button { background: #246c65; color: white; padding: 11px 18px; border: 0; border-radius: 6px; cursor: pointer; font: 600 14px/1.4 sans-serif; }
-.lab button:disabled { opacity: .55; cursor: wait; }
+.lab button:disabled { opacity: .55; cursor: default; }
+.adminTabs { display: flex; gap: 4px; overflow-x: auto; padding: 5px 3px 0; margin: 24px 0; border-bottom: 2px solid #d4dcd6; }
+.lab .adminTabs button { flex: 0 0 auto; white-space: nowrap; border-radius: 7px 7px 0 0; border-bottom: 3px solid transparent; background: transparent; color: #58616a; padding: 13px 18px; }
+.lab .adminTabs button:hover { background: #edf3f0; color: #185b56; }
+.lab .adminTabs button[aria-selected="true"] { background: #e2efea; color: #185b56; border-bottom-color: #246c65; }
+.recoveryAlert { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 14px; margin-bottom: 20px; background: #fff3dc; border-left: 3px solid #b47c24; }
 .lab :focus-visible { outline: 3px solid #c49637; outline-offset: 3px; }
 .wide { grid-column: 1/-1; }
 .check { display: flex !important; align-items: center; gap: 10px; }
@@ -27,6 +36,12 @@
 .error { background: #fff0e9; color: #923f20; border-left: 3px solid #a65d37; padding: 14px; }
 .success { background: #e7f4e9; color: #245e39; padding: 14px; }
 .assignmentForm { display: grid; gap: 8px; min-width: 180px; }
+.duplicateReview { margin-top: 10px; }
+.duplicateReview summary { cursor: pointer; color: #246c65; }
+.duplicateReview form { margin-top: 12px; }
+.comparisonGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); gap: 10px; }
+.comparisonCard { min-width: 0; border: 1px solid #d4dcd6; border-radius: 6px; padding: 12px; background: #f5f8f6; }
+.comparisonCard p { margin: 8px 0; }
 .tools a { color: #246c65; text-decoration: underline; }
 .assignmentTable td { overflow-wrap: anywhere; }
 @media(max-width: 650px) {

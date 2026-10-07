@@ -19,21 +19,22 @@ export function SandboxAccess({ children, invitations = false }: { children: Rea
     }
     setState("locked");
   })
-    .catch(() => { setState("locked"); setError("Local server unavailable. Try again."); }); }, []);
+    .catch(() => { setState("locked"); setError("The test site could not be reached. Try again."); }); }, []);
   async function unlock(event: FormEvent) {
     event.preventDefault(); setState("unlocking"); setError("");
     try {
       const r = await fetch("/api/gala/session", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token }) });
-      if (!r.ok) throw new Error("Use the development token from your local .env.local file.");
+      if (!r.ok) throw new Error("Check your test access code with the test organizer.");
       setToken(""); setState("ready");
     } catch (e) { setError((e as Error).message); setState("locked"); }
   }
   if (state === "ready") return children;
-  if (state === "loading") return <p role="status">Checking local sandbox access…</p>;
-  return <form onSubmit={unlock} className={styles.summary}><h2>{invitations?"Unlock local invitation testing":"Unlock local checkout testing"}</h2>
+  if (state === "loading") return <p role="status">Checking test access…</p>;
+  return <form onSubmit={unlock} className={styles.summary}><h2>Sign in to the test site</h2>
     <p>{invitations?"Use fictional names and mailing addresses. No invitations or emails are sent.":"Use fictional buyer details and Stripe test cards. No real payments are taken."}</p>
-    <label className={styles.field}>Development token<input required type="password" autoComplete="off" value={token} onChange={e => setToken(e.target.value)} /></label>
-    <button className={styles.primary} disabled={state === "unlocking"}>Unlock sandbox</button>
+    <p>Use the access code provided by the test organizer.</p>
+    <label className={styles.field}>Test access code<input required type="password" autoComplete="off" value={token} onChange={e => setToken(e.target.value)} /></label>
+    <button className={styles.primary} disabled={state === "unlocking"}>{state==="unlocking"?"Signing in…":"Sign in"}</button>
     {error && <p role="alert" className={styles.error}>{error}</p>}</form>;
 }
 
@@ -60,7 +61,7 @@ export function SandboxOrderStatus({ id, retry, startAnother }: { id: string; re
       const r = await fetch(action === "expire" ? "/api/gala/expire" : `/api/gala/order?orderId=${encodeURIComponent(id)}`, {
         method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(action === "expire" ? { orderId: id } : {}),
       });
-      if (r.status === 401 || r.status === 403) throw new Error("Your local session expired. Reload to unlock testing again.");
+      if (r.status === 401 || r.status === 403) throw new Error("Your test session expired. Reload this page to sign in again.");
       const result = await r.json();
       if (!r.ok) throw new Error(result.error || "Payment status could not be verified.");
       if (action === "resume" && result.url) { window.location.assign(checkoutUrl(result.url)); return; }
@@ -70,9 +71,9 @@ export function SandboxOrderStatus({ id, retry, startAnother }: { id: string; re
   const closed = order?.status === "paid" || order?.status === "expired";
   return <section className={styles.summary} aria-label="Checkout status">
     <h2>{order?.status === "paid" ? "Test payment confirmed" : order?.status === "expired" ? "Checkout closed without payment" : "Your checkout is not yet confirmed"}</h2>
-    <p role="status">{order?.status === "paid" ? "Stripe payment has been verified. Your order is ready for fulfillment in the sandbox admin."
+    <p role="status">{order?.status === "paid" ? "Your test payment is confirmed. You can now find this order in Gala admin."
       : order?.status === "expired" ? "Stripe confirmed this checkout expired unpaid. Any table held for it has been released."
-        : "Returning here does not confirm payment or release a table. Your selections remain locked until the server verifies payment or expiry."}</p>
+        : "We are checking your payment. Please keep this order and use Check payment status below instead of starting another purchase. Your table stays reserved until the result is confirmed."}</p>
     <p className={styles.fine}>Order reference: <span style={{ overflowWrap: "anywhere" }}>{id}</span></p>
     {order && <p>{order.description} · <strong>{money(order.amount)}</strong></p>}
     {error && <p role="alert" className={styles.error}>{error}</p>}
@@ -83,7 +84,7 @@ export function SandboxOrderStatus({ id, retry, startAnother }: { id: string; re
     </div>}
     {closed && (startAnother ? <button className={styles.primary} onClick={startAnother}>Start another test order</button>
       : <Link href={`/gala/${order.kind}`}>Return to {order.kind === "tables" ? "tables and tickets" : "celebration gifts"}</Link>)}
-    <p className={styles.fine}>Local sandbox only. No real money is charged. <Link href="/gala/preview/admin">View test orders</Link></p>
+    <p className={styles.fine}>Test only. No real money is charged. <Link href="/gala/preview/admin">View in Gala admin</Link></p>
   </section>;
 }
 
@@ -93,12 +94,12 @@ function SandboxForm({ kind }: { kind: "tables" | "gifts" }) {
   const lock = useRef(false);
   useEffect(() => {
     try { setAttempt(readAttempt(sessionStorage.getItem(FLYER_ATTEMPT_KEY))); setReady(true); }
-    catch { setError("The saved checkout could not be read. Check the sandbox admin before clearing browser storage or making another purchase."); }
+    catch { setError("Your previous checkout could not be loaded. Check Gala admin for your order before starting another purchase."); }
   }, []);
   async function send(payload: CheckoutRequest) {
     setError("");
     const r = await fetch("/api/gala/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-    if (r.status === 403) throw new Error("Your local session expired. Reload to unlock testing again.");
+    if (r.status === 403) throw new Error("Your test session expired. Reload this page to sign in again.");
     const result = await r.json();
     if (!r.ok) throw new Error(result.error || "Checkout could not be opened. Retry this same order.");
     window.location.assign(checkoutUrl(result.url));

@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "test:security": "node --import tsx --test tests/oauth-callback.test.mjs",
-    "test:gala": "node --import tsx --test tests/gala-login-limits.test.mjs tests/gala-access.test.mjs tests/gala-model.test.mjs tests/gala-client-review.test.mjs tests/gala-backend.test.mjs tests/gala-database-timeout.test.mjs tests/gala-accounting.test.mjs tests/gala-accounting-crash.test.mjs tests/gala-checkout-form.test.mjs tests/gala-assignments.test.mjs tests/gala-gifts.test.mjs tests/gala-invitations.test.mjs",
+    "test:gala": "node --import tsx --test tests/gala-login-limits.test.mjs tests/gala-access.test.mjs tests/gala-model.test.mjs tests/gala-client-review.test.mjs tests/gala-board-review.test.mjs tests/gala-backend.test.mjs tests/gala-database-timeout.test.mjs tests/gala-accounting.test.mjs tests/gala-accounting-crash.test.mjs tests/gala-checkout-form.test.mjs tests/gala-assignments.test.mjs tests/gala-gifts.test.mjs tests/gala-invitations.test.mjs",
     "gala:listen": "node --import tsx scripts/gala-listen.mts",
     "gala:recover": "node --import tsx scripts/gala-recover.mts",
     "gala:dev": "next dev --turbopack --hostname 127.0.0.1 --port 3000"

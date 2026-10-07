@@ -1,8 +1,24 @@
 # Gala 2027: decisions, payment research, and implementation handoff
 
-Last updated: October 5, 2026 (America/Chicago).
+Last updated: October 6, 2026 (America/Chicago).
 
 ## Resume here
+
+### October 6: functional board Preview implementation prepared
+
+The user authorized starting the hosted-test setup. Code now supports an explicitly opted-in functional Preview only on the existing Gala branch, Vercel project and HTTPS branch alias. Shared board access uses a separate code from the signing secret; cookies are Secure/HttpOnly and survive the Stripe return. The three customer forms, payment return and five admin tabs are allowed, while membership routes, engineering labs, QuickBooks writes and production remain blocked. A separately authenticated scheduled recovery endpoint and optional Supabase Cron setup are prepared. Board members intentionally share visibility of fictional test records.
+
+**108 Gala tests, the build and 47 built-app Preview/production HTTP checks pass.** No cloud settings, secrets, schedules, webhooks or deployments have changed. Credential/service-access confirmation is pending before Vercel configuration; after configuration, deploy this feature branch and complete a real hosted purchase/admin/recovery walkthrough. Exact setup instructions are in `GALA_BACKEND_DEVELOPMENT.md`. This is the requested test-hosting work, not production readiness or inventory approval.
+
+### October 6: board review preparation
+
+The user requested a full, test-only Vercel walkthrough of customer purchases and every Gala admin section. The interface cleanup is implemented locally: plain test-site labels, a short walkthrough and test-card help, clearer payment/accounting statuses, expandable order references, organizer-only disclosures, and optional manual invitation comparison. **100 Gala tests and the build pass.** Chrome checks verified the revised customer/admin screens without writing records.
+
+The current hosted mode is still design-only; this cleanup does not enable hosted purchases or admin access. The bounded next step is a protected functional Preview deployment, with Preview-only backend access/HTTPS cookies, hosted Stripe test notifications and payment recovery, followed by one complete hosted buyer/admin walkthrough. Keep unrelated site navigation outside the board test path. Vercel access and the existing September 29 branch preview are now verified in Chrome's Will profile; see the board-review section in `GALA_RELEASE_CHECKLIST.md` for the exact project, URL and protection settings. No push, deployment, production change or inventory approval occurred.
+
+### October 6: walkthrough usability follow-up
+
+The user's first walkthrough surfaced status-filter confusion, unclear duplicate-review controls and misleading wait cursors; those local UI fixes are recorded in `GALA_BACKEND_DEVELOPMENT.md`. At the user's request, the database admin is now organized into on-page tabs: Orders (inventory and recovery), Table assignments, Gifts, Invitations and Accounting. Tabs retain filters and unsaved work; recovery warnings remain visible across sections. This is a scoped usability follow-up, not an expansion of production readiness or a launch authorization. All stock remains unapproved development inventory.
 
 ### Agreed development finish line (October 5)
 

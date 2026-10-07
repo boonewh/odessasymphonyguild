@@ -4,17 +4,20 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { EVENT } from "@/lib/gala/model";
 import styles from "./gala-sales.module.css";
+import { boardReviewAllowed } from "@/lib/gala/board-review";
 
-const links = [["tables", "Tables & tickets"], ["gifts", "Celebration gifts"], ["invitations", "Send an invitation"], ["preview/admin", "Preview admin"]];
+const links = [["tables", "Tables & tickets"], ["gifts", "Celebration gifts"], ["invitations", "Request invitations"], ["preview/admin", "Gala admin"]];
 export default function GalaShell({ current, title, intro, children, clientReview = false, sandbox = false }: {
   current: string; title: string; intro: string; children: React.ReactNode; clientReview?: boolean; sandbox?: boolean;
 }) {
   const isAdmin = current === "preview/admin";
   const isGift = current === "gifts";
+  const boardReview = boardReviewAllowed(process.env);
   return <div className={styles.page}>
-    {clientReview ? <header className={styles.reviewHeader}><Image src="/images/osg-logo.png" alt="Odessa Symphony Guild" width={64} height={64} /><span>Odessa Symphony Guild</span></header> : <Header theme="gala" />}
+    {clientReview || boardReview ? <header className={styles.reviewHeader}><Image src="/images/osg-logo.png" alt="Odessa Symphony Guild" width={64} height={64} /><span>Odessa Symphony Guild</span></header> : <Header theme="gala" />}
     <aside className={styles.previewNotice} aria-label="Development preview">
-      {clientReview ? <><strong>Client preview · Sales are not open.</strong> Explore the designs and pricing. Personal information and submissions are disabled.</> : sandbox && current === "invitations" ? <><strong>Local sandbox · Invitation testing.</strong> Use fictional names and addresses. Requests are saved in the development database; no invitations or emails are sent.</> : sandbox ? <><strong>Local sandbox · No real payments.</strong> Use fictional details and Stripe test cards. Orders are saved in the separate development database. Sales are not open to the public.</> : <><strong>Local preview · Sales are closed.</strong> Use fictional details only. Orders stay in this browser. No payments, emails, or QuickBooks entries are created.</>}
+      {clientReview ? <><strong>Design preview · Sales are not open.</strong> Explore the designs and pricing. Forms cannot be submitted in this preview.</> : sandbox && current === "invitations" ? <><strong>TEST SITE · Invitation practice.</strong> Use fictional names and addresses. You can review saved requests in Gala admin. Nothing is mailed or emailed.</> : sandbox ? <><strong>TEST SITE · No real payments.</strong> Use fictional details and a test card. Your orders appear in Gala admin and do not affect live records.</> : <><strong>Local preview · Sales are closed.</strong> Use fictional details only. Orders stay in this browser. No payments, emails, or QuickBooks entries are created.</>}
+      {sandbox&&current!=="invitations"&&<details><summary>Test card details</summary><p>Card: <strong>4242 4242 4242 4242</strong> · Expiration: <strong>12/34</strong> · Security code: <strong>123</strong>. Never enter a real card.</p></details>}
     </aside>
     <nav className={styles.nav} aria-label="Gala pages">
       {links.filter(([path]) => !clientReview || path !== "preview/admin").map(([path, label]) => <Link key={path} href={`/gala/${path}`} aria-current={current === path ? "page" : undefined}>{label}</Link>)}
@@ -62,6 +65,6 @@ export default function GalaShell({ current, title, intro, children, clientRevie
       </main>
     </div>
     <div className={styles.stripes} aria-hidden="true" />
-    {clientReview ? <footer className={styles.reviewFooter}>Odessa Symphony Guild · Gala 2027 client review</footer> : <Footer theme="gala" />}
+    {clientReview || boardReview ? <footer className={styles.reviewFooter}>Odessa Symphony Guild · Gala 2027 {boardReview ? "test site" : "client review"}</footer> : <Footer theme="gala" />}
   </div>;
 }

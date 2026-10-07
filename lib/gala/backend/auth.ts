@@ -14,9 +14,9 @@ export function validDevelopmentSession(cookie: string, token: string, now = Dat
   if (!match || Number(match[1]) <= Math.floor(now / 1000) || Number(match[1]) > Math.floor(now / 1000) + 8 * 3600) return false;
   return equalSecret(match[3], createHmac("sha256", token).update(`${match[1]}.${match[2]}`).digest("hex"));
 }
-export function authorizeLocalRequest(request: Request, token: string, origin: string) {
+export function authorizeLocalRequest(request: Request, token: string, origin: string, allowHeader = true) {
   const header = request.headers.get("x-gala-development-token");
-  if (header && equalSecret(header, token)) return;
+  if (allowHeader && header && equalSecret(header, token)) return;
   const cookie = (request.headers.get("cookie") || "").split(";").map(v => v.trim())
     .find(v => v.startsWith(`${DEVELOPMENT_COOKIE}=`))?.slice(DEVELOPMENT_COOKIE.length + 1) || "";
   if (!validDevelopmentSession(cookie, token)) throw new Error("Development authentication required.");

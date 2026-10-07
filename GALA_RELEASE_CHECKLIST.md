@@ -19,6 +19,20 @@ Do not turn the historical progress notes or unchecked combined launch gates bel
 
 ## Current local preview
 
+### Full board test on Vercel: requested October 6, not deployed
+
+This is a separate test-hosting milestone, not a production launch or an extension of the completed local MVP closeout.
+
+- [x] Simplify the board-facing interface and add walkthrough/test-card instructions; 100 Gala tests and build pass locally.
+- [x] Implement Preview-only routes, secure board sessions and a separately authenticated recovery endpoint; **108 Gala tests, build and 47 built-app HTTP checks pass**. Optional scheduler SQL is prepared but not applied.
+- [ ] Enable a protected, explicitly opted-in **Preview-only** functional test using the designated development database and Stripe sandbox, HTTPS cookies and the verified review origin. Preserve production denial and keep unrelated membership/admin routes outside the test; make navigation match the allowed test pages.
+- [ ] Connect hosted Stripe test webhooks and payment recovery that runs independently of the user's computer. [Vercel Cron is Production-only](https://vercel.com/docs/cron-jobs/quickstart), so Preview needs a separate test scheduler/worker. Verify delivery through deployment protection. Leave QuickBooks sending disabled unless a controlled sandbox accounting exercise is explicitly included.
+- [ ] Walk through hosted table and gift purchases, invitations and every Gala admin tab using fictional records; verify test-only access, settlement and inventory recovery before sharing the verified review link with the board.
+
+Vercel access is now verified in Chrome's **Will** profile, under `boonewhs-projects/odessasymphonyguild`. The existing Preview deployment is `3j9th6p7vp8Z3kpr6KSrfHYjHQvH`, September 29 commit `e7c7ae5`, on `codex/gala-2027-planning`. Its branch URL is `https://odessasymphonyguild-git-codex-gala-202-a1c1b0-boonewhs-projects.vercel.app`. `GALA_CLIENT_REVIEW` is scoped to Preview and that branch; Vercel Authentication uses Standard Protection, and no automation bypass secret is configured. Legacy membership variables also have All Environments scope; preserve the route isolation and use separate Gala test credentials. Values were not revealed or changed. No deployment, credentials upload, access change or stock change occurred. These checks do not require board-approved stock because all displayed quantities remain explicitly fictional test inventory.
+
+### Local access
+
 Run `npm run dev` and open:
 
 - `/gala/tables`: table tiers, ticket choices, extra seats, buyer details, no-refund acknowledgment.
@@ -28,7 +42,7 @@ Run `npm run dev` and open:
 
 Use fictional data only. Without the backend flag, prototype orders are stored in this browser under `osg-gala-local-preview-v1` and send no information to providers. When `GALA_BACKEND_ENABLED=true` locally, table/gift forms and `/gala/preview/testing` make sandbox purchases, invitations save separate free requests, and `/gala/preview/admin` displays the development database. No physical mail or email is sent. See `GALA_BACKEND_DEVELOPMENT.md`. No production admin is implemented.
 
-`requireGalaPreview()` requires local development and rejects any Vercel environment. All four routes return 404 in production. Do not remove the production or admin guard until the checklist below is complete and launch is authorized.
+`requireGalaPreview()` defaults to local development. The admin/payment-return callers additionally accept the explicitly pinned board Preview mode; customer pages use the same Preview gate. All Gala pages remain 404 in production. Do not remove the production guard until the checklist below is complete and launch is authorized.
 
 ## Authorized client design review (September 29)
 

@@ -20,9 +20,11 @@ export async function recoverOrder(store:OrderStore,stripe:StripeGateway,order:O
     return state==='unrelated'?'retry_required':state;
   } catch {return 'retry_required';}
 }
-export async function recoveryPass(queue:RecoveryStore,store:OrderStore,stripe:StripeGateway,limit=10) {
+export async function recoveryPass(queue:RecoveryStore,store:OrderStore,stripe:StripeGateway,limit=10,budgetMs=Infinity) {
+  const deadline=Date.now()+budgetMs;
   let checked=0;
   for(let i=0;i<limit;i++){
+    if(Date.now()>=deadline)break;
     const token=randomUUID(),order=await queue.claim(token);
     if(!order)break;
     const outcome=await recoverOrder(store,stripe,order);

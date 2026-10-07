@@ -31,11 +31,11 @@ export function staffSessionHash(request: Request) {
   if (!/^[a-f0-9]{64}$/.test(value)) throw new Error("Staff sign-in required.");
   return secretHash(value);
 }
-type AccessConfig = { accessMode: string; token: string; origin: string };
+type AccessConfig = { accessMode: string; token: string; origin: string; hosted?: boolean };
 export async function staffAccess(request: Request, config: AccessConfig, accounting: boolean,
   lookup: (hash: string, accounting: boolean) => Promise<unknown>) {
   if (config.accessMode === "development") {
-    authorizeLocalRequest(request, config.token, config.origin); return undefined;
+    authorizeLocalRequest(request, config.token, config.origin, !config.hosted); return undefined;
   }
   if (config.accessMode !== "individual") throw new Error("Unknown access mode.");
   sameOrigin(request, config.origin);
@@ -45,7 +45,7 @@ export async function staffAccess(request: Request, config: AccessConfig, accoun
 }
 export function customerAccess(request: Request, config: AccessConfig) {
   if (config.accessMode === "development") {
-    authorizeLocalRequest(request, config.token, config.origin); return undefined;
+    authorizeLocalRequest(request, config.token, config.origin, !config.hosted); return undefined;
   }
   if (config.accessMode !== "individual") throw new Error("Unknown access mode.");
   sameOrigin(request, config.origin);

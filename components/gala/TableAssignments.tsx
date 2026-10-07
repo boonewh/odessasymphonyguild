@@ -41,7 +41,7 @@ export default function TableAssignments() {
     finally { setBusy(false); }
   }, []);
   useEffect(() => { void refresh().catch(() => {}); }, [refresh]);
-  async function saved() { await refresh(); setNotice("Assignment saved. The list below reflects the database."); }
+  async function saved() { await refresh(); setNotice("Table assignment saved."); }
   async function download() {
     setBusy(true); setError("");
     try {
@@ -56,7 +56,7 @@ export default function TableAssignments() {
   const shown = filterAssignments(rows || [], filter);
   return <section className={styles.panel} aria-label="Table assignments">
     <h2>Table assignments</h2>
-    <p className={styles.note}>Paid table purchases only. Table numbers are shared across all tiers. These are development assignments; the venue layout and inventory are not approved. Individual tickets and Belles &amp; Beaux seating are excluded.</p>
+    <p className={styles.note}>Assign table numbers to paid table orders. Each table number can be used once across all tiers. These are practice assignments; the event layout is not final. Individual tickets and Belles &amp; Beaux seating are managed separately.</p>
     <div className={styles.tools}>
       <label>Assignment status<select value={filter} onChange={e=>setFilter(e.target.value as AssignmentFilter)}>
         <option value="all">All paid tables</option><option value="unassigned">Needs assignment</option><option value="assigned">Assigned tables</option>
@@ -69,7 +69,7 @@ export default function TableAssignments() {
     {rows && <p>{rows.length} paid tables · {rows.filter(r=>r.table_number === null).length} need assignment. Export includes all matching paid tables, not just the latest 100 orders.</p>}
     {!rows ? <p>{busy ? "Loading assignments…" : "Assignments unavailable."}</p> : shown.length === 0 ? <p>No paid tables match this view.</p> :
       <div className={`${styles.table} ${styles.assignmentTable}`}><table><thead><tr><th>Buyer / order</th><th>Tier</th><th>Purchased seats</th><th>Current table</th><th>Assign or change</th></tr></thead>
-        <tbody>{shown.map(row=><tr key={row.id}><td data-label="Buyer / order">{row.buyer.name}<small>{row.buyer.email}</small><small>{row.id}</small></td>
+        <tbody>{shown.map(row=><tr key={row.id}><td data-label="Buyer / order">{row.buyer.name}<small>{row.buyer.email}</small><details><summary>Order reference</summary><small>{row.id}</small></details></td>
           <td data-label="Tier" style={{textTransform:"capitalize"}}>{row.tier}</td><td data-label="Purchased seats">{row.seats}</td><td data-label="Current table">{row.table_number ?? "Unassigned"}</td>
           <td data-label="Assign or change"><AssignmentEditor key={`${row.id}-${row.revision}-${generation}`} row={row} saved={saved} started={()=>setNotice("")}/></td></tr>)}</tbody></table></div>}
   </section>;

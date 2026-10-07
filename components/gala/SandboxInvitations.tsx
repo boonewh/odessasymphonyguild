@@ -32,14 +32,14 @@ function InvitationForm() {
   return <>{error&&<p role="alert" className={styles.error}>{error}</p>}
     {!ready?<p>Checking saved invitation request…</p>:attempt?<section className={styles.summary} aria-label="Invitation request status">
       <h2>{confirmed?"Test invitation request received":"Check your saved request"}</h2>
-      <p role="status">{confirmed?"Saved in the development database for address review and preparation. Nothing has been mailed."
+      <p role="status">{confirmed?"Your test request is saved. Open Invitations in Gala admin to review the addresses and practice preparing the mailing. Nothing has been mailed."
         :"A submission was started in this browser. Confirm or retry the same request below to avoid duplicates."}</p>
       <p>{attempt.recipients.length} recipient{attempt.recipients.length===1?"":"s"} · requested by {attempt.contact.name}</p>
       <ul>{attempt.recipients.map((r,i)=><li key={i}>{r.name} — {r.address}{r.address2?`, ${r.address2}`:""}, {r.city}, {r.state} {r.zip}</li>)}</ul>
       <p className={styles.fine}>Request reference: <span style={{overflowWrap:"anywhere"}}>{attempt.requestId}</span></p>
       {confirmed?<button className={styles.primary} onClick={reset}>Start another test invitation request</button>
         :<button className={styles.primary} disabled={busy} onClick={()=>void retry()}>{busy?"Checking…":"Confirm or retry saved request"}</button>}
-      <p className={styles.fine}>An invitation does not reserve a seat. No payment or email is sent. <Link href="/gala/preview/admin">View development admin</Link></p>
+      <p className={styles.fine}>An invitation does not reserve a seat. No payment or email is sent. <Link href="/gala/preview/admin">View in Gala admin</Link></p>
     </section>:<OrderFormContent kind="invitations" invite={submit} busy={busy}/>}</>;
 }
 export default function SandboxInvitations(){return <SandboxAccess invitations><InvitationForm/></SandboxAccess>;}
