@@ -4,11 +4,13 @@ Last updated: October 6, 2026 (America/Chicago).
 
 ## Resume here
 
-### October 6: functional board Preview implementation prepared
+### October 6: functional board Preview deployed and verified
 
 The user authorized starting the hosted-test setup. Code now supports an explicitly opted-in functional Preview only on the existing Gala branch, Vercel project and HTTPS branch alias. Shared board access uses a separate code from the signing secret; cookies are Secure/HttpOnly and survive the Stripe return. The three customer forms, payment return and five admin tabs are allowed, while membership routes, engineering labs, QuickBooks writes and production remain blocked. A separately authenticated scheduled recovery endpoint and optional Supabase Cron setup are prepared. Board members intentionally share visibility of fictional test records.
 
-**108 Gala tests, the build and 47 built-app Preview/production HTTP checks pass.** No cloud settings, secrets, schedules, webhooks or deployments have changed. Credential/service-access confirmation is pending before Vercel configuration; after configuration, deploy this feature branch and complete a real hosted purchase/admin/recovery walkthrough. Exact setup instructions are in `GALA_BACKEND_DEVELOPMENT.md`. This is the requested test-hosting work, not production readiness or inventory approval.
+**The hosted board test is ready.** Commit `ccaacde` deployed successfully to Vercel Preview on the Gala branch. The user approved test credential/service setup; branch-scoped secrets, a Stripe sandbox webhook and one-minute development Supabase recovery are configured. An anonymous share-link request reached the test site without a Vercel account; the separate board code established a Secure/HttpOnly/Lax session. Fictional table and gift payments, table assignment, gift preparation/handout, invitation submission/preparation/mailing, all five admin tabs and unpaid checkout expiration passed. Real Stripe event records confirm both paid orders and the expired order; the expired order created no accounting job. Three consecutive scheduled HTTP responses returned 200 without timeout and the admin heartbeat is current. QuickBooks sending remains disabled. Private link/code instructions are in the ignored `.codex-remote-attachments/hosting/gala-board-test-instructions.txt`, never Git.
+
+**108 Gala tests, the build and 47 built-app Preview/production HTTP checks pass.** No production deployment or merge occurred. All tiers remain unapproved capacity 20. The next step is the board's walkthrough and feedback, not another engineering backlog. Details and rollback are in `GALA_BACKEND_DEVELOPMENT.md`.
 
 ### October 6: board review preparation
 
