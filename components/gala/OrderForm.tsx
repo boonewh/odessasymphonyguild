@@ -8,6 +8,7 @@ import { TABLES, contactSchema, giftsSchema, recipientsSchema, quotePurchase, qu
   type Product, type Gift, type Recipient, type DemoOrder } from "@/lib/gala/model";
 import { useDemoOrders } from "@/lib/gala/use-demo-orders";
 import styles from "./gala-sales.module.css";
+import { SAME_TAB_NOTICE, type CartAddition } from "@/lib/gala/cart";
 
 type Kind = DemoOrder["kind"];
 export type PaidFormDetails = { kind: "tables"; contact: DemoOrder["contact"]; allSalesFinal: true; purchase: { product: Product; quantity: number; extraSeats: number } }
@@ -36,10 +37,11 @@ function LocalOrderForm({ kind }: { kind: Kind }) {
   const store = useDemoOrders();
   return <OrderFormContent kind={kind} store={store} />;
 }
-export function OrderFormContent({ kind, store, clientReview = false, checkout, invite, busy = false }: {
+export function OrderFormContent({ kind, store, clientReview = false, checkout, invite, addToCart, busy = false }: {
   kind: Kind; store?: ReturnType<typeof useDemoOrders>; clientReview?: boolean;
   checkout?: (details: PaidFormDetails) => Promise<void>; busy?: boolean;
   invite?: (details:{contact:DemoOrder["contact"];recipients:Recipient[]})=>Promise<void>;
+  addToCart?: (details: CartAddition) => boolean;
 }) {
   const [product, setProduct] = useState<Product>("gold");
   const [quantity, setQuantity] = useState(1);
@@ -50,6 +52,7 @@ export function OrderFormContent({ kind, store, clientReview = false, checkout, 
   const [agreed, setAgreed] = useState(false);
   const [saved, setSaved] = useState("");
   const [error, setError] = useState("");
+  const [added, setAdded] = useState("");
   const table = TABLES.find((item) => item.id === product);
   const purchase = { product, quantity: table ? 1 : quantity, extraSeats: table ? extraSeats : 0 };
   const quote = quotePurchase(purchase);
@@ -59,8 +62,13 @@ export function OrderFormContent({ kind, store, clientReview = false, checkout, 
   function changeRecipient(index: number, patch: Partial<Recipient>) { setRecipients((items) => items.map((item, i) => i === index ? { ...item, ...patch } : item)); }
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setError("");
-    if (clientReview || (!store && !checkout && !invite) || saved || busy) return;
+    if (clientReview || (!store && !checkout && !invite && !addToCart) || saved || busy) return;
     try {
+      if (addToCart && kind !== "invitations") {
+        if (addToCart(kind === "tables" ? { kind, purchase } : { kind, gifts: giftsSchema.parse(gifts) }))
+          setAdded(kind === "tables" ? quote.description : "Celebration gifts");
+        return;
+      }
       const buyer = contactSchema.parse(contact);
       if(invite && kind==="invitations") {
         await invite({contact:buyer,recipients:recipientsSchema.parse(recipients)});
@@ -155,11 +163,11 @@ export function OrderFormContent({ kind, store, clientReview = false, checkout, 
             </div>)}
             <button type="button" className={styles.secondary} disabled={recipients.length >= 20} onClick={() => setRecipients([...recipients, blankRecipient()])}>Add another recipient</button>
           </fieldset>}
-          <fieldset disabled={clientReview} className={styles.formSection}><legend>Your information</legend><div className={styles.fields}>
+          {!addToCart && <fieldset disabled={clientReview} className={styles.formSection}><legend>Your information</legend><div className={styles.fields}>
             <div className={styles.wide}><Field label="Your name" name="buyerName" value={contact.name} onChange={(name) => setContact({ ...contact, name })} /></div>
             <Field label="Email address" name="email" type="email" value={contact.email} maxLength={254} onChange={(email) => setContact({ ...contact, email })} />
             <Field label="Phone number" name="phone" type="tel" value={contact.phone} maxLength={30} onChange={(phone) => setContact({ ...contact, phone })} />
-          </div></fieldset>
+          </div></fieldset>}
         </div>
         <aside className={styles.summary} aria-label="Order summary">
           <h2>{kind === "invitations" ? "Your invitation request" : "Your evening, your way"}</h2>
@@ -168,9 +176,11 @@ export function OrderFormContent({ kind, store, clientReview = false, checkout, 
             {kind === "gifts" && <><div><dt>Roses</dt><dd>{gifts.reduce((sum, gift) => sum + gift.roses, 0)}</dd></div><div><dt>Cookie bags</dt><dd>{gifts.reduce((sum, gift) => sum + gift.cookies, 0)}</dd></div></>}
             {kind === "invitations" ? <div><dt>Recipients</dt><dd>{recipients.length}</dd></div> : <div className={styles.total}><dt>Total</dt><dd>{money(total)}</dd></div>}
           </dl>
-          {kind !== "invitations" && <label className={styles.agreement}><input disabled={clientReview} name="refundAcknowledgment" type="checkbox" required checked={agreed} onChange={(event) => setAgreed(event.target.checked)} /><span>I understand that all sales are final and no refunds are offered.</span></label>}
-          <button type="submit" className={styles.primary} disabled={clientReview || (!checkout && !invite && !store?.ready) || !!saved || busy}>{clientReview ? "Not open yet" : invite ? (busy ? "Saving request…" : "Submit test invitation request") : checkout ? (busy ? "Opening checkout…" : "Continue to Stripe test checkout") : kind === "invitations" ? "Save preview request" : "Create preview order"}</button>
-          <p className={styles.fine}>{clientReview ? "Design review only. No information is saved or submitted, and no payment can be made." : invite ? "Test only. Use fictional names and addresses. Requests appear in Gala admin; no invitation is actually mailed and no payment is required." : checkout ? "Test only. Use fictional details and the test card shown above. Payment details are entered on Stripe’s website. A table is temporarily reserved while checkout is open." : kind === "invitations" ? "Preview only. No request is sent to the Guild and no invitation is mailed." : "Preview only. This creates an unpaid sample order for review in Gala admin."}</p>
+          {!addToCart && kind !== "invitations" && <label className={styles.agreement}><input disabled={clientReview} name="refundAcknowledgment" type="checkbox" required checked={agreed} onChange={(event) => setAgreed(event.target.checked)} /><span>I understand that all sales are final and no refunds are offered.</span></label>}
+          <button type="submit" className={styles.primary} disabled={clientReview || (!checkout && !invite && !addToCart && !store?.ready) || !!saved || busy}>{addToCart ? "Add to cart" : clientReview ? "Not open yet" : invite ? (busy ? "Saving request…" : "Submit test invitation request") : checkout ? (busy ? "Opening checkout…" : "Continue to Stripe test checkout") : kind === "invitations" ? "Save preview request" : "Create preview order"}</button>
+          <p className={styles.fine}>{addToCart ? SAME_TAB_NOTICE : clientReview ? "Design review only. No information is saved or submitted, and no payment can be made." : invite ? "Test only. Use fictional names and addresses. Requests appear in Gala admin; no invitation is actually mailed and no payment is required." : checkout ? "Test only. Use fictional details and the test card shown above. Payment details are entered on Stripe’s website. A table is temporarily reserved while checkout is open." : kind === "invitations" ? "Preview only. No request is sent to the Guild and no invitation is mailed." : "Preview only. This creates an unpaid sample order for review in Gala admin."}</p>
+          {addToCart && <p className={styles.fine}>Enter your contact information once at checkout. Tables are reserved only when checkout opens.</p>}
+          {added && <div role="status" className={styles.success}><p>{added} added to your cart.</p><Link href="/gala/cart">Review cart and checkout</Link><p><Link href={kind === "tables" ? "/gala/gifts" : "/gala/tables"}>{kind === "tables" ? "Add celebration gifts" : "Add tables or tickets"}</Link></p></div>}
           {kind === "tables" && <p className={styles.fine}>{clientReview ? "Table availability will be announced when sales open." : "Test availability: 20 tables per tier. These are practice quantities, not approved availability for the event."}</p>}
           {kind === "gifts" && <p className={styles.fine}>The exact deadline time is awaiting confirmation. This preview does not enforce a sales cutoff.</p>}
         </aside>

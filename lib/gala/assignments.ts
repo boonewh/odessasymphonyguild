@@ -3,18 +3,19 @@ import { csvDocument } from "./csv";
 export const assignmentRequest = z.object({
   orderId: z.uuid(), tableNumber: z.number().int().min(1).max(999).nullable(),
   revision: z.number().int().min(0),
+  lineIndex: z.number().int().min(0).max(9).default(0),
 }).strict();
 export type TableAssignment = {
   id: string; tier: string; buyer: { name: string; email: string; phone: string };
-  seats: number; table_number: number | null; revision: number;
+  seats: number; table_number: number | null; revision: number; line_index?: number;
 };
 export type AssignmentFilter = "all" | "assigned" | "unassigned";
 export function filterAssignments(rows: TableAssignment[], filter: AssignmentFilter) {
   return rows.filter(row => filter === "all" || (filter === "assigned" ? row.table_number !== null : row.table_number === null));
 }
 export function assignmentsCsv(rows: TableAssignment[]) {
-  const records: unknown[][] = [["Environment", "Table number", "Tier", "Buyer", "Email", "Phone", "Purchased seats", "Assignment status", "Order reference"]];
+  const records: unknown[][] = [["Environment", "Table number", "Tier", "Buyer", "Email", "Phone", "Purchased seats", "Assignment status", "Order reference", "Order selection"]];
   for (const row of rows) records.push(["DEVELOPMENT ONLY", row.table_number ?? "", row.tier, row.buyer.name,
-    row.buyer.email, row.buyer.phone, row.seats, row.table_number === null ? "Unassigned" : "Assigned", row.id]);
+    row.buyer.email, row.buyer.phone, row.seats, row.table_number === null ? "Unassigned" : "Assigned", row.id, (row.line_index ?? 0) + 1]);
   return csvDocument(records);
 }

@@ -43,7 +43,7 @@ test('hosted config rejects live resources, shared signing/access secrets and ac
 });
 
 test('board route allowlist permits walkthrough methods but denies membership, labs and accounting writes', () => {
-  for(const path of ['/gala/tables','/gala/gifts','/gala/invitations','/gala/preview/admin','/gala/preview/payment']) {
+  for(const path of ['/gala/tables','/gala/gifts','/gala/cart','/gala/invitations','/gala/preview/admin','/gala/preview/payment']) {
     assert.equal(boardReviewRequest(path,'GET'),'allowed');assert.equal(boardReviewRequest(path,'POST'),'blocked');
   }
   for(const path of ['/api/gala/checkout','/api/gala/webhook','/api/gala/recovery/run']) {

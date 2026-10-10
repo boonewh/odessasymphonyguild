@@ -5,12 +5,13 @@ import Footer from "@/components/Footer";
 import { EVENT } from "@/lib/gala/model";
 import styles from "./gala-sales.module.css";
 import { boardReviewAllowed } from "@/lib/gala/board-review";
+import { CartLink } from "./GalaCart";
 
 const links = [["tables", "Tables & tickets"], ["gifts", "Celebration gifts"], ["invitations", "Request invitations"], ["preview/admin", "Gala admin"]];
 export default function GalaShell({ current, title, intro, children, clientReview = false, sandbox = false }: {
   current: string; title: string; intro: string; children: React.ReactNode; clientReview?: boolean; sandbox?: boolean;
 }) {
-  const isAdmin = current === "preview/admin";
+  const compact = current === "preview/admin" || current === "cart";
   const isGift = current === "gifts";
   const boardReview = boardReviewAllowed(process.env);
   return <div className={styles.page}>
@@ -21,10 +22,11 @@ export default function GalaShell({ current, title, intro, children, clientRevie
     </aside>
     <nav className={styles.nav} aria-label="Gala pages">
       {links.filter(([path]) => !clientReview || path !== "preview/admin").map(([path, label]) => <Link key={path} href={`/gala/${path}`} aria-current={current === path ? "page" : undefined}>{label}</Link>)}
+      {sandbox && <CartLink />}
     </nav>
-    <div className={isAdmin ? "" : styles.flyerStage}>
-      <main className={isAdmin ? styles.container : styles.invitationPaper} data-page={current}>
-        {isAdmin ? <header className={styles.hero}>
+    <div className={compact ? "" : styles.flyerStage}>
+      <main className={compact ? styles.container : styles.invitationPaper} data-page={current}>
+        {compact ? <header className={styles.hero}>
           <p className={styles.eyebrow}>{EVENT.name}</p><h1>{title}</h1><p className={styles.intro}>{intro}</p>
           <p className={styles.event}>{EVENT.date} <span aria-hidden="true">·</span> {EVENT.venue}</p>
         </header> : <>
@@ -60,8 +62,8 @@ export default function GalaShell({ current, title, intro, children, clientRevie
             </>}
           </div>
         </>}
-        <div className={isAdmin ? "" : styles.flyerContent}>{children}</div>
-        {!isAdmin && <p className={styles.flyerSignoff}>Thank you for supporting the arts<br /><span>Odessa Symphony Guild</span></p>}
+        <div className={compact ? "" : styles.flyerContent}>{children}</div>
+        {!compact && <p className={styles.flyerSignoff}>Thank you for supporting the arts<br /><span>Odessa Symphony Guild</span></p>}
       </main>
     </div>
     <div className={styles.stripes} aria-hidden="true" />

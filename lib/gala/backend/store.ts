@@ -1,6 +1,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { databaseFetch } from "./database-fetch";
 import type { Order, OrderStore, priceRequest } from "./domain";
+import { CartUnavailable } from "./domain";
 import type { TableAssignment } from "../assignments";
 import type { GiftRow, GiftStatus } from "../gift-fulfillment";
 import type { InvitationRequest, InvitationRow, InvitationStatus, invitationAddressUpdate, invitationDuplicateUpdate } from "../invitations";
@@ -68,13 +69,16 @@ export class SupabaseOrderStore implements OrderStore {
       p_status:input.status,p_revision:input.revision,p_reason:input.reason});
     if(error) throw new Error("Gift fulfillment conflict or invalid update.");
   }
-  async assignTable(input: {orderId: string; tableNumber: number | null; revision: number}) {
-    const { error } = await this.staffMutation("gala_assign_table", {p_order: input.orderId, p_number: input.tableNumber, p_revision: input.revision});
+  async assignTable(input: {orderId: string; tableNumber: number | null; revision: number; lineIndex?: number}) {
+    const args = {p_order: input.orderId, p_number: input.tableNumber, p_revision: input.revision, p_line: input.lineIndex ?? 0};
+    const { error } = this.staffSession ? await this.staffMutation("gala_assign_table", args) : await this.db.rpc("gala_assign_table_line", args);
     if (error) throw new Error("Table assignment conflict or invalid order.");
   }
   private async rpc(name: string, args: Record<string, unknown>): Promise<Order> {
     const { data, error } = await this.db.rpc(name, args);
     // Do not echo provider errors: they can include customer data or implementation details.
+    if ((name === "gala_reserve" || name === "gala_customer_reserve") && error?.code === "P0001"
+      && error.message === "Table tier sold out or reserved") throw new CartUnavailable();
     if (error) throw new Error(`Gala database operation failed: ${name}`);
     return data as Order;
   }
@@ -104,19 +108,10 @@ export class SupabaseOrderStore implements OrderStore {
   async dashboard() {
     const [orders, inventory, outbox] = await Promise.all([
       this.db.from("gala_orders").select("*").order("created_at", { ascending: false }).limit(100),
-      this.db.from("gala_inventory").select("tier,capacity,board_confirmed"),
+      this.db.rpc("gala_inventory_counts"),
       this.db.from("gala_accounting_outbox").select("order_id,status").limit(1000),
     ]);
     if (orders.error || inventory.error || outbox.error) throw new Error("Cannot load Gala dashboard.");
-    const counts = await Promise.all(inventory.data.map(async tier => {
-      const [held, paid] = await Promise.all([
-        this.db.from("gala_orders").select("id", { count: "exact", head: true }).eq("tier", tier.tier).in("status", ["reserved", "awaiting_payment"]),
-        this.db.from("gala_orders").select("id", { count: "exact", head: true }).eq("tier", tier.tier).eq("status", "paid"),
-      ]);
-      if (held.error || paid.error) throw new Error("Cannot read inventory counts.");
-      return { ...tier, held: held.count || 0, paid: paid.count || 0,
-        available: Math.max(0, tier.capacity - (held.count || 0) - (paid.count || 0)) };
-    }));
-    return { orders: orders.data as Order[], inventory: counts, accounting: outbox.data };
+    return { orders: orders.data as Order[], inventory: inventory.data, accounting: outbox.data };
   }
 }

@@ -1,8 +1,10 @@
 import { createHash } from "node:crypto";
 import { quotePurchase, quoteGifts } from "../model";
+import { cartTotal } from "../cart";
 import { checkoutRequest, type CheckoutRequest } from "../checkout-request";
 export { checkoutRequest, type CheckoutRequest } from "../checkout-request";
 export type Status = "reserved" | "awaiting_payment" | "paid" | "expired";
+export class CartUnavailable extends Error {}
 export type Order = {
   id: string; request_hash: string; details: CheckoutRequest; amount: number; currency: "usd";
   description: string; tier: string | null; status: Status; created_at: string;
@@ -10,7 +12,7 @@ export type Order = {
 };
 export function priceRequest(raw: unknown) {
   const details = checkoutRequest.parse(raw);
-  const quote = details.kind === "tables" ? quotePurchase(details.purchase) : {
+  const quote = details.kind === "cart" ? { total: cartTotal(details), description: "Gala tables, tickets & gifts" } : details.kind === "tables" ? quotePurchase(details.purchase) : {
     total: quoteGifts(details.gifts), description: "Belles & Beaux celebration gifts",
   };
   const tier = details.kind === "tables" && ["platinum", "gold", "silver"].includes(details.purchase.product)

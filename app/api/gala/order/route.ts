@@ -2,11 +2,13 @@ import { z } from "zod";
 import { backendEnabled, readBackendConfig } from "@/lib/gala/backend/config";
 import { backend } from "@/lib/gala/backend/server";
 import { authorizeOrder } from "@/lib/gala/backend/request-access";
-import { reconcileSession, verifySession } from "@/lib/gala/backend/checkout";
+import { reconcileSession, verifySession, startCheckout } from "@/lib/gala/backend/checkout";
 import type { Order } from "@/lib/gala/backend/domain";
 import { SupabaseOrderStore } from "@/lib/gala/backend/store";
+import { cartLines } from "@/lib/gala/cart";
 export const runtime = "nodejs";
-const publicOrder = (order: Order) => ({ id: order.id, status: order.status, kind: order.details.kind, amount: order.amount, description: order.description });
+const publicOrder = (order: Order) => ({ id: order.id, status: order.status, kind: order.details.kind, amount: order.amount, description: order.description,
+  lines: order.details.kind === "cart" ? cartLines(order.details) : undefined });
 async function handle(request: Request, mutate: boolean) {
   if (!backendEnabled(process.env)) return new Response(null, { status: 404 });
   let customerHash: string | undefined;
@@ -19,6 +21,11 @@ async function handle(request: Request, mutate: boolean) {
     store.customerHash = customerHash;
     let order = await store.get(orderId);
     let url: string | null = null;
+    if (mutate && !order.stripe_session_id && order.status === "reserved") {
+      const { stripe } = await backend();
+      url = (await startCheckout(store, stripe, order.details, config.origin)).url;
+      order = await store.get(orderId);
+    }
     if (mutate && order.stripe_session_id) {
       const { stripe } = await backend();
       await reconcileSession(store, stripe, order.stripe_session_id, `flyer-check-${order.id}`);

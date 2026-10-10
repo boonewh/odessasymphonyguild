@@ -1,8 +1,8 @@
 "use client";
 import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import Link from "next/link";
-import { OrderFormContent, type PaidFormDetails } from "./OrderForm";
-import { checkoutRequest, type CheckoutRequest } from "@/lib/gala/checkout-request";
+import { CartCatalog, cartChanged } from "./GalaCart";
+import { finishPaidCart, checkoutReference, CHECKOUT_REFERENCE_KEY } from "@/lib/gala/cart-storage";
 import { checkoutUrl, FLYER_ATTEMPT_KEY, readAttempt } from "@/lib/gala/checkout-attempt";
 import { money } from "@/lib/gala/model";
 import styles from "./gala-sales.module.css";
@@ -38,7 +38,7 @@ export function SandboxAccess({ children, invitations = false }: { children: Rea
     {error && <p role="alert" className={styles.error}>{error}</p>}</form>;
 }
 
-type Summary = { id: string; status: "paid" | "expired" | "reserved" | "awaiting_payment"; kind: "tables" | "gifts"; amount: number; description: string };
+type Summary = { id: string; status: "paid" | "expired" | "reserved" | "awaiting_payment"; kind: "tables" | "gifts" | "cart"; amount: number; description: string; lines?: { name: string; amount: number }[] };
 export function SandboxOrderStatus({ id, retry, startAnother }: { id: string; retry?: () => Promise<void>; startAnother?: () => void }) {
   const [order, setOrder] = useState<Summary | null>(null), [error, setError] = useState(""), [busy, setBusy] = useState(false);
   const lock = useRef(false);
@@ -47,6 +47,7 @@ export function SandboxOrderStatus({ id, retry, startAnother }: { id: string; re
     if (r.status === 401) throw new Error("Your session expired. Keep this order reference and contact staff before starting another purchase.");
     const result = await r.json();
     if (!r.ok) throw new Error(result.error || "Cannot verify this order yet.");
+    if (result.order.status === "paid") { finishPaidCart(sessionStorage, id); cartChanged(); }
     setOrder(result.order); setError(""); return result.order as Summary;
   }, [id]);
   useEffect(() => {
@@ -58,6 +59,18 @@ export function SandboxOrderStatus({ id, retry, startAnother }: { id: string; re
     if (lock.current) return; lock.current = true; setBusy(true); setError("");
     try {
       if (action === "resume" && retry) { await retry(); return; }
+      const attempt = action === "resume" ? readAttempt(sessionStorage.getItem(FLYER_ATTEMPT_KEY)) : null;
+      if (attempt?.requestId === id) {
+        const response = await fetch("/api/gala/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(attempt) });
+        const result = await response.json();
+        if (!response.ok) {
+          if (result.code === "CART_UNAVAILABLE") {
+            sessionStorage.removeItem(FLYER_ATTEMPT_KEY); sessionStorage.removeItem(CHECKOUT_REFERENCE_KEY); cartChanged();
+          }
+          throw new Error(result.error || "Checkout is not confirmed. Check payment status before starting another order.");
+        }
+        window.location.assign(checkoutUrl(result.url)); return;
+      }
       const r = await fetch(action === "expire" ? "/api/gala/expire" : `/api/gala/order?orderId=${encodeURIComponent(id)}`, {
         method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(action === "expire" ? { orderId: id } : {}),
       });
@@ -73,55 +86,28 @@ export function SandboxOrderStatus({ id, retry, startAnother }: { id: string; re
     <h2>{order?.status === "paid" ? "Test payment confirmed" : order?.status === "expired" ? "Checkout closed without payment" : "Your checkout is not yet confirmed"}</h2>
     <p role="status">{order?.status === "paid" ? "Your test payment is confirmed. You can now find this order in Gala admin."
       : order?.status === "expired" ? "Stripe confirmed this checkout expired unpaid. Any table held for it has been released."
-        : "We are checking your payment. Please keep this order and use Check payment status below instead of starting another purchase. Your table stays reserved until the result is confirmed."}</p>
+        : "We are checking your payment. Please keep this order and use Check payment status below instead of starting another purchase. Any tables stay reserved until the result is confirmed."}</p>
     <p className={styles.fine}>Order reference: <span style={{ overflowWrap: "anywhere" }}>{id}</span></p>
     {order && <p>{order.description} · <strong>{money(order.amount)}</strong></p>}
+    {order?.lines && <ul>{order.lines.map((line,i) => <li key={i}>{line.name} · {money(line.amount)}</li>)}</ul>}
     {error && <p role="alert" className={styles.error}>{error}</p>}
     {!closed && <div className={styles.actions}>
       <button className={styles.primary} disabled={busy} onClick={() => void act("resume")}>Resume the same checkout</button>
       <button className={styles.secondary} disabled={busy} onClick={() => void act("check")}>Check payment status</button>
       {order && <button className={styles.secondary} disabled={busy} onClick={() => void act("expire")}>Cancel unpaid checkout</button>}
     </div>}
-    {closed && (startAnother ? <button className={styles.primary} onClick={startAnother}>Start another test order</button>
-      : <Link href={`/gala/${order.kind}`}>Return to {order.kind === "tables" ? "tables and tickets" : "celebration gifts"}</Link>)}
+    {closed && (startAnother ? <button className={styles.primary} onClick={startAnother}>{order.status === "expired" ? "Return to your saved cart" : "Start another test order"}</button>
+      : <Link href="/gala/cart" onClick={event => {
+        try {
+          if (checkoutReference(sessionStorage) === id) {
+            sessionStorage.removeItem(FLYER_ATTEMPT_KEY); sessionStorage.removeItem(CHECKOUT_REFERENCE_KEY); cartChanged();
+          }
+        } catch { event.preventDefault(); setError("Your browser storage could not be updated. Reload before starting another order."); }
+      }}>Return to your cart</Link>)}
     <p className={styles.fine}>Test only. No real money is charged. <Link href="/gala/preview/admin">View in Gala admin</Link></p>
   </section>;
 }
 
-function SandboxForm({ kind }: { kind: "tables" | "gifts" }) {
-  const [attempt, setAttempt] = useState<CheckoutRequest | null>(null), [ready, setReady] = useState(false);
-  const [error, setError] = useState(""), [busy, setBusy] = useState(false);
-  const lock = useRef(false);
-  useEffect(() => {
-    try { setAttempt(readAttempt(sessionStorage.getItem(FLYER_ATTEMPT_KEY))); setReady(true); }
-    catch { setError("Your previous checkout could not be loaded. Check Gala admin for your order before starting another purchase."); }
-  }, []);
-  async function send(payload: CheckoutRequest) {
-    setError("");
-    const r = await fetch("/api/gala/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-    if (r.status === 403) throw new Error("Your test session expired. Reload this page to sign in again.");
-    const result = await r.json();
-    if (!r.ok) throw new Error(result.error || "Checkout could not be opened. Retry this same order.");
-    window.location.assign(checkoutUrl(result.url));
-  }
-  async function checkout(details: PaidFormDetails) {
-    if (lock.current || attempt) return; lock.current = true; setBusy(true); setError("");
-    try {
-      const payload = checkoutRequest.parse({ ...details, requestId: crypto.randomUUID() });
-      // Persist before sending; an interrupted response must reuse the same ID and details.
-      sessionStorage.setItem(FLYER_ATTEMPT_KEY, JSON.stringify(payload)); setAttempt(payload);
-      await send(payload);
-    } catch (e) { setError((e as Error).message); } finally { lock.current = false; setBusy(false); }
-  }
-  function reset() {
-    try { sessionStorage.removeItem(FLYER_ATTEMPT_KEY); setAttempt(null); setError(""); }
-    catch { setError("Browser storage could not be updated. Reload before starting another order."); }
-  }
-  return <>{error && <p role="alert" className={styles.error}>{error}</p>}
-    {!ready ? <p>Checking saved checkout…</p> : attempt
-      ? <SandboxOrderStatus id={attempt.requestId} retry={() => send(attempt)} startAnother={reset} />
-      : <OrderFormContent kind={kind} checkout={checkout} busy={busy} />}</>;
-}
 export default function SandboxCheckout({ kind }: { kind: "tables" | "gifts" }) {
-  return <SandboxAccess><SandboxForm kind={kind} /></SandboxAccess>;
+  return <SandboxAccess><CartCatalog kind={kind} /></SandboxAccess>;
 }

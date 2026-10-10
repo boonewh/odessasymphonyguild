@@ -1,8 +1,19 @@
 # Gala 2027: decisions, payment research, and implementation handoff
 
-Last updated: October 6, 2026 (America/Chicago).
+Last updated: October 10, 2026 (America/Chicago).
 
 ## Resume here
+
+### October 10: shared purchase cart
+
+The user approved a cart in response to board feedback (including a Silver table plus a student's date ticket). Table/ticket and gift pages now add selections to one cart; buyer name, email and phone are entered once at checkout. Gifts retain separate student names, grades and quantities. Invitations remain a separate free request.
+
+Cart contents and incomplete buyer details use **sessionStorage in the same browser tab**. The reminder appears beside Add to cart and on the cart page. Navigation/reload preserves the draft; independent tabs/devices do not share it. Confirmed payment clears the matching shopping draft. Sign-out clears this tab's personal shopping details, retaining only an unresolved order reference when necessary to prevent duplicate payment. Stripe return/cancellation resumes the same order; confirmed unpaid expiration allows the saved cart to be edited again.
+
+Multiple tables reserve atomically at checkout, never on Add to cart. Every table has a separate assignment; gifts appear in the existing paid-only fulfillment list. One payment creates one accounting job under the existing provisional Symphony Ball policy. Development limits: up to ten table/ticket selections (one table or up to ten ticket units per selection), twenty student gift entries, and existing per-item limits. These are bounded test limits, not approved production purchase/venue limits. The 35-minute checkout window and **20 tables per tier remain unapproved development settings**.
+
+Migration 011 is applied only to OSG Gala Development and preserves legacy orders, assignment numbers/revisions and gift status. Validation and provider/browser evidence are in `GALA_BACKEND_DEVELOPMENT.md`. This is the requested cart feature, not a reopening of the completed MVP backlog or authorization for production launch.
+
 
 ### October 6: functional board Preview deployed and verified
 

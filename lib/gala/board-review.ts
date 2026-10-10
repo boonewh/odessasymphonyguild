@@ -14,7 +14,7 @@ export function boardReviewAllowed(env: NodeJS.ProcessEnv) {
 const apiMethods: Record<string, readonly string[]> = {
   "/api/gala/session": ["GET", "POST", "DELETE"],
   "/api/gala/orders": ["GET"],
-  "/api/gala/order": ["GET"],
+  "/api/gala/order": ["GET", "POST"],
   "/api/gala/checkout": ["POST"],
   "/api/gala/assignments": ["GET", "POST"],
   "/api/gala/gifts": ["GET", "POST"],
@@ -30,7 +30,7 @@ export function boardReviewRequest(pathname: string, method: string) {
   if (apiMethods[pathname]?.includes(method)) return "allowed";
   if (method !== "GET" && method !== "HEAD") return "blocked";
   if (pathname === "/") return "redirect";
-  if (["/gala/tables", "/gala/gifts", "/gala/invitations", "/gala/preview/admin", "/gala/preview/payment"].includes(pathname)) return "allowed";
+  if (["/gala/tables", "/gala/gifts", "/gala/cart", "/gala/invitations", "/gala/preview/admin", "/gala/preview/payment"].includes(pathname)) return "allowed";
   if (pathname.startsWith("/_next/static/") || pathname === "/_next/image" || pathname.startsWith("/images/") || pathname === "/favicon.ico") return "allowed";
   return "blocked";
 }

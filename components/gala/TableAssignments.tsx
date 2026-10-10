@@ -12,7 +12,7 @@ function AssignmentEditor({ row, saved, started }: { row: TableAssignment; saved
     setBusy(true); setError(""); started();
     try {
       const response = await fetch("/api/gala/assignments", {method: "POST", headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({orderId:row.id, revision:row.revision, tableNumber:number.trim() === "" ? null : Number(number)})});
+        body: JSON.stringify({orderId:row.id, lineIndex:row.line_index ?? 0, revision:row.revision, tableNumber:number.trim() === "" ? null : Number(number)})});
       if (!response.ok) throw new Error(response.status === 401 ? "Session expired. Reload and unlock the local admin." : (await response.json()).error);
       await saved();
     } catch (e) { setError((e as Error).message || "Cannot confirm the assignment. Refresh before retrying."); setUncertain(true); }
@@ -69,8 +69,8 @@ export default function TableAssignments() {
     {rows && <p>{rows.length} paid tables · {rows.filter(r=>r.table_number === null).length} need assignment. Export includes all matching paid tables, not just the latest 100 orders.</p>}
     {!rows ? <p>{busy ? "Loading assignments…" : "Assignments unavailable."}</p> : shown.length === 0 ? <p>No paid tables match this view.</p> :
       <div className={`${styles.table} ${styles.assignmentTable}`}><table><thead><tr><th>Buyer / order</th><th>Tier</th><th>Purchased seats</th><th>Current table</th><th>Assign or change</th></tr></thead>
-        <tbody>{shown.map(row=><tr key={row.id}><td data-label="Buyer / order">{row.buyer.name}<small>{row.buyer.email}</small><details><summary>Order reference</summary><small>{row.id}</small></details></td>
+        <tbody>{shown.map(row=><tr key={`${row.id}-${row.line_index ?? 0}`}><td data-label="Buyer / order">{row.buyer.name}<small>{row.buyer.email}</small><details><summary>Order reference</summary><small>{row.id} · Selection {(row.line_index ?? 0) + 1}</small></details></td>
           <td data-label="Tier" style={{textTransform:"capitalize"}}>{row.tier}</td><td data-label="Purchased seats">{row.seats}</td><td data-label="Current table">{row.table_number ?? "Unassigned"}</td>
-          <td data-label="Assign or change"><AssignmentEditor key={`${row.id}-${row.revision}-${generation}`} row={row} saved={saved} started={()=>setNotice("")}/></td></tr>)}</tbody></table></div>}
+          <td data-label="Assign or change"><AssignmentEditor key={`${row.id}-${row.line_index ?? 0}-${row.revision}-${generation}`} row={row} saved={saved} started={()=>setNotice("")}/></td></tr>)}</tbody></table></div>}
   </section>;
 }

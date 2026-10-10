@@ -3,6 +3,9 @@ import { useCallback, useEffect, useRef, useState, type FormEvent, type Keyboard
 import Link from "next/link";
 import type { CheckoutRequest, Order } from "@/lib/gala/backend/domain";
 import { money, TABLES, quotePurchase, type Product } from "@/lib/gala/model";
+import { cartLines } from "@/lib/gala/cart";
+import { clearShoppingDetails } from "@/lib/gala/cart-storage";
+import { CartLink, cartChanged } from "./GalaCart";
 import { accountingLabel } from "@/lib/gala/display";
 import styles from "./PaymentLab.module.css";
 import QuickBooksSandbox from "./QuickBooksSandbox";
@@ -75,16 +78,16 @@ export default function PaymentLab({ mode = "testing", individual = false }: { m
     setNotice(path.endsWith("expire")?`Checkout status checked: ${result.state}.`:"Payment check finished. Orders without a confirmed result still keep their table reservation.");await refresh();
   }catch(e){setError((e as Error).message);}finally{setBusy(false);}}
   function reset(){sessionStorage.removeItem(attemptKey);setAttempt(null);setAgreed(false);setNotice("");setError("");}
-  async function logout(){setBusy(true);try{const response=await fetch(individual?"/api/gala/staff-session":"/api/gala/session",{method:"DELETE"});if(!response.ok)throw new Error("Sign-out not confirmed. Try again.");setData(null);setLocked(true);setAccounting(!individual);}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
+  async function logout(){setBusy(true);try{const response=await fetch(individual?"/api/gala/staff-session":"/api/gala/session",{method:"DELETE"});if(!response.ok)throw new Error("Sign-out not confirmed. Try again.");clearShoppingDetails(sessionStorage);cartChanged();setData(null);setLocked(true);setAccounting(!individual);}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
   return <main className={styles.lab}>
     <span className={styles.badge}>TEST SITE · NO REAL PAYMENTS</span>
     <h1>{mode==="admin"?"Gala administration":"Payment testing tools"}</h1>
     <p className={styles.note}>Practice with fictional names and contact details. Test orders are separate from live records. Table quantities are for testing and have not been approved for sale.</p>
-    <nav className={styles.nav} aria-label="Gala test pages"><Link href="/gala/tables">Tables & tickets</Link><Link href="/gala/gifts">Celebration gifts</Link><Link href="/gala/invitations">Request invitations</Link><Link href="/gala/preview/admin">Gala admin</Link></nav>
+    <nav className={styles.nav} aria-label="Gala test pages"><Link href="/gala/tables">Tables & tickets</Link><Link href="/gala/gifts">Celebration gifts</Link><Link href="/gala/invitations">Request invitations</Link><Link href="/gala/preview/admin">Gala admin</Link><CartLink /></nav>
     <details className={styles.testHelp}><summary>How to test the Gala website</summary>
       <ol><li>Choose Tables &amp; tickets, Celebration gifts or Request invitations above. Enter fictional details you will recognize later.</li>
         <li>For purchases, use test card <strong>4242 4242 4242 4242</strong>, expiration <strong>12/34</strong> and security code <strong>123</strong>. Never enter a real card.</li>
-        <li>Return to Gala admin to find your order, assign a table, prepare gifts or update invitation mailing status. Tables and gifts use separate checkouts.</li></ol>
+        <li>Return to Gala admin to find your order, assign a table, prepare gifts or update invitation mailing status. Tables, tickets and gifts can share one cart and payment. Keep shopping in the same browser tab.</li></ol>
       <p>No physical invitations, gifts or customer emails are sent by this test.</p>
     </details>
     {error&&<p role="alert" className={styles.error}>{error}</p>}{notice&&<p role="status" className={styles.success}>{notice}</p>}
@@ -121,7 +124,7 @@ export default function PaymentLab({ mode = "testing", individual = false }: { m
         <button disabled={busy} onClick={()=>void refresh().catch(e=>setError(e.message))}>Refresh orders</button><button disabled={busy} onClick={()=>void action("/api/gala/reconcile")}>Check payment updates</button>
       </div><p className={styles.note}>Latest 100 orders. Only paid orders are ready for table assignment or gift preparation. {accounting?(mode==="admin"?"The Accounting tab shows whether each order has been recorded in QuickBooks.":"Test accounting below shows whether each order has been recorded in QuickBooks."):"Accounting is handled by staff with accounting access."}</p>
       <div className={styles.table}><table><thead><tr><th>Buyer / order</th><th>Purchase</th><th>Total</th><th>Status</th><th>Accounting / action</th></tr></thead><tbody>{data.orders.filter(o=>filter==="all" || (filter==="pending" ? ["reserved","awaiting_payment"].includes(o.status) : o.status===filter)).map(o=><tr key={o.id}>
-        <td>{o.details.contact.name}<small>{o.details.contact.email}</small><details><summary>Order reference</summary><small>{o.id}</small></details></td><td>{o.description}{o.details.kind==="gifts"&&o.details.gifts.map((g,i)=><small key={i}>{g.student}, grade {g.grade}: {g.roses} roses / {g.cookies} cookie bags</small>)}</td><td>{money(o.amount)}</td><td>{o.status==="paid"?"Paid":o.status==="expired"?"Closed without payment":"Awaiting payment"}</td><td>{accountingLabel(data.accounting.find(a=>a.order_id===o.id)?.status)}{["reserved","awaiting_payment"].includes(o.status)&&o.stripe_session_id&&<button disabled={busy} onClick={()=>void action("/api/gala/expire",{orderId:o.id})}>Close unpaid checkout</button>}</td>
+        <td>{o.details.contact.name}<small>{o.details.contact.email}</small><details><summary>Order reference</summary><small>{o.id}</small></details></td><td>{o.description}{o.details.kind==="cart"&&cartLines(o.details).map((line,i)=><small key={i}>{line.name} · {money(line.amount)}</small>)}{o.details.kind==="gifts"&&o.details.gifts.map((g,i)=><small key={i}>{g.student}, grade {g.grade}: {g.roses} roses / {g.cookies} cookie bags</small>)}</td><td>{money(o.amount)}</td><td>{o.status==="paid"?"Paid":o.status==="expired"?"Closed without payment":"Awaiting payment"}</td><td>{accountingLabel(data.accounting.find(a=>a.order_id===o.id)?.status)}{["reserved","awaiting_payment"].includes(o.status)&&o.stripe_session_id&&<button disabled={busy} onClick={()=>void action("/api/gala/expire",{orderId:o.id})}>Close unpaid checkout</button>}</td>
       </tr>)}</tbody></table></div></section>
       {mode==="admin" && <PaymentRecovery onAttention={setRecoveryAttention}/>}
       </div>

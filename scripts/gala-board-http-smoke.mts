@@ -48,7 +48,7 @@ async function status(path:string,expected:number,init:TestRequest={}) {
   const response=await request(path,init);assert.equal(response.status,expected,`${init.method||'GET'} ${path}`);checks++;return response;
 }
 await withServer({},async()=>{
-  for(const path of ['/gala/tables','/gala/gifts','/gala/invitations','/gala/preview/admin','/gala/preview/payment']) {
+  for(const path of ['/gala/tables','/gala/gifts','/gala/cart','/gala/invitations','/gala/preview/admin','/gala/preview/payment']) {
     const response=await status(path,200);assert.match(response.headers.get('x-robots-tag')||'',/noindex/);
     const html=await response.text();assert.doesNotMatch(html,/href="\/admin\/belles-beaux"/);
     assert.doesNotMatch(html,/sk_test_fake|sb_secret_fake|whsec_fake|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/);
@@ -56,6 +56,7 @@ await withServer({},async()=>{
   for(const path of ['/admin/belles-beaux','/api/admin/students','/api/quickbooks/webhook','/belles-beaux/join','/gala/preview/testing'])await status(path,404);
   for(const path of ['/api/gala/orders','/api/gala/order','/api/gala/assignments','/api/gala/gifts','/api/gala/invitations','/api/gala/recovery'])await status(path,401);
   await status('/api/gala/quickbooks/sync',404,{method:'POST'});
+  await status('/api/gala/order?orderId=00000000-0000-4000-8000-000000000000',401,{method:'POST'});
   await status('/api/gala/recovery/run',401,{method:'POST'});
   await status('/api/gala/recovery/run',404);
   await status('/api/gala/session',403,{method:'POST',headers:{origin:'https://attacker.example'},body:JSON.stringify({token:fake.GALA_BOARD_ACCESS_CODE})});
@@ -66,6 +67,7 @@ await withServer({},async()=>{
   assert.match(setCookie,/HttpOnly/i);assert.match(setCookie,/Secure/i);assert.match(setCookie,/SameSite=lax/i);
   assert.doesNotMatch(setCookie,/Domain=/i);
   const cookie=setCookie.split(';')[0];
+  await status('/api/gala/order?orderId=00000000-0000-4000-8000-000000000000',401,{method:'POST',headers:{cookie,origin:'https://attacker.example'}});
   await status('/api/gala/session',200,{headers:{cookie}});
   await status('/api/gala/session',403,{method:'DELETE',headers:{cookie,origin:'https://attacker.example'}});
   const logout=await status('/api/gala/session',200,{method:'DELETE',headers:{cookie,origin:BOARD_ORIGIN}});
@@ -74,7 +76,7 @@ await withServer({},async()=>{
   await status('/gala/tables',404,{headers:{host:'unapproved.vercel.app'}});
 });
 await withServer({VERCEL_ENV:'production'},async()=>{
-  for(const path of ['/gala/tables','/gala/gifts','/gala/invitations','/gala/preview/admin','/gala/preview/payment','/gala/preview/testing',
+  for(const path of ['/gala/tables','/gala/gifts','/gala/cart','/gala/invitations','/gala/preview/admin','/gala/preview/payment','/gala/preview/testing',
     '/api/gala/session','/api/gala/orders','/api/gala/order','/api/gala/assignments','/api/gala/gifts','/api/gala/invitations','/api/gala/recovery','/api/gala/quickbooks/status'])await status(path,404);
   for(const path of ['/api/gala/checkout','/api/gala/session','/api/gala/webhook','/api/gala/recovery/run','/api/gala/quickbooks/sync'])await status(path,404,{method:'POST'});
 });

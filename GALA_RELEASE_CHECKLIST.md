@@ -2,6 +2,16 @@
 
 User instruction, September 28, 2026: keep this feature away from live until ready and tested. Firm inventory numbers are required. A generic request to push or publish does not waive this requirement.
 
+## October 10: requested cart feature
+
+- [x] Combine tables, tickets and student gifts into one order/payment; collect buyer details once.
+- [x] Show the same-browser-tab limitation; preserve navigation/reload drafts and safe checkout resumption.
+- [x] Reserve all selected tables atomically; keep assignments separate per table and gifts separate per student.
+- [x] Apply development migration 011 and verify preservation of existing records and unapproved inventory.
+- [x] Automated SQL/payment/storage/access coverage, build, 51 built-app route/CSRF checks, actual mixed Stripe payment, admin assignment/gift preparation, multi-table cancellation/release and 390px layout review pass. Detailed evidence: `GALA_BACKEND_DEVELOPMENT.md`.
+
+This fulfills a new user-requested feature from board feedback. It does not waive any production gate below. Existing prototype/design-only modes remain separate; the functional development/board test uses the cart. Table/ticket purchase limits and the 35-minute hold remain provisional; **20 tables per tier is still not approved stock**.
+
 ## Development closeout boundary, October 5
 
 Development completion and launch approval are separate milestones. **Both engineering closeout passes completed October 5. The development MVP is ready for the user's walkthrough.** The current checklist is:

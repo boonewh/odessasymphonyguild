@@ -1,5 +1,6 @@
 import type Stripe from "stripe";
 import { priceRequest, type Order, type OrderStore } from "./domain";
+import { cartLines } from "../cart";
 
 export type StripeGateway = Pick<Stripe, "checkout" | "paymentIntents">;
 // DEVELOPMENT ONLY. Final checkout duration still needs board approval.
@@ -13,8 +14,10 @@ export function sessionParameters(order: Order, origin: string): Stripe.Checkout
     metadata: { gala_order_id: order.id, application: "osg-gala-development" },
     payment_intent_data: { metadata: { gala_order_id: order.id, application: "osg-gala-development" } },
     customer_email: order.details.contact.email,
-    line_items: [{ quantity: 1, price_data: { currency: "usd", unit_amount: order.amount,
-      product_data: { name: order.description } } }],
+    // Preserve the exact legacy payload for retries of existing checkout attempts.
+    line_items: order.details.kind === "cart" ? cartLines(order.details).map(line => ({ quantity: 1,
+      price_data: { currency: "usd", unit_amount: line.amount, product_data: { name: line.name } } }))
+      : [{ quantity: 1, price_data: { currency: "usd", unit_amount: order.amount, product_data: { name: order.description } } }],
     expires_at: Math.floor(Date.parse(order.created_at) / 1000) + DEVELOPMENT_CHECKOUT_SECONDS,
     success_url: `${origin}/gala/preview/payment?order_id=${order.id}&session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${origin}/gala/preview/payment?order_id=${order.id}&cancelled=true`,

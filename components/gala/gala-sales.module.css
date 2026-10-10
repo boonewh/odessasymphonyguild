@@ -197,3 +197,12 @@
   .envelopeArt { margin-bottom:-12px; }
   .flyerSignoff { padding:10px 24px 32px; font-size:13px; }
 }
+.cartBar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; background:#eaf2ef; border:1px solid #b7ccca; border-radius:12px; padding:20px; margin-block:20px; }
+.cartBar > a { font-size:20px; font-weight:700; }
+.cartBar p { flex-basis:100%; margin:0; font-size:15px; line-height:1.5; }
+.cartReminder { padding:20px; border-left:3px solid #b88b36; background:#f5f1e6; line-height:1.6; }
+.cartItem { border-bottom:1px solid #c7d8d5; padding:24px 0; display:grid; gap:16px; }
+.cartItem h3,.cartItem p { margin:0 0 8px; overflow-wrap:anywhere; }
+.cartItem h3 { font-size:20px; font-weight:600; }
+.cartItem > .field { max-width:240px; }
+.cartItem > button { justify-self:start; }
