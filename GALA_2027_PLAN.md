@@ -1,8 +1,46 @@
 # Gala 2027: decisions, payment research, and implementation handoff
 
-Last updated: October 10, 2026 (America/Chicago).
+Last updated: October 13, 2026 (America/Chicago).
 
 ## Resume here
+
+### October 13: ledger migration applied and development walkthrough verified
+
+The admin **Sales ledger** tab replaces the per-order accounting controls. It reads all orders, splits tables/extra seats/tickets/roses/cookie bags into item rows, separates unpaid orders, supports buyer/student/product/status/Central-date filters, and exports filtered detail and paid product totals as CSV. The final-total preview always includes all paid orders regardless of filters; a downloadable review copy retains paid lines, order membership, accounting history and a content revision. It does not send or reserve an accounting posting. The old per-order sending endpoint is retired even if its former enable flag is set.
+
+Code and local SQL checks pass: full 127-test Gala run plus all 11 focused ledger checks after the additional endpoint test (**128 distinct checks covered**), TypeScript, build and 59 built-app Preview/production HTTP checks. Read-only development-data verification reconciles 24 orders / 46 item rows, ten paid orders totaling **$22,697.50**, fourteen expired orders, zero pending, and two earlier sandbox accounting receipts flagged for review. All tiers remain unapproved capacity 20.
+
+**Migration and local acceptance complete:** the user applied `supabase/gala-development/012_gala_ledger.sql` to OSG Gala Development. The actual private read function is available and reproduces the previously verified item rows/history. Another 24 authenticated/unauthorized HTTP checks against development passed. Chrome checks passed filters, tab persistence, pagination, downloaded CSV detail/totals, final-preview history and the JSON review download. A 390px phone frame has 375px content width with no page overflow; filters/downloads fit and the item table scrolls separately. No business rows were changed by these checks. The local admin is running for the user's walkthrough. No push/deployment occurred; the existing board Preview is unchanged. Next hosting step: publish and verify this ledger on the protected branch Preview.
+
+Final aggregate sending, durable posted membership, fee/payout reconciliation and adjustment entry remain later accounting setup/implementation work. The current preview cannot send, so it must not be represented as a finished final-posting worker. The bank-import question remains open but does not block the ledger work.
+
+### October 13: detailed internal ledger; one final QuickBooks total
+
+The user confirmed Britni wants **one combined Gala sales total, all at the end**. Keep a running, separate, item-by-item ledger in Gala admin throughout sales. Retain order/payment references, dates, products, quantities, prices and amounts, with payment status and any later adjustments traceable. Preserve the detail independently of the QuickBooks summary so a different breakdown can be produced later without reconstructing source transactions. Pending/unpaid orders must remain distinguishable from paid sales and excluded from the paid-sales total.
+
+The agreed QuickBooks output is one final combined sales total to **Symphony Ball Revenue**. Do not post individual orders, daily sales summaries or per-payout sales summaries. The ledger remains available in admin after sending. Final posting must record which entries were included and the resulting QuickBooks reference, with retry protection against posting the same total twice. Fees and bank deposits remain separately identifiable for reconciliation; they must not erase item detail or silently change the meaning of the sales total.
+
+This paragraph records the design decision; the newer implementation/handoff above supersedes its development status. Final aggregate sending is still unimplemented. The former per-order sandbox receipt workflow is retired in the local branch. QuickBooks sending remains disabled in the board Preview; production launch is not authorized.
+
+### October 12: Britni's accounting answers and OSG Stripe account
+
+Documentation-only handoff at the user's request; no implementation, account connection, credential change or deployment tonight. Sources: the user's pasted answers and two October 12 message screenshots. Screenshots and credentials stay outside Git. These decisions supersede the accounting unknowns in older dated entries below.
+
+| Topic | Confirmed information |
+|---|---|
+| Gala income | **Symphony Ball Revenue**, an Income account. This is the exact chart-of-accounts name, correcting the earlier shorthand “Symphony Ball.” Britni confirmed only the highlighted accounts are currently used. |
+| Historical Gala subaccounts | Ball Fundraiser Revenue, Ball General Admission, Cookie/Rose Sales and Date Ticket remain in the chart but are no longer used. Do not split new Gala revenue among them. Product/student details remain in the website regardless of accounting grouping. |
+| Other current income accounts | Membership Dues and Patron Dues are also highlighted/current; they are outside the Gala sales mapping. |
+| Processing fees | **Bank service fees**, as supplied in Britni's earlier answer; actual account ID/type still requires setup verification. |
+| Deposit bank | **Southwest Bank**, as supplied in Britni's earlier answer; actual account ID still requires setup verification. |
+| Bank workflow | Britni downloads transactions from mobile banking and categorizes them herself. How they enter QuickBooks and whether any automatic rules are enabled are still unclear. |
+| Stripe Clearing | Britni previously said it does not exist and is willing to have it created; she requested guidance. Creation in OSG's books is not verified. |
+| Tax | Britni's instruction is **no tax on Gala purchases, including cookies and roses** (“No Tax, Ever!”). Recorded as the treasurer's business instruction; actual integration settings still need verification. |
+| OSG Stripe account | Britni reports the account is created and an invitation was sent to the user. Acceptance, account identity, permissions, activation and payout setup have not been verified. The existing test integration has not been switched to this account. |
+
+Posting frequency was settled October 13: one final combined total, with a detailed internal ledger (see above). The remaining immediate bank-workflow question is: after downloading from mobile banking, does Britni upload a file into QuickBooks, or use another method? Are any rules set to categorize deposits automatically, even though she normally categorizes them herself?
+
+Next-session setup work: inspect/accept the OSG Stripe invitation with the user; verify account access and settings; guide creation of Stripe Clearing and verify real QuickBooks mappings. Plan fee/payout reconciliation and bank matching with Britni so bank deposits do not record the same revenue twice. These are setup/acceptance tasks, not reasons to reopen the completed development MVP. Receipt wording, exceptional corrections/disputes and the other existing release decisions remain tracked below. **No production launch is authorized; 20 tables per tier remains unapproved placeholder inventory.**
 
 ### October 10: shared purchase cart
 
@@ -350,10 +388,11 @@ These are engineering requirements. Several now have development implementations
 | Short checkout window while entering card details, and its duration? | Needs board agreement; processing-only hold is already approved. |
 | Refunds, cancellations, substitutions, and restocking policy? | No refunds is current policy. Exceptional corrections, substitutions, and restocking still need rules. |
 | Cards only initially, or bank transfers/checks/offline purchases? | Cards recommended for immediate confirmation; final policy not decided. |
-| Allow multiple tables per order and later extra-seat purchases? | Not decided; would affect inventory and payment-limit checks. |
+| Allow multiple tables per order and later extra-seat purchases? | Shared cart/multiple tables approved and implemented October 10 in development. Final quantity limits and later purchases of extra seats remain undecided. |
 | Gift cutoff year/time, timezone, and production/fulfillment rules? | January 29 flyer deadline; exact cutoff unconfirmed. |
 | Invitation submission cutoff and mailing workflow? | Not decided. |
-| Fees, accounting categories, receipt wording, and applicable tax treatment? | Treasurer/accountant to confirm; do not invent settings. |
+| Accounting mappings and tax? | Britni confirmed Symphony Ball Revenue, Bank service fees, Southwest Bank and no tax on Gala purchases (including cookies/roses). Stripe Clearing needs creation/verification. See October 12 evidence above; actual account IDs/settings remain setup work. |
+| Accounting grouping, bank import/rules, and receipt wording? | October 13: detailed item ledger in admin, one final combined sales total to QuickBooks. Grouping is decided; aggregate posting/exports still need implementation. Exact bank import/rules, final receipt wording and fee/payout/correction reconciliation acceptance remain open. |
 | Event start time and feature launch date? | Unknown. |
 
 ## Test plan and release gates

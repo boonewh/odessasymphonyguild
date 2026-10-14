@@ -14,6 +14,7 @@ export function boardReviewAllowed(env: NodeJS.ProcessEnv) {
 const apiMethods: Record<string, readonly string[]> = {
   "/api/gala/session": ["GET", "POST", "DELETE"],
   "/api/gala/orders": ["GET"],
+  "/api/gala/ledger": ["GET"],
   "/api/gala/order": ["GET", "POST"],
   "/api/gala/checkout": ["POST"],
   "/api/gala/assignments": ["GET", "POST"],

@@ -54,7 +54,8 @@ await withServer({},async()=>{
     assert.doesNotMatch(html,/sk_test_fake|sb_secret_fake|whsec_fake|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/);
   }
   for(const path of ['/admin/belles-beaux','/api/admin/students','/api/quickbooks/webhook','/belles-beaux/join','/gala/preview/testing'])await status(path,404);
-  for(const path of ['/api/gala/orders','/api/gala/order','/api/gala/assignments','/api/gala/gifts','/api/gala/invitations','/api/gala/recovery'])await status(path,401);
+  for(const path of ['/api/gala/orders','/api/gala/order','/api/gala/assignments','/api/gala/gifts','/api/gala/invitations','/api/gala/recovery','/api/gala/ledger','/api/gala/ledger?format=csv','/api/gala/ledger?format=preview'])await status(path,401);
+  await status('/api/gala/ledger',404,{method:'POST'});
   await status('/api/gala/quickbooks/sync',404,{method:'POST'});
   await status('/api/gala/order?orderId=00000000-0000-4000-8000-000000000000',401,{method:'POST'});
   await status('/api/gala/recovery/run',401,{method:'POST'});
@@ -67,6 +68,7 @@ await withServer({},async()=>{
   assert.match(setCookie,/HttpOnly/i);assert.match(setCookie,/Secure/i);assert.match(setCookie,/SameSite=lax/i);
   assert.doesNotMatch(setCookie,/Domain=/i);
   const cookie=setCookie.split(';')[0];
+  await status('/api/gala/ledger?from=2026-10-14&to=2026-10-13',400,{headers:{cookie}});
   await status('/api/gala/order?orderId=00000000-0000-4000-8000-000000000000',401,{method:'POST',headers:{cookie,origin:'https://attacker.example'}});
   await status('/api/gala/session',200,{headers:{cookie}});
   await status('/api/gala/session',403,{method:'DELETE',headers:{cookie,origin:'https://attacker.example'}});
@@ -77,7 +79,7 @@ await withServer({},async()=>{
 });
 await withServer({VERCEL_ENV:'production'},async()=>{
   for(const path of ['/gala/tables','/gala/gifts','/gala/cart','/gala/invitations','/gala/preview/admin','/gala/preview/payment','/gala/preview/testing',
-    '/api/gala/session','/api/gala/orders','/api/gala/order','/api/gala/assignments','/api/gala/gifts','/api/gala/invitations','/api/gala/recovery','/api/gala/quickbooks/status'])await status(path,404);
+    '/api/gala/session','/api/gala/orders','/api/gala/order','/api/gala/assignments','/api/gala/gifts','/api/gala/invitations','/api/gala/recovery','/api/gala/quickbooks/status','/api/gala/ledger','/api/gala/ledger?format=csv','/api/gala/ledger?format=preview'])await status(path,404);
   for(const path of ['/api/gala/checkout','/api/gala/session','/api/gala/webhook','/api/gala/recovery/run','/api/gala/quickbooks/sync'])await status(path,404,{method:'POST'});
 });
 console.log(`Passed ${checks} built-app Preview/production HTTP checks. Fake credentials only; no provider writes.`);

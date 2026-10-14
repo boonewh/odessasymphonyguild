@@ -114,4 +114,9 @@ export class SupabaseOrderStore implements OrderStore {
     if (orders.error || inventory.error || outbox.error) throw new Error("Cannot load Gala dashboard.");
     return { orders: orders.data as Order[], inventory: inventory.data, accounting: outbox.data };
   }
+  async ledgerSnapshot(): Promise<unknown> {
+    const { data, error } = await this.db.rpc("gala_ledger_snapshot");
+    if (error || !data) throw new Error("Cannot load the complete Gala ledger.");
+    return data;
+  }
 }

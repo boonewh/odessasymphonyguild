@@ -2,6 +2,32 @@
 
 User instruction, September 28, 2026: keep this feature away from live until ready and tested. Firm inventory numbers are required. A generic request to push or publish does not waive this requirement.
 
+## October 13: ledger and final-total decision
+
+- [x] User confirms a running, separate, item-by-item ledger in admin with detail retained for later reporting needs; send one combined Gala sales total to QuickBooks at the end.
+- [x] Implement the admin item ledger, filters, paid-item totals, complete CSV downloads and a read-only final-total preview; preserve paid/unpaid distinctions and original source references. Recorded adjustments remain future accounting work.
+- [x] Verify item pricing/totals, CSV safety, full-set SQL reads, protected endpoints and retired per-order sending locally: 128 distinct checks covered, build/TypeScript and 59 built-app HTTP checks pass. Read-only hosted source verification reconciles all 24 development orders.
+- [x] Apply read-only migration 012 to OSG Gala Development and verify actual desktop/mobile ledger, downloads and tab/filter behavior. User applied migration; complete RPC comparison, 24 development HTTP checks and Chrome desktop/390px layout/download checks passed.
+- [ ] Publish and verify the ledger on the existing protected branch Preview. Local walkthrough is ready; no ledger Preview push/deployment yet.
+- [ ] Implement/verify final aggregate posting to Symphony Ball Revenue, preserve included-entry membership and QuickBooks reference, and prove retries cannot duplicate revenue. Keep the internal ledger after posting; do not enable the old per-order sender as the final workflow.
+
+The ledger/exports/preview are implemented and verified locally against hosted development; final sending remains unimplemented and disabled. Migration 012 is applied to OSG Gala Development. The previous board Preview is unchanged. Existing production and inventory gates remain unchanged. Detailed evidence and the finite next-session handoff are in `GALA_BACKEND_DEVELOPMENT.md`.
+
+## October 12: accounting decisions recorded; setup still separate
+
+- [x] Britni confirms exact current Gala income account **Symphony Ball Revenue**; historical Gala subaccounts are no longer used.
+- [x] Record requested processing-fee account **Bank service fees** and deposit bank **Southwest Bank**.
+- [x] Record Britni's no-tax instruction for Gala purchases, expressly including cookies and roses.
+- [x] Record manual categorization and downloads from mobile banking; this does not yet identify the QuickBooks import method or automatic rules.
+- [x] Record Britni's report that OSG's Stripe account is created and an invitation sent to the user. This is reported status, not verified account access or readiness.
+- [x] Posting decision resolved October 13: one combined Gala sales total, all at the end; maintain the detailed ledger in admin.
+- [ ] Clarify how downloaded transactions enter QuickBooks and whether deposit categorization rules exist; agree on bank matching to avoid duplicate revenue.
+- [ ] Guide/verify creation of Stripe Clearing in OSG's books; verify real account IDs/types, item/customer and tax settings.
+- [ ] Verify OSG Stripe invitation/access, account identity, activation and payout setup during the next authorized setup session. Test any integration switch in its sandbox; do not substitute live credentials into Preview.
+- [ ] Complete and accept fee/payout reconciliation and outstanding accounting controls before live use.
+
+This was documentation-only. No account settings, code, database, deployment or credentials changed. Detailed decisions and the remaining bank-workflow question are in `GALA_2027_PLAN.md`; implementation implications are in `GALA_BACKEND_DEVELOPMENT.md`. The broad accounting release gate below stays open for the remaining implementation/setup/acceptance, not because the confirmed account names or no-tax instruction need to be asked again. **No launch authorization; 20 tables per tier is still unapproved test inventory.**
+
 ## October 10: requested cart feature
 
 - [x] Combine tables, tickets and student gifts into one order/payment; collect buyer details once.
@@ -101,7 +127,7 @@ October 3 assignments: paid-only assignment controls, filters, CSV, uniqueness a
 
 October 3 form integration: the local table/ticket and gift flyer forms now submit to the isolated sandbox backend, retain the original checkout attempt for retries, and display server-verified return status. Actual browser tests completed a $60 two-student gift payment and verified unpaid expiration of a $2,500 Silver-plus-two-seats checkout. All 38 Gala tests and the production build pass. Production route checks block the forms, payment return, and supported new API methods; client-review checks preserve design access/noindex and block all payment APIs/admin. This is local-only progress, not launch approval. Invitation persistence and local fulfillment were completed later that day. Public authentication/fulfillment, scheduling, deadline/capacity rules and broader acceptance tests remain unfinished.
 
-Accounting decision clarification: one Symphony Ball revenue category is the request; per-order versus combined-total posting and its cadence remain unconfirmed. The current sandbox receipts are a provisional implementation. Confirm that choice along with expense/bank/clearing mappings and matching responsibilities before final accounting acceptance.
+Accounting decision clarification (updated October 13): **Symphony Ball Revenue** is the confirmed income account, **Bank service fees** the fee account and **Southwest Bank** the deposit bank. Britni confirms no tax on Gala purchases. Posting is one final combined sales total, backed by the detailed admin ledger. Aggregate posting implementation, bank import/rules, creation/verification of Stripe Clearing and final mapping/reconciliation acceptance remain open. Current per-order sandbox receipts are not the agreed final workflow; see the handoffs above.
 
 October 2 accounting follow-up: sandbox-only OAuth and manual SalesReceipt worker implemented; migration 002 applied to development only. **35 automated Gala tests pass**, including two actual local worker terminations with disk-backed test databases, fake provider receipts and simulated lease expiry. Four new QuickBooks routes are blocked in production. Actual sandbox OAuth, token refresh, mapping and receipt tests pass: $4,375 Gold receipt 145, $30 gift receipt 146, each with one Symphony Ball line and no duplicates. Injected lookup, lost-response and save failures around real Intuit/hosted-database operations recovered the gift receipt with one POST and preserved fulfillment/inventory. Read-only Stripe fee evidence is available; no payout exists or has been reconciled, and no fees/payouts have been posted to QuickBooks. Public sandbox syncing remains disabled. Genuine hosted outages, fee/payout accounting and treasurer review remain pending. These partial results do not satisfy the accounting release gate.
 
@@ -118,7 +144,7 @@ Client-review verification, September 29: all 10 model/access tests passed; prev
 - [ ] Test the last-table race, double submits, old checkout pages, payment at expiry, interrupted responses, outages, and duplicate/out-of-order notifications.
 - [ ] Prove inventory releases only after verified provider expiration; uncertain or processing payments retain their hold.
 - [ ] Confirm administrative access, audit logs, contact-data retention, and paid-only fulfillment exports.
-- [ ] Implement QuickBooks synchronization and prove retries do not duplicate revenue. Treasurer approves Symphony Ball category, fees, refunds/corrections, and payout reconciliation.
+- [ ] Complete final-total QuickBooks synchronization and prove retries do not duplicate revenue. Income/fee/bank names and no-tax business instruction are confirmed October 12; posting grouping is confirmed October 13. Verify actual mappings/settings and obtain acceptance of final posting, fee/payout reconciliation and exceptional corrections/disputes.
 - [ ] Confirm gift cutoff year and exact local time; enforce it server-side. Confirm invitation mailing cutoff.
 - [ ] Confirm final limits for multiple-table purchases, ticket quantities, gifts, and invitations.
 - [ ] Verify no-refund acknowledgment and receipt wording; provide an exceptional correction/dispute process without assuming refunds or restocking.

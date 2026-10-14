@@ -8,7 +8,7 @@ import { clearShoppingDetails } from "@/lib/gala/cart-storage";
 import { CartLink, cartChanged } from "./GalaCart";
 import { accountingLabel } from "@/lib/gala/display";
 import styles from "./PaymentLab.module.css";
-import QuickBooksSandbox from "./QuickBooksSandbox";
+import GalaLedger from "./GalaLedger";
 import TableAssignments from "./TableAssignments";
 import GiftFulfillment from "./GiftFulfillment";
 import InvitationMailing from "./InvitationMailing";
@@ -17,7 +17,7 @@ type Dashboard = { orders: Order[]; inventory: {tier:string;capacity:number;avai
 const attemptKey = "osg-gala-sandbox-attempt";
 const adminTabs = [
   {id:"orders",label:"Orders"}, {id:"assignments",label:"Table assignments"},
-  {id:"gifts",label:"Gifts"}, {id:"invitations",label:"Invitations"}, {id:"accounting",label:"Accounting"},
+  {id:"gifts",label:"Gifts"}, {id:"invitations",label:"Invitations"}, {id:"accounting",label:"Sales ledger"},
 ] as const;
 type AdminTab = typeof adminTabs[number]["id"];
 export default function PaymentLab({ mode = "testing", individual = false }: { mode?: "testing" | "admin"; individual?: boolean }) {
@@ -122,7 +122,7 @@ export default function PaymentLab({ mode = "testing", individual = false }: { m
       <section className={styles.panel}><h2>Test orders</h2><div className={styles.tools}>
         <label>Show<select value={filter} onChange={e=>setFilter(e.target.value)}><option value="paid">Paid orders</option><option value="pending">Awaiting payment</option><option value="expired">Closed without payment</option><option value="all">All orders</option></select></label>
         <button disabled={busy} onClick={()=>void refresh().catch(e=>setError(e.message))}>Refresh orders</button><button disabled={busy} onClick={()=>void action("/api/gala/reconcile")}>Check payment updates</button>
-      </div><p className={styles.note}>Latest 100 orders. Only paid orders are ready for table assignment or gift preparation. {accounting?(mode==="admin"?"The Accounting tab shows whether each order has been recorded in QuickBooks.":"Test accounting below shows whether each order has been recorded in QuickBooks."):"Accounting is handled by staff with accounting access."}</p>
+      </div><p className={styles.note}>Latest 100 orders. Only paid orders are ready for table assignment or gift preparation. {accounting?(mode==="admin"?"The Sales ledger tab includes every order, item totals and the final QuickBooks total preview.":"The sales ledger below includes every order and the final QuickBooks total preview."):"Accounting is handled by staff with accounting access."}</p>
       <div className={styles.table}><table><thead><tr><th>Buyer / order</th><th>Purchase</th><th>Total</th><th>Status</th><th>Accounting / action</th></tr></thead><tbody>{data.orders.filter(o=>filter==="all" || (filter==="pending" ? ["reserved","awaiting_payment"].includes(o.status) : o.status===filter)).map(o=><tr key={o.id}>
         <td>{o.details.contact.name}<small>{o.details.contact.email}</small><details><summary>Order reference</summary><small>{o.id}</small></details></td><td>{o.description}{o.details.kind==="cart"&&cartLines(o.details).map((line,i)=><small key={i}>{line.name} · {money(line.amount)}</small>)}{o.details.kind==="gifts"&&o.details.gifts.map((g,i)=><small key={i}>{g.student}, grade {g.grade}: {g.roses} roses / {g.cookies} cookie bags</small>)}</td><td>{money(o.amount)}</td><td>{o.status==="paid"?"Paid":o.status==="expired"?"Closed without payment":"Awaiting payment"}</td><td>{accountingLabel(data.accounting.find(a=>a.order_id===o.id)?.status)}{["reserved","awaiting_payment"].includes(o.status)&&o.stripe_session_id&&<button disabled={busy} onClick={()=>void action("/api/gala/expire",{orderId:o.id})}>Close unpaid checkout</button>}</td>
       </tr>)}</tbody></table></div></section>
@@ -135,7 +135,7 @@ export default function PaymentLab({ mode = "testing", individual = false }: { m
       </>}
       {accounting&&<div role={mode==="admin"?"tabpanel":undefined} id="gala-panel-accounting" aria-labelledby={mode==="admin"?"gala-tab-accounting":undefined}
         tabIndex={mode==="admin"?0:undefined} hidden={mode==="admin"&&activeTab!=="accounting"}>
-        <QuickBooksSandbox refresh={refresh} orders={data.orders.filter(o=>o.status==="paid").map(o=>({id:o.id,label:`${o.description} · ${money(o.amount)} · ${o.id.slice(0,8)}`,accountingStatus:data.accounting.find(a=>a.order_id===o.id)?.status||"not queued"}))}/>
+        <GalaLedger active={mode!=="admin"||activeTab==="accounting"}/>
       </div>}
     </>}
   </main>;
