@@ -8,10 +8,10 @@ User instruction, September 28, 2026: keep this feature away from live until rea
 - [x] Implement the admin item ledger, filters, paid-item totals, complete CSV downloads and a read-only final-total preview; preserve paid/unpaid distinctions and original source references. Recorded adjustments remain future accounting work.
 - [x] Verify item pricing/totals, CSV safety, full-set SQL reads, protected endpoints and retired per-order sending locally: 128 distinct checks covered, build/TypeScript and 59 built-app HTTP checks pass. Read-only hosted source verification reconciles all 24 development orders.
 - [x] Apply read-only migration 012 to OSG Gala Development and verify actual desktop/mobile ledger, downloads and tab/filter behavior. User applied migration; complete RPC comparison, 24 development HTTP checks and Chrome desktop/390px layout/download checks passed.
-- [ ] Publish and verify the ledger on the existing protected branch Preview. Local walkthrough is ready; no ledger Preview push/deployment yet.
+- [x] User accepted local walkthrough; publish and verify the ledger on the existing protected branch Preview. Commit 93e6fc0 deployed successfully; 24 hosted ledger checks, six existing cart/fulfillment checks and Chrome sign-in/filter verification passed.
 - [ ] Implement/verify final aggregate posting to Symphony Ball Revenue, preserve included-entry membership and QuickBooks reference, and prove retries cannot duplicate revenue. Keep the internal ledger after posting; do not enable the old per-order sender as the final workflow.
 
-The ledger/exports/preview are implemented and verified locally against hosted development; final sending remains unimplemented and disabled. Migration 012 is applied to OSG Gala Development. The previous board Preview is unchanged. Existing production and inventory gates remain unchanged. Detailed evidence and the finite next-session handoff are in `GALA_BACKEND_DEVELOPMENT.md`.
+The ledger/exports/preview are implemented and verified locally against hosted development; final sending remains unimplemented and disabled. Migration 012 is applied to OSG Gala Development. The existing protected board Preview now includes the ledger; its share link and access code are unchanged. Existing production and inventory gates remain unchanged. Detailed evidence and the finite next-session handoff are in `GALA_BACKEND_DEVELOPMENT.md`.
 
 ## October 12: accounting decisions recorded; setup still separate
 
