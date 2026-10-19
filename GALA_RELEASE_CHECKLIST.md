@@ -9,7 +9,7 @@ User instruction, September 28, 2026: keep this feature away from live until rea
 - [x] Apply migration 014 only to OSG Gala Development. Isolated tests verify unlimited/finite transitions, unchanged expiration/fulfillment and denied accounting writers; hosted read-only checks confirm unlimited tiers, denied connection access and an exactly unchanged ledger snapshot.
 - [x] Updated application verification: 144 tests, build and 63 built-app hosting checks pass; local manual-bookkeeping ledger walkthrough passes.
 - [x] Verify Unlimited for all three tiers in the actual development admin after applying migration 014, with existing paid counts and ledger exports intact.
-- [ ] Publish the updated application code to the board Preview separately; the shared development database already uses unlimited capacity.
+- [x] User authorizes board Preview publishing. Deployed application commit `28e1172` to the existing test alias; Vercel reports Ready. Eighteen hosted checks pass: sign-in protection, unlimited inventory, unchanged $24,817.50 paid ledger, CSV exports, test pages and retired QuickBooks endpoints. No production change.
 
 The older QuickBooks mapping, Stripe Clearing, automated final-total posting and bank-import integration tasks are canceled for this workflow. Live Stripe identity/bank setup remains pending with Britni. No production launch is authorized. Earlier dated sections are historical evidence, not new requirements to reconnect QuickBooks or obtain finite table quantities.
 
