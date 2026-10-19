@@ -7,7 +7,7 @@ User instruction, September 28, 2026: keep this feature away from live until rea
 - [x] Verify user's access to OSG live account and its separate sandbox; sandbox Payments/Payouts active.
 - [x] Prepare historical closed-order receipt preservation; 129 Gala tests, build and 59 built-app checks pass with proposed sandbox pin.
 - [x] User explicitly approves OSG sandbox credential/service access; connect local key/listener/account pin and verify historical ledger/receipts. New OSG hosted webhook created, disabled until deployment.
-- [ ] After user signs into Vercel, switch only branch Preview's Stripe credentials, deploy code and enable the new webhook; verify new OSG test payment/expiration/recovery and preserve historical ledger. Current hosted Preview still uses PathSix; authorization is already granted.
+- [x] Switch only branch Preview's Stripe credentials, deploy `cdec168`, enable the OSG webhook and verify hosted test payment/provider-triggered expiration/recovery with the local listener stopped. All 24 historical orders/accounting records are preserved; 30 hosted regression checks passed. Retire the old PathSix hosted endpoint after success. The existing board link/code are unchanged; QuickBooks sending stays disabled.
 - [ ] Britni completes live representative verification and bank setup; user has notified her. No production launch authorized.
 
 ## October 13: ledger and final-total decision
