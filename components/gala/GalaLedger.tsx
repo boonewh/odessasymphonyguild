@@ -4,6 +4,7 @@ import { LEDGER_PRODUCTS, filterLedger, ledgerFilterSchema, ledgerProductTotals,
 import { money } from "@/lib/gala/model";
 import styles from "./PaymentLab.module.css";
 import ledgerStyles from "./GalaLedger.module.css";
+import GalaFinalTotal from "./GalaFinalTotal";
 
 const defaults = ledgerFilterSchema.parse({});
 const pageSize = 25;
@@ -117,5 +118,6 @@ export default function GalaLedger({ active = true }: { active?: boolean }) {
           <button type="button" className={ledgerStyles.secondary} disabled={busy} onClick={() => void download("preview")}>Download review copy (JSON)</button></details>
       </section>
     </>}
+    <GalaFinalTotal active={active}/>
   </section>;
 }

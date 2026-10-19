@@ -9,7 +9,7 @@ const port = 3106, local = `http://127.0.0.1:${port}`;
 const fake = {
   NODE_ENV:'production', VERCEL:'1', VERCEL_ENV:'preview', VERCEL_PROJECT_ID:BOARD_PROJECT,
   VERCEL_GIT_COMMIT_REF:BOARD_BRANCH, GALA_BOARD_REVIEW:'true', GALA_BOARD_ORIGIN:BOARD_ORIGIN,
-  GALA_BACKEND_ENABLED:'true', GALA_CLIENT_REVIEW:'false', GALA_ACCESS_MODE:'development', GALA_QB_SYNC_ENABLED:'false',
+  GALA_BACKEND_ENABLED:'true', GALA_CLIENT_REVIEW:'false', GALA_ACCESS_MODE:'development', GALA_QB_SYNC_ENABLED:'false', GALA_QB_FINAL_ENABLED:'true',
   GALA_STRIPE_SECRET_KEY:'sk_test_fake', GALA_SUPABASE_URL:DEVELOPMENT_SUPABASE_URL,
   GALA_SUPABASE_SECRET_KEY:'sb_secret_fake', GALA_STRIPE_WEBHOOK_SECRET:'whsec_fake',
   GALA_DEVELOPMENT_TOKEN:'a'.repeat(64), GALA_BOARD_ACCESS_CODE:'HallTest123', GALA_RECOVERY_SECRET:'c'.repeat(64),
@@ -57,6 +57,8 @@ await withServer({},async()=>{
   for(const path of ['/api/gala/orders','/api/gala/order','/api/gala/assignments','/api/gala/gifts','/api/gala/invitations','/api/gala/recovery','/api/gala/ledger','/api/gala/ledger?format=csv','/api/gala/ledger?format=preview'])await status(path,401);
   await status('/api/gala/ledger',404,{method:'POST'});
   await status('/api/gala/quickbooks/sync',404,{method:'POST'});
+  await status('/api/gala/quickbooks/final-total',404);
+  await status('/api/gala/quickbooks/final-total',404,{method:'POST'});
   await status('/api/gala/order?orderId=00000000-0000-4000-8000-000000000000',401,{method:'POST'});
   await status('/api/gala/recovery/run',401,{method:'POST'});
   await status('/api/gala/recovery/run',404);
@@ -78,6 +80,8 @@ await withServer({},async()=>{
   await status('/gala/tables',404,{headers:{host:'unapproved.vercel.app'}});
 });
 await withServer({VERCEL_ENV:'production'},async()=>{
+  await status('/api/gala/quickbooks/final-total',404);
+  await status('/api/gala/quickbooks/final-total',404,{method:'POST'});
   for(const path of ['/gala/tables','/gala/gifts','/gala/cart','/gala/invitations','/gala/preview/admin','/gala/preview/payment','/gala/preview/testing',
     '/api/gala/session','/api/gala/orders','/api/gala/order','/api/gala/assignments','/api/gala/gifts','/api/gala/invitations','/api/gala/recovery','/api/gala/quickbooks/status','/api/gala/ledger','/api/gala/ledger?format=csv','/api/gala/ledger?format=preview'])await status(path,404);
   for(const path of ['/api/gala/checkout','/api/gala/session','/api/gala/webhook','/api/gala/recovery/run','/api/gala/quickbooks/sync'])await status(path,404,{method:'POST'});

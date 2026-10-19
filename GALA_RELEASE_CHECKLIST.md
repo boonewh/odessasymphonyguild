@@ -2,6 +2,15 @@
 
 User instruction, September 28, 2026: keep this feature away from live until ready and tested. Firm inventory numbers are required. A generic request to push or publish does not waive this requirement.
 
+## October 19: final-total sender sandbox acceptance
+
+- [x] Implement one immutable final batch, paid-order/item membership, exact sandbox receipt and duplicate-safe retry/recovery; close new sales atomically when saving the final batch.
+- [x] Apply migration 013 only to OSG Gala Development; block stale/unpaid/missing-evidence/earlier-accounting cases and preserve all 26 existing shared orders.
+- [x] Test actual QuickBooks sandbox posting from a separate fictional ledger: two orders / six rows / $2,150 / receipt 147; one POST despite lost-response and save-failure recovery.
+- [x] Local admin controls, saved-detail download, accounting permission/CSRF checks and Preview/production denial; 138 tests, build, nine focused final checks and 63 built-app HTTP checks pass.
+
+Normal local sending stays off; the board Preview has not been updated for this feature and cannot send. Existing shared test receipts intentionally block reposting its total; do not delete or exclude them silently. Fee/payout work, adjustments and live setup/acceptance remain separate.
+
 ## October 19: OSG Stripe setup
 
 - [x] Verify user's access to OSG live account and its separate sandbox; sandbox Payments/Payouts active.
@@ -17,9 +26,9 @@ User instruction, September 28, 2026: keep this feature away from live until rea
 - [x] Verify item pricing/totals, CSV safety, full-set SQL reads, protected endpoints and retired per-order sending locally: 128 distinct checks covered, build/TypeScript and 59 built-app HTTP checks pass. Read-only hosted source verification reconciles all 24 development orders.
 - [x] Apply read-only migration 012 to OSG Gala Development and verify actual desktop/mobile ledger, downloads and tab/filter behavior. User applied migration; complete RPC comparison, 24 development HTTP checks and Chrome desktop/390px layout/download checks passed.
 - [x] User accepted local walkthrough; publish and verify the ledger on the existing protected branch Preview. Commit 93e6fc0 deployed successfully; 24 hosted ledger checks, six existing cart/fulfillment checks and Chrome sign-in/filter verification passed.
-- [ ] Implement/verify final aggregate posting to Symphony Ball Revenue, preserve included-entry membership and QuickBooks reference, and prove retries cannot duplicate revenue. Keep the internal ledger after posting; do not enable the old per-order sender as the final workflow.
+- [x] Implement/verify final aggregate posting to Symphony Ball Revenue in the local sandbox, preserve included-entry membership and QuickBooks reference, and prove retries cannot duplicate revenue. Keep the internal ledger after posting; do not enable the old per-order sender as the final workflow. Completed October 19; live setup/acceptance remains a separate gate.
 
-The ledger/exports/preview are implemented and verified locally against hosted development; final sending remains unimplemented and disabled. Migration 012 is applied to OSG Gala Development. The existing protected board Preview now includes the ledger; its share link and access code are unchanged. Existing production and inventory gates remain unchanged. Detailed evidence and the finite next-session handoff are in `GALA_BACKEND_DEVELOPMENT.md`.
+The ledger/exports/preview are implemented and verified locally against hosted development; final sending was subsequently implemented and sandbox-tested October 19 as recorded above. Migrations 012 and 013 are applied to OSG Gala Development. The protected board Preview includes the read-only ledger; its share link and access code are unchanged. Existing production and inventory gates remain unchanged. Detailed evidence and the finite next-session handoff are in `GALA_BACKEND_DEVELOPMENT.md`.
 
 ## October 12: accounting decisions recorded; setup still separate
 

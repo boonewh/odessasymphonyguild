@@ -1,7 +1,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { databaseFetch } from "./database-fetch";
 import type { Order, OrderStore, priceRequest } from "./domain";
-import { CartUnavailable } from "./domain";
+import { CartUnavailable, GalaSalesClosed } from "./domain";
 import type { TableAssignment } from "../assignments";
 import type { GiftRow, GiftStatus } from "../gift-fulfillment";
 import type { InvitationRequest, InvitationRow, InvitationStatus, invitationAddressUpdate, invitationDuplicateUpdate } from "../invitations";
@@ -77,6 +77,7 @@ export class SupabaseOrderStore implements OrderStore {
   private async rpc(name: string, args: Record<string, unknown>): Promise<Order> {
     const { data, error } = await this.db.rpc(name, args);
     // Do not echo provider errors: they can include customer data or implementation details.
+    if (error?.code === "P0001" && error.message === "Gala sales closed for final accounting") throw new GalaSalesClosed();
     if ((name === "gala_reserve" || name === "gala_customer_reserve") && error?.code === "P0001"
       && error.message === "Table tier sold out or reserved") throw new CartUnavailable();
     if (error) throw new Error(`Gala database operation failed: ${name}`);
@@ -106,13 +107,15 @@ export class SupabaseOrderStore implements OrderStore {
     return data as Order[];
   }
   async dashboard() {
-    const [orders, inventory, outbox] = await Promise.all([
+    const [orders, inventory, outbox, final] = await Promise.all([
       this.db.from("gala_orders").select("*").order("created_at", { ascending: false }).limit(100),
       this.db.rpc("gala_inventory_counts"),
       this.db.from("gala_accounting_outbox").select("order_id,status").limit(1000),
+      this.db.from("gala_final_total").select("status").eq("gala", "2027").maybeSingle(),
     ]);
-    if (orders.error || inventory.error || outbox.error) throw new Error("Cannot load Gala dashboard.");
-    return { orders: orders.data as Order[], inventory: inventory.data, accounting: outbox.data };
+    if (orders.error || inventory.error || outbox.error || final.error) throw new Error("Cannot load Gala dashboard.");
+    return { orders: orders.data as Order[], inventory: inventory.data,
+      accounting: outbox.data.map(a => ({ ...a, status: a.status === "pending" && final.data ? `final_${final.data.status}` : a.status })) };
   }
   async ledgerSnapshot(): Promise<unknown> {
     const { data, error } = await this.db.rpc("gala_ledger_snapshot");

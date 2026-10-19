@@ -59,7 +59,7 @@ export class SandboxQuickBooks implements ReceiptGateway {
     const result = await this.request(`salesreceipt?requestid=${encodeURIComponent(requestId)}`, payload);
     return result.SalesReceipt;
   }
-  async verifyMapping(mapping: AccountingMapping) {
+  async verifyMapping(mapping: AccountingMapping, finalTotal = false) {
     if (mapping.realmId !== this.realmId || Object.values(mapping).some(id => !/^\d+$/.test(id))) throw new Error("Mapping mismatch.");
     const [company, item, income, clearing, customer, prefs] = await Promise.all([
       this.request(`companyinfo/${this.realmId}`), this.request(`item/${mapping.itemId}`),
@@ -71,6 +71,7 @@ export class SandboxQuickBooks implements ReceiptGateway {
       || item.Item?.IncomeAccountRef?.value !== mapping.incomeAccountId
       || income.Account?.Active !== true || !["Income", "Other Income"].includes(income.Account?.AccountType)
       || !/^Symphony Ball(?: Revenue)?$/i.test(income.Account?.Name || "")
+      || (finalTotal && income.Account?.Name !== "Symphony Ball Revenue")
       || clearing.Account?.Active !== true || !["Bank", "Other Current Asset"].includes(clearing.Account?.AccountType)
       || customer.Customer?.Active !== true || (customer.Customer?.CurrencyRef?.value || "USD") !== "USD")
       throw new Error("Sandbox company or accounting mapping needs review.");

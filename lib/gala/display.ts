@@ -1,5 +1,8 @@
 export function accountingLabel(status?:string) {
   switch(status) {
+    case "final_synced": return "Included in final QuickBooks total";
+    case "final_prepared": case "final_processing": return "Included in saved final total";
+    case "final_review": return "Final total needs accounting review";
     case "synced": return "Recorded in QuickBooks";
     case "pending": return "Held for final sales total";
     case "processing": return "Recording in QuickBooks";

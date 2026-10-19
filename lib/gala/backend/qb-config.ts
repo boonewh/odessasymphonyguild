@@ -19,3 +19,7 @@ export function readQbMapping(env: NodeJS.ProcessEnv) {
   if (Object.values(mapping).some(id => !/^\d+$/.test(id))) throw new Error("Sandbox accounting mapping required.");
   return mapping;
 }
+export function readFinalQbMapping(env: NodeJS.ProcessEnv) {
+  return readQbMapping({ ...env, GALA_QB_INCOME_ACCOUNT_ID: env.GALA_QB_FINAL_INCOME_ACCOUNT_ID || env.GALA_QB_INCOME_ACCOUNT_ID,
+    GALA_QB_ITEM_ID: env.GALA_QB_FINAL_ITEM_ID || env.GALA_QB_ITEM_ID });
+}

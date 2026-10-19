@@ -4,6 +4,16 @@ Last updated: October 19, 2026 (America/Chicago).
 
 ## Resume here
 
+### October 19: final-total sender built and tested locally in QuickBooks sandbox
+
+The user authorized building and sandbox-testing the final sender. It now saves one immutable Gala 2027 batch with all paid orders, payment references, item rows, source snapshot, company/mapping and exact receipt payload. Preparing that final batch closes new checkout creation; pending orders, stale review totals, missing payment evidence and earlier accounting attempts block preparation. Sending records one non-taxable **Symphony Ball Revenue** line in the existing sandbox. A durable dispatch marker makes uncertain retries lookup-only; the saved receipt reference and detailed ledger remain available afterward.
+
+Migration `013_gala_final_total.sql` is applied only to **OSG Gala Development**. A separate durable local fictional ledger exercised the actual Intuit sandbox: two orders / six item rows / **$2,150**, one SalesReceipt **147**, exactly one create call despite deliberately losing its response and failing the first local success save. Those payment records are synthetic rehearsal fixtures, not additional Stripe charges or changes to the shared board ledger. Existing 26 development orders and two historical receipts are unchanged; the actual final handler correctly blocks that historical ledger from being reposted. Late duplicate verified payment notifications remain safe after finalization.
+
+The local admin Sales ledger contains the sender, saved-total download and recovery status. It requires accounting access and explicit `GALA_QB_FINAL_ENABLED=true` locally; the normal local setting remains off. Hosted Preview and production cannot call it even with that flag. The board test continues normally; its existing deployment has not been updated for this feature. Local sandbox mapping uses the exact new income name without changing earlier per-order test mappings. Fee/payout reconciliation, exceptional adjustments and live accounting setup/acceptance remain separate; no production launch or inventory approval.
+
+Validation: 138 Gala checks, build and 63 built-app Preview/production HTTP checks passed; nine focused final-total checks additionally cover the final late-webhook guard. Real sandbox and development-route evidence is in ignored `.codex-remote-attachments/final-total/`. Source and API references are documented in `GALA_BACKEND_DEVELOPMENT.md`.
+
 ### October 19: OSG sandbox connected locally and on the board Preview
 
 The user has developer/Super Administrator access to OSG live account `acct_1UPo5fKdKFOoaTnc`. Live payments are paused pending Britni's representative identity verification; Stripe also lists a missing bank account. The user notified Britni. She should supply those details directly in Stripe.

@@ -5,6 +5,7 @@ import { checkoutRequest, type CheckoutRequest } from "../checkout-request";
 export { checkoutRequest, type CheckoutRequest } from "../checkout-request";
 export type Status = "reserved" | "awaiting_payment" | "paid" | "expired";
 export class CartUnavailable extends Error {}
+export class GalaSalesClosed extends Error {}
 export type Order = {
   id: string; request_hash: string; details: CheckoutRequest; amount: number; currency: "usd";
   description: string; tier: string | null; status: Status; created_at: string;
