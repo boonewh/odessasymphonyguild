@@ -6,7 +6,7 @@ User instruction, September 28, 2026: keep this feature away from live until rea
 
 - [x] User chooses one shared admin password, managed by Will through 2027, with Dues/Gala navigation and a future Patron placeholder. Individual admin names/emails and separate ledger permissions are superseded by this decision.
 - [x] Implement test-only shared landing/login, password-bound eight-hour sessions and complete browser sign-out; 149 Gala tests, build and 80 hosting checks pass. Dues is an explicitly fictional sample; connecting the actual live dues workflow remains production rollout work.
-- [ ] Verify the deployed shared admin entrance on the existing board Preview after publishing. No production launch.
+- [x] Deploy shared admin application commit `e33c383` to the existing board Preview and pass 36 hosted checks: login/redirects, isolated sample Dues, all Gala admin reads/CSV, buyer/admin session separation, CSRF and sign-out. All 26 orders and $24,817.50 paid sales remain unchanged. No production launch.
 
 - [x] User confirms the board wants unlimited Platinum, Gold and Silver table sales, retaining optional finite limits and unpaid-checkout expiration.
 - [x] User chooses manual Stripe payout/bookkeeping; retire Gala's QuickBooks connection/sender and retain the internal item ledger and exports.
