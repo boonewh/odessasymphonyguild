@@ -5,6 +5,7 @@
 - Read `GALA_2027_PLAN.md` and `GALA_RELEASE_CHECKLIST.md` before changing or releasing the sales feature.
 - **October 19 board decision, relayed by the user: Platinum, Gold, and Silver table sales are unlimited.** Use explicit unlimited capacity (NULL), not a fake large stock number. Retain optional finite limits and unpaid-checkout expiration. The old 20-per-tier quantities were development placeholders and are superseded. This policy decision does not authorize production launch.
 - Gala bookkeeping is manual: Britni handles Stripe payouts and QuickBooks entry. Keep the item ledger and exports; do not reconnect Gala to QuickBooks or send totals without a new user decision. Leave the separate membership QuickBooks integration untouched.
+- Admin access policy: the user chooses one shared password for Dues and Gala, with a landing page and a future Patron section. Will manages the password through 2027. Do not require individual volunteer accounts or separate ledger permissions without a new decision. Keep test rosters isolated from live membership records; production rollout still requires authorization.
 - No Gala sales launch until meaningful payment/inventory tests pass and launch is explicitly authorized. Do not treat a request to push a feature branch as authorization to merge or deploy it to production.
 - Current Gala venue wording: La Hacienda. Current policy: all sales final, no refunds. Both may be revised only following a new user decision.
 - Keep attached conversation screenshots and local credentials out of Git.

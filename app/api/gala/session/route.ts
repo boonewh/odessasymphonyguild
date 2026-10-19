@@ -4,6 +4,7 @@ import { createDevelopmentSession, DEVELOPMENT_COOKIE, equalSecret } from "@/lib
 import { authorizeCustomer } from "@/lib/gala/backend/request-access";
 import { CUSTOMER_COOKIE, CUSTOMER_SECONDS, cookieValue, createCustomerSession, customerIdentity, sameOrigin } from "@/lib/gala/backend/access";
 import { readLoginBody, LoginBodyTooLarge } from "@/lib/gala/backend/staff-login";
+import { SHARED_ADMIN_COOKIE } from "@/lib/admin/test-access";
 export const runtime = "nodejs";
 export async function GET(request: Request) {
   if (!backendEnabled(process.env)) return new Response(null, { status: 404 });
@@ -40,7 +41,7 @@ export async function DELETE(request: Request) {
     const config = readBackendConfig(process.env);
     sameOrigin(request, config.origin);
     const response = NextResponse.json({ signedOut: true }, { headers: { "Cache-Control": "no-store" } });
-    for (const name of [DEVELOPMENT_COOKIE, CUSTOMER_COOKIE]) response.cookies.set(name, "", {
+    for (const name of [DEVELOPMENT_COOKIE, CUSTOMER_COOKIE, SHARED_ADMIN_COOKIE]) response.cookies.set(name, "", {
       httpOnly: true, sameSite: "lax", secure: config.hosted, path: "/", maxAge: 0,
     });
     return response;

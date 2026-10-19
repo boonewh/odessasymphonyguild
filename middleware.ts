@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { clientReviewAllowed, clientReviewRequest } from "./lib/gala/client-review";
 import { boardReviewAllowed, boardReviewRequest, BOARD_ORIGIN } from "./lib/gala/board-review";
+import { sharedAdminTestEnabled } from "./lib/admin/test-access";
 
 /**
  * Middleware — protects /admin/* routes with an httpOnly session cookie.
@@ -63,6 +64,13 @@ export async function middleware(request: NextRequest) {
   }
 
   // Allow the login page and login API through without a session check
+  // New test-only pages authenticate on the server; never open legacy dues APIs.
+  if (sharedAdminTestEnabled(process.env) && ["/admin", "/admin/dues", "/admin/gala", "/api/admin/test-session"].includes(pathname)) {
+    return NextResponse.next();
+  }
+  if (!sharedAdminTestEnabled(process.env) && ["/admin", "/admin/dues", "/admin/gala", "/api/admin/test-session"].includes(pathname)) {
+    return new NextResponse("Not found", { status: 404 });
+  }
   if (pathname === "/admin/login" || pathname === "/api/admin/login") {
     return NextResponse.next();
   }

@@ -4,6 +4,10 @@ User instruction, September 28, 2026: keep this feature away from live until rea
 
 ## October 19: current scope — unlimited tables, manual bookkeeping
 
+- [x] User chooses one shared admin password, managed by Will through 2027, with Dues/Gala navigation and a future Patron placeholder. Individual admin names/emails and separate ledger permissions are superseded by this decision.
+- [x] Implement test-only shared landing/login, password-bound eight-hour sessions and complete browser sign-out; 149 Gala tests, build and 80 hosting checks pass. Dues is an explicitly fictional sample; connecting the actual live dues workflow remains production rollout work.
+- [ ] Verify the deployed shared admin entrance on the existing board Preview after publishing. No production launch.
+
 - [x] User confirms the board wants unlimited Platinum, Gold and Silver table sales, retaining optional finite limits and unpaid-checkout expiration.
 - [x] User chooses manual Stripe payout/bookkeeping; retire Gala's QuickBooks connection/sender and retain the internal item ledger and exports.
 - [x] Apply migration 014 only to OSG Gala Development. Isolated tests verify unlimited/finite transitions, unchanged expiration/fulfillment and denied accounting writers; hosted read-only checks confirm unlimited tiers, denied connection access and an exactly unchanged ledger snapshot.
@@ -11,7 +15,7 @@ User instruction, September 28, 2026: keep this feature away from live until rea
 - [x] Verify Unlimited for all three tiers in the actual development admin after applying migration 014, with existing paid counts and ledger exports intact.
 - [x] User authorizes board Preview publishing. Deployed application commit `28e1172` to the existing test alias; Vercel reports Ready. Eighteen hosted checks pass: sign-in protection, unlimited inventory, unchanged $24,817.50 paid ledger, CSV exports, test pages and retired QuickBooks endpoints. No production change.
 
-The older QuickBooks mapping, Stripe Clearing, automated final-total posting and bank-import integration tasks are canceled for this workflow. Live Stripe identity/bank setup remains pending with Britni. No production launch is authorized. Earlier dated sections are historical evidence, not new requirements to reconnect QuickBooks or obtain finite table quantities.
+The older QuickBooks mapping, Stripe Clearing, automated final-total posting and bank-import integration tasks are canceled for this workflow. Live Stripe activation is now verified complete as recorded below; manual payout schedule/destination verification remains part of production setup. No production launch is authorized. Earlier dated sections are historical evidence, not new requirements to reconnect QuickBooks or obtain finite table quantities.
 
 ## October 19: final-total sender sandbox acceptance
 
@@ -28,7 +32,8 @@ Normal local sending stays off; the board Preview has not been updated for this 
 - [x] Prepare historical closed-order receipt preservation; 129 Gala tests, build and 59 built-app checks pass with proposed sandbox pin.
 - [x] User explicitly approves OSG sandbox credential/service access; connect local key/listener/account pin and verify historical ledger/receipts. New OSG hosted webhook created, disabled until deployment.
 - [x] Switch only branch Preview's Stripe credentials, deploy `cdec168`, enable the OSG webhook and verify hosted test payment/provider-triggered expiration/recovery with the local listener stopped. All 24 historical orders/accounting records are preserved; 30 hosted regression checks passed. Retire the old PathSix hosted endpoint after success. The existing board link/code are unchanged; QuickBooks sending stays disabled.
-- [ ] Britni completes live representative verification and bank setup. October 19 user update: she has answered that these are not complete and will work on them when she can; this is pending work, not an unanswered question. No production launch authorized.
+- [x] October 19 later update: user reports Britni updated activation. Read-only inspection of OSG live account `acct_1UPo5fKdKFOoaTnc` confirms Payments and Payouts Active, with no active account tasks. The earlier activation blocker is resolved; this does not verify the bank destination or manual payout schedule.
+- [ ] Verify payout destination and manual payout settings match Britni's decision during production setup. No payout, settings change or production launch is authorized by the activation update.
 
 ## October 13: ledger and final-total decision
 

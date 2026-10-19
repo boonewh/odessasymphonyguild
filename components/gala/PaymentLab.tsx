@@ -19,7 +19,7 @@ const adminTabs = [
   {id:"gifts",label:"Gifts"}, {id:"invitations",label:"Invitations"}, {id:"accounting",label:"Sales ledger"},
 ] as const;
 type AdminTab = typeof adminTabs[number]["id"];
-export default function PaymentLab({ mode = "testing", individual = false }: { mode?: "testing" | "admin"; individual?: boolean }) {
+export default function PaymentLab({ mode = "testing", individual = false, sharedAdmin = false }: { mode?: "testing" | "admin"; individual?: boolean; sharedAdmin?: boolean }) {
   const [email,setEmail]=useState("");
   const [accounting,setAccounting]=useState(!individual);
   const [data,setData]=useState<Dashboard|null>(null); const [locked,setLocked]=useState(false);
@@ -43,11 +43,11 @@ export default function PaymentLab({ mode = "testing", individual = false }: { m
   }
   const refresh=useCallback(async()=>{
     const response=await fetch("/api/gala/orders",{cache:"no-store"});
-    if(response.status===401){setLocked(true);setData(null);return;}
+    if(response.status===401){setLocked(true);setData(null);if(sharedAdmin)window.location.replace("/admin/login?next=%2Fadmin%2Fgala");return;}
     if(!response.ok) throw new Error("Cannot load test orders. Try refreshing; if this continues, contact the test organizer.");
     setData(await response.json());setLocked(false);
     if(individual){const access=await fetch("/api/gala/staff-session",{cache:"no-store"});setAccounting(access.ok && (await access.json()).accounting===true);}
-  },[individual]);
+  },[individual,sharedAdmin]);
   useEffect(()=>{void refresh().catch(e=>setError(e.message));
     try{const saved=sessionStorage.getItem(attemptKey);if(saved)setAttempt(JSON.parse(saved));}catch{sessionStorage.removeItem(attemptKey);}
   },[refresh]);
@@ -90,7 +90,7 @@ export default function PaymentLab({ mode = "testing", individual = false }: { m
       <p>No physical invitations, gifts or customer emails are sent by this test.</p>
     </details>
     {error&&<p role="alert" className={styles.error}>{error}</p>}{notice&&<p role="status" className={styles.success}>{notice}</p>}
-    {!locked&&data&&<button disabled={busy} onClick={()=>void logout()}>Sign out</button>}
+    {!sharedAdmin&&!locked&&data&&<button disabled={busy} onClick={()=>void logout()}>Sign out</button>}
     {locked?<form onSubmit={login} className={styles.panel}><h2>{individual?"Gala staff sign-in":"Sign in to the test site"}</h2><p className={styles.note}>{individual?"Use the staff account provided for this test.":"Use the access code provided by the test organizer."} You stay signed in for up to eight hours.</p>{individual&&<label>Email<input type="email" autoComplete="username" value={email} onChange={e=>setEmail(e.target.value)} required/></label>}<label>{individual?"Password":"Test access code"}<input type="password" autoComplete={individual?"current-password":"off"} value={token} onChange={e=>setToken(e.target.value)} required/></label><div className={styles.tools}><button disabled={busy}>Sign in</button></div></form>:!data?<p role="status">Loading test orders…</p>:<>
       {mode==="admin"&&<>
         <div className={styles.adminTabs} role="tablist" aria-label="Gala admin sections">

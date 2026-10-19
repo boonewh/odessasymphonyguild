@@ -4,6 +4,18 @@ Last updated: October 19, 2026 (America/Chicago).
 
 ## Resume here
 
+### October 19: shared administration decision and test implementation
+
+The user chooses one shared admin password and an OSG Administration landing page for Dues, Gala and a future Patron section. No individual admin names/emails or separate ledger permission are required by this policy. Will manages the password through 2027. All shared administrators may use the Gala ledger; change history must not claim a named volunteer identity. Patron implementation is separate and must not block Gala.
+
+Implemented for local development and the approved board Preview only: `/admin`, `/admin/login`, `/admin/dues` and `/admin/gala`. Dues shows an explicitly fictional, display-only sample roster; the existing live roster, editing, pricing and membership APIs are not exposed by the Preview. Gala retains all existing test tools and the ledger. Patron is labeled Coming later. The Preview password is the existing board test access code; this does not change the live dues password. The live shared entrance and real dues integration remain a separate production rollout.
+
+Shared admin uses an eight-hour server-validated cookie bound to the password/signing secret, bounded login bodies, same-origin writes and the existing durable global login budget (120 attempts per five minutes). It has a separate cookie from the buyer test session; a buyer test sign-in alone cannot read Gala admin APIs. Shared sign-out clears both admin and buyer test cookies. Password rotation invalidates old shared admin cookies. This is test-site implementation, not production authorization.
+
+### October 19: live Stripe activation verified
+
+After the user reported Britni's activation update, read-only browser inspection of OSG's live account `acct_1UPo5fKdKFOoaTnc` confirmed **Payments Active**, **Payouts Active**, and **No active tasks to complete**. This supersedes earlier notes saying activation/representative verification is pending. The payout destination and manual schedule were not inspected; verify those during production setup. No live credentials, settings, transfers or website modes changed. Preview remains in OSG's sandbox, and launch still requires the remaining production work and explicit approval.
+
 ### October 19: current decision — unlimited tables and manual bookkeeping
 
 **This supersedes the earlier QuickBooks sender/clearing-account plan and the requirement to obtain finite table quantities.** The user relays the board's decision that Platinum, Gold and Silver sales have no table cap. Use an explicit unlimited setting, retain support for a finite cap if policy changes, and keep the existing 35-minute unpaid-checkout expiration. Expired orders remain in history; only verified paid orders count as sales and qualify for fulfillment. Unlimited sales does not approve unlimited per-checkout quantities or change prices, extra-seat rules or table assignment labels.

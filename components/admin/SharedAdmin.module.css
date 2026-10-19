@@ -1,0 +1,60 @@
+.page,.loginPage { color:#202a35; background:#faf8f1; min-height:100dvh; isolation:isolate; font-family:var(--font-inter),sans-serif; }
+.content { max-width:1180px; margin:0 auto; padding:48px 24px 72px; }
+.content h1,.loginPanel h1 { font-family:Georgia,serif; font-size:clamp(2rem,4vw,2.8rem); font-weight:500; letter-spacing:-.025em; text-wrap:balance; margin:12px 0 16px; }
+.content p,.loginPanel p { line-height:1.65; text-wrap:pretty; }
+.intro { max-width:56ch; color:#58616a; margin-bottom:32px; }
+.eyebrow { color:#246c65; font-size:.875rem; font-weight:600; margin:0; }
+.header { background:#fff; border-bottom:1px solid #202a3526; font-family:var(--font-inter),sans-serif; }
+.headerInner { max-width:1180px; padding:18px 24px; margin:0 auto; display:flex; gap:24px; align-items:center; flex-wrap:wrap; }
+.brand { color:#202a35; font-weight:600; margin-right:auto; min-width:0; }
+.desktopNav { display:flex; gap:8px; align-items:center; }
+.desktopNav a,.mobileNav a { padding:8px 12px; border-radius:6px; color:#246c65; font-size:.875rem; font-weight:500; }
+.desktopNav a:hover,.mobileNav a:hover { background:#f1f6f4; }
+.desktopNav a[aria-current],.mobileNav a[aria-current] { background:#e2efea; color:#185b56; }
+.header button { border:1px solid #246c65; border-radius:6px; color:#246c65; background:white; padding:7px 12px; font:500 .875rem/1.4 var(--font-inter),sans-serif; cursor:pointer; }
+.header button:hover { background:#edf3f0; }
+.header button:disabled { opacity:.6; cursor:default; }
+.mobileNav { display:none; }
+.sectionGrid { container-type:inline-size; }
+.cards { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; }
+.card { padding:28px; background:#fff; border:1px solid #202a3526; border-radius:12px; min-width:0; display:flex; flex-direction:column; gap:16px; }
+.card h2 { font:500 1.75rem Georgia,serif; letter-spacing:-.025em; }
+.card p { color:#58616a; margin:0; }
+.card .open { margin-top:auto; padding-top:12px; color:#246c65; font-weight:600; }
+a.card:hover { border-color:#246c65; background:#f5faf7; }
+.future { background:transparent; border-style:dashed; }
+.future .open { color:#58616a; }
+.help { margin-top:32px; color:#58616a; font-size:.875rem; max-width:70ch; }
+.loginPage { display:grid; place-items:center; padding:32px 20px; }
+.loginPanel { width:100%; max-width:420px; padding:36px; background:#fff; border:1px solid #202a3526; border-radius:12px; }
+.loginPanel h1 { font-size:2rem; }
+.loginForm { display:grid; gap:12px; max-width:320px; margin:24px 0; }
+.loginForm label { font-size:.875rem; font-weight:600; }
+.loginForm input,.search { width:100%; border:1px solid #9baea9; border-radius:6px; padding:10px 12px; font:inherit; background:#fff; }
+.loginForm button { border:0; padding:8px 12px; border-radius:6px; background:#246c65; color:#fff; font:600 .875rem/1.5 var(--font-inter),sans-serif; cursor:pointer; }
+.loginForm button:hover { background:#185b56; }
+.loginForm button:disabled { opacity:.6; cursor:default; }
+.hint { font-size:.875rem; color:#58616a; }
+.loginPanel a { color:#246c65; text-decoration:underline; font-size:.875rem; }
+.error { color:#923f20; background:#fff0e9; padding:12px; }
+.page :focus-visible,.header :focus-visible,.loginPage :focus-visible { outline:3px solid #c49637; outline-offset:3px; }
+.loginForm input:focus-visible,.search:focus-visible { outline-offset:-1px; }
+.sampleNotice { border-left:3px solid #246c65; background:#edf3f0; padding:16px; margin:24px 0; }
+.filter { max-width:320px; display:grid; gap:8px; margin:24px 0; }
+.filter label { font-weight:500; }
+.tableScroll { overflow-x:auto; }
+.tableScroll table { width:100%; border-collapse:collapse; font-size:.875rem; font-variant-numeric:tabular-nums; }
+.tableScroll th,.tableScroll td { text-align:left; padding:16px 12px; border-bottom:1px solid #202a3526; white-space:nowrap; }
+.tableScroll th { font-weight:600; }
+@container(max-width:760px) { .cards { grid-template-columns:1fr; } }
+@media(max-width:700px) {
+  .content { padding:32px 20px 56px; }
+  .headerInner { gap:18px; padding:16px 20px; }
+  .desktopNav { display:none; }
+  .mobileNav { display:block; width:100%; }
+  .mobileNav summary { cursor:pointer; padding:12px 0; color:#246c65; }
+  .mobileNav nav { display:flex; flex-wrap:wrap; gap:8px; padding-top:8px; }
+  .mobileNav a,.eyebrow,.hint,.help,.loginPanel a,.tableScroll table { font-size:1rem; }
+  .loginPanel { padding:24px; }
+  .header button { min-height:44px; }
+}

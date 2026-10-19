@@ -43,7 +43,7 @@ test('hosted config rejects live resources, shared signing/access secrets and ac
 });
 
 test('board route allowlist permits walkthrough methods but denies membership, labs and accounting writes', () => {
-  for(const path of ['/gala/tables','/gala/gifts','/gala/cart','/gala/invitations','/gala/preview/admin','/gala/preview/payment']) {
+  for(const path of ['/admin','/admin/login','/admin/dues','/admin/gala','/gala/tables','/gala/gifts','/gala/cart','/gala/invitations','/gala/preview/admin','/gala/preview/payment']) {
     assert.equal(boardReviewRequest(path,'GET'),'allowed');assert.equal(boardReviewRequest(path,'POST'),'blocked');
   }
   for(const path of ['/api/gala/checkout','/api/gala/webhook','/api/gala/recovery/run']) {
@@ -51,7 +51,7 @@ test('board route allowlist permits walkthrough methods but denies membership, l
   }
   assert.equal(boardReviewRequest('/api/gala/invitations','PATCH'),'allowed');
   assert.equal(boardReviewRequest('/api/gala/session','DELETE'),'allowed');
-  for(const path of ['/api/admin/students','/admin/login','/belles-beaux/join','/api/quickbooks/webhook',
+  for(const path of ['/api/admin/students','/api/admin/login','/admin/belles-beaux','/belles-beaux/join','/api/quickbooks/webhook',
     '/api/gala/quickbooks/sync','/api/gala/quickbooks/connect','/api/gala/quickbooks/callback','/api/gala/staff-session',
     '/gala/preview/testing','/api/gala/orders/unexpected','/gala/tables/extra']) {
     for(const method of ['GET','POST','DELETE']) assert.equal(boardReviewRequest(path,method),'blocked');
