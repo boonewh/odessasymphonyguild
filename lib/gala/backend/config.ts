@@ -1,5 +1,6 @@
 import { boardReviewAllowed, BOARD_ORIGIN } from "../board-review";
-export const DEVELOPMENT_STRIPE_ACCOUNT = "acct_1UMExUDSZ6A0MvjE";
+// OSG's isolated sandbox, verified in Stripe on October 19, 2026.
+export const DEVELOPMENT_STRIPE_ACCOUNT = "acct_1UPo5p46WzPrgtpT";
 export const DEVELOPMENT_SUPABASE_URL = "https://rhjwjfyjjdsfahlegqvd.supabase.co";
 export function backendEnabled(env: NodeJS.ProcessEnv) {
   return boardReviewAllowed(env) || (env.NODE_ENV === "development" && !env.VERCEL_ENV && !env.VERCEL

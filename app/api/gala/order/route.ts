@@ -26,7 +26,9 @@ async function handle(request: Request, mutate: boolean) {
       url = (await startCheckout(store, stripe, order.details, config.origin)).url;
       order = await store.get(orderId);
     }
-    if (mutate && order.stripe_session_id) {
+    // Closed orders already have a verified terminal state. Preserve their receipts
+    // after a sandbox change without querying the new account for an old session.
+    if (mutate && order.stripe_session_id && (order.status === "reserved" || order.status === "awaiting_payment")) {
       const { stripe } = await backend();
       await reconcileSession(store, stripe, order.stripe_session_id, `flyer-check-${order.id}`);
       order = await store.get(orderId);

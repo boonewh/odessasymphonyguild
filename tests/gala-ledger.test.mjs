@@ -146,3 +146,9 @@ test('actual ledger route handlers enforce accounting permissions, safe download
     fileURLToPath(new URL('./helpers/gala-ledger-route.mts', import.meta.url))], { timeout: 30000, windowsHide: true });
   assert.match(result.stdout, /verified with fake transport/);
 });
+
+test('historical closed-order receipts survive a sandbox change without bypassing pending verification', async () => {
+  const result = await promisify(execFile)(process.execPath, ['--conditions=react-server', '--import', 'tsx',
+    fileURLToPath(new URL('./helpers/gala-closed-order-route.mts', import.meta.url))], { timeout: 30000, windowsHide: true });
+  assert.match(result.stdout, /Closed historical orders preserved/);
+});

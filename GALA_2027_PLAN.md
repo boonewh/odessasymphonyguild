@@ -1,8 +1,16 @@
 # Gala 2027: decisions, payment research, and implementation handoff
 
-Last updated: October 13, 2026 (America/Chicago).
+Last updated: October 19, 2026 (America/Chicago).
 
 ## Resume here
+
+### October 19: OSG sandbox connected locally; Vercel sign-in needed
+
+The user has developer/Super Administrator access to OSG live account `acct_1UPo5fKdKFOoaTnc`. Live payments are paused pending Britni's representative identity verification; Stripe also lists a missing bank account. The user notified Britni. She should supply those details directly in Stripe.
+
+The existing **Odessa Symphony Guild sandbox**, `acct_1UPo5p46WzPrgtpT`, is accessible with Payments/Payouts active and no active setup tasks. The user explicitly approved its existing test key for local Gala/branch Preview and its webhook using the existing automation bypass. The local key, local CLI signing secret and exact account pin now use OSG; local dev server/listener are running. The OSG hosted webhook is created but disabled until Vercel cutover. Private rollback credentials and the new hosting manifest are saved under ignored `.codex-remote-attachments/osg-stripe/`; no secrets are in Git. Vercel is signed out in the connected Chrome profile and the user has been asked to sign in. No code push or hosted environment update occurred; the board Preview still uses PathSix.
+
+All 24 old orders are closed (10 paid / $22,697.50, 14 expired), zero pending, two prior accounting receipts. A receipt lookup fix avoids querying a new Stripe account for already verified closed orders; unresolved orders still require provider verification. All 129 Gala tests, build and 59 built-app hosting checks passed with the OSG pin. Actual local HTTP checks preserve the complete ledger and historical paid/expired receipts under the new credentials. Next, after Vercel sign-in: recheck no old pending orders, replace only this branch's two Stripe secret variables using the new private manifest, push/deploy the prepared code, enable the new hosted webhook, and verify a new OSG test payment, expiration/recovery and unchanged historical ledger. Retire the old hosted webhook only after success. No production launch or inventory approval.
 
 ### October 13: ledger migration applied and development walkthrough verified
 

@@ -2,6 +2,14 @@
 
 User instruction, September 28, 2026: keep this feature away from live until ready and tested. Firm inventory numbers are required. A generic request to push or publish does not waive this requirement.
 
+## October 19: OSG Stripe setup
+
+- [x] Verify user's access to OSG live account and its separate sandbox; sandbox Payments/Payouts active.
+- [x] Prepare historical closed-order receipt preservation; 129 Gala tests, build and 59 built-app checks pass with proposed sandbox pin.
+- [x] User explicitly approves OSG sandbox credential/service access; connect local key/listener/account pin and verify historical ledger/receipts. New OSG hosted webhook created, disabled until deployment.
+- [ ] After user signs into Vercel, switch only branch Preview's Stripe credentials, deploy code and enable the new webhook; verify new OSG test payment/expiration/recovery and preserve historical ledger. Current hosted Preview still uses PathSix; authorization is already granted.
+- [ ] Britni completes live representative verification and bank setup; user has notified her. No production launch authorized.
+
 ## October 13: ledger and final-total decision
 
 - [x] User confirms a running, separate, item-by-item ledger in admin with detail retained for later reporting needs; send one combined Gala sales total to QuickBooks at the end.
