@@ -28,10 +28,10 @@ test('multi-student gift total preserves quantities and rejects empty recipients
 });
 const held = { id:'test', demo:true, kind:'tables', status:'awaiting_payment', purchase:{product:'gold',quantity:1,extraSeats:2} };
 test('held and paid tables consume capacity; verified simulated expiry releases it', () => {
-  assert.equal(remainingTables([held], 'gold'), 19);
-  assert.equal(remainingTables([transitionDemoOrder(held, 'paid')], 'gold'), 19);
-  assert.equal(remainingTables([transitionDemoOrder(held, 'expired')], 'gold'), 20);
-  assert.equal(remainingTables([held], 'silver'), 20);
+  assert.equal(remainingTables([held], 'gold', 20), 19);
+  assert.equal(remainingTables([transitionDemoOrder(held, 'paid')], 'gold', 20), 19);
+  assert.equal(remainingTables([transitionDemoOrder(held, 'expired')], 'gold', 20), 20);
+  assert.equal(remainingTables([held], 'silver', 20), 20);
 });
 test('paid and expired records cannot be reprocessed or turned into one another', () => {
   assert.throws(() => transitionDemoOrder(transitionDemoOrder(held, 'paid'), 'expired'));
@@ -51,3 +51,5 @@ test('local preview is inaccessible in production, hosted previews, and test env
     assert.equal(previewAllowed(nodeEnv, vercelEnv), false);
   }
 });
+
+test("table preview defaults to unlimited without pretending it is a large number", () => { assert.equal(remainingTables([held], "gold"), null); });

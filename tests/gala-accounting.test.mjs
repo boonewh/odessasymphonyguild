@@ -96,7 +96,7 @@ test('encrypted sandbox tokens reject tampering, another key and another company
 });
 test('sandbox config rejects production and cannot use existing membership credentials',()=>{
   const env={NODE_ENV:'development',GALA_BACKEND_ENABLED:'true',GALA_STRIPE_SECRET_KEY:'sk_test_fake',GALA_STRIPE_WEBHOOK_SECRET:'whsec_fake',GALA_SUPABASE_URL:'https://rhjwjfyjjdsfahlegqvd.supabase.co',GALA_SUPABASE_SECRET_KEY:'sb_secret_fake',GALA_DEVELOPMENT_TOKEN:'a'.repeat(64),GALA_QB_ENVIRONMENT:'sandbox',GALA_QB_CLIENT_ID:'sandbox',GALA_QB_CLIENT_SECRET:'fake',GALA_QB_REALM_ID:'123',GALA_QB_ENCRYPTION_KEY:'b'.repeat(64)};
-  assert.equal(readQbConfig(env).realmId,'123');
+  assert.throws(()=>readQbConfig(env),/retired/);
   for(const patch of [{NODE_ENV:'production'},{VERCEL_ENV:'preview'},{GALA_QB_ENVIRONMENT:'production'},{GALA_QB_CLIENT_ID:'',QUICKBOOKS_CLIENT_ID:'live'},{GALA_QB_REALM_ID:'not-a-company'}]) assert.throws(()=>readQbConfig({...env,...patch}));
 });
 test('QuickBooks adapter only calls sandbox accounting and never sends invoices or charges',async()=>{

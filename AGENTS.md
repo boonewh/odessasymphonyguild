@@ -3,7 +3,8 @@
 - For small, ordinary updates, work on `main` unless the user requests otherwise. Use feature branches for involved work.
 - Gala sales, table inventory, Stripe integration, and the new Gala admin are involved work. Continue on the Gala feature branch and keep it off `main` and production until the release requirements are met.
 - Read `GALA_2027_PLAN.md` and `GALA_RELEASE_CHECKLIST.md` before changing or releasing the sales feature.
-- **20 tables per tier is development placeholder inventory, not approved stock. Do not launch without firm board-confirmed quantities.** The user explicitly requested enforcing this even if they casually ask to go live later. Explain the unmet requirement and stop a premature release.
+- **October 19 board decision, relayed by the user: Platinum, Gold, and Silver table sales are unlimited.** Use explicit unlimited capacity (NULL), not a fake large stock number. Retain optional finite limits and unpaid-checkout expiration. The old 20-per-tier quantities were development placeholders and are superseded. This policy decision does not authorize production launch.
+- Gala bookkeeping is manual: Britni handles Stripe payouts and QuickBooks entry. Keep the item ledger and exports; do not reconnect Gala to QuickBooks or send totals without a new user decision. Leave the separate membership QuickBooks integration untouched.
 - No Gala sales launch until meaningful payment/inventory tests pass and launch is explicitly authorized. Do not treat a request to push a feature branch as authorization to merge or deploy it to production.
 - Current Gala venue wording: La Hacienda. Current policy: all sales final, no refunds. Both may be revised only following a new user decision.
 - Keep attached conversation screenshots and local credentials out of Git.

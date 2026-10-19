@@ -4,7 +4,6 @@ import { LEDGER_PRODUCTS, filterLedger, ledgerFilterSchema, ledgerProductTotals,
 import { money } from "@/lib/gala/model";
 import styles from "./PaymentLab.module.css";
 import ledgerStyles from "./GalaLedger.module.css";
-import GalaFinalTotal from "./GalaFinalTotal";
 
 const defaults = ledgerFilterSchema.parse({});
 const pageSize = 25;
@@ -55,7 +54,7 @@ export default function GalaLedger({ active = true }: { active?: boolean }) {
   }
   return <section className={ledgerStyles.ledger} aria-labelledby="ledger-title" aria-busy={busy}>
     <div className={ledgerStyles.heading}>
-      <div><h2 id="ledger-title">Sales ledger</h2><p>Every purchase stays here, item by item. QuickBooks will receive one combined sales total at the end.</p></div>
+      <div><h2 id="ledger-title">Sales ledger</h2><p>Every purchase stays here, item by item. Download the totals and details for manual bookkeeping.</p></div>
       <button type="button" className={ledgerStyles.secondary} disabled={busy} onClick={() => void load()}>{busy ? "Checking ledger…" : "Refresh ledger"}</button>
     </div>
     {error && <p role="alert" className={styles.error}>{error}</p>}
@@ -105,19 +104,18 @@ export default function GalaLedger({ active = true }: { active?: boolean }) {
           <span>Page {currentPage + 1} of {lastPage + 1}</span><button type="button" className={ledgerStyles.secondary} disabled={currentPage === lastPage} onClick={() => setPage(currentPage + 1)}>Next</button></nav>
       </>}
       <section className={ledgerStyles.preview} aria-labelledby="final-total-title">
-        <h3 id="final-total-title">Final QuickBooks total · preview</h3>
+        <h3 id="final-total-title">Total paid sales</h3>
         <p className={ledgerStyles.finalAmount}>{money(report.preview.amount)}</p>
-        <p>One total for <strong>{report.preview.account}</strong>, covering all {report.paidOrderCount} paid orders. Filters above do not change this total.</p>
-        <p>Nothing is sent from this preview. Your detailed ledger will stay here after the final total is sent.</p>
+        <p>For manual entry under <strong>{report.preview.account}</strong>, covering all {report.paidOrderCount} paid orders. Filters above do not change this total.</p>
+        <p>This is gross sales before Stripe fees, not the bank deposit amount. Use Stripe’s balance report to account for fees and deposits. Nothing is sent to QuickBooks.</p>
         <ul role="list">{report.preview.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul>
-        {report.history.length > 0 && <details><summary>Review {report.history.length} earlier accounting attempts</summary>
-          <p>These sales remain in the ledger. A combined total must not record them again without resolving the earlier entries.</p>
+        {report.history.length > 0 && <details><summary>Historical test accounting records ({report.history.length})</summary>
+          <p>These sales remain in the ledger. Check these historical entries before manually recording the same sales again.</p>
           <ul role="list">{report.history.map(item => <li key={item.orderId}>Order {item.orderId} · {money(item.amount)} · {item.receiptId ? `QuickBooks receipt ${item.receiptId}` : "Accounting attempt needs review"}</li>)}</ul>
         </details>}
         <details><summary>Save a detailed review copy</summary><p>This file includes the paid item details, included order references and a reference identifying this version of the total. It is for review, not a QuickBooks import.</p>
           <button type="button" className={ledgerStyles.secondary} disabled={busy} onClick={() => void download("preview")}>Download review copy (JSON)</button></details>
       </section>
     </>}
-    <GalaFinalTotal active={active}/>
   </section>;
 }

@@ -107,16 +107,14 @@ export class SupabaseOrderStore implements OrderStore {
     return data as Order[];
   }
   async dashboard() {
-    const [orders, inventory, outbox, final] = await Promise.all([
+    const [orders, inventory] = await Promise.all([
       this.db.from("gala_orders").select("*").order("created_at", { ascending: false }).limit(100),
       this.db.rpc("gala_inventory_counts"),
-      this.db.from("gala_accounting_outbox").select("order_id,status").limit(1000),
-      this.db.from("gala_final_total").select("status").eq("gala", "2027").maybeSingle(),
     ]);
-    if (orders.error || inventory.error || outbox.error || final.error) throw new Error("Cannot load Gala dashboard.");
-    return { orders: orders.data as Order[], inventory: inventory.data,
-      accounting: outbox.data.map(a => ({ ...a, status: a.status === "pending" && final.data ? `final_${final.data.status}` : a.status })) };
+    if (orders.error || inventory.error) throw new Error("Cannot load Gala dashboard.");
+    return { orders: orders.data as Order[], inventory: inventory.data };
   }
+
   async ledgerSnapshot(): Promise<unknown> {
     const { data, error } = await this.db.rpc("gala_ledger_snapshot");
     if (error || !data) throw new Error("Cannot load the complete Gala ledger.");

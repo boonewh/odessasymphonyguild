@@ -69,13 +69,13 @@ test('amount mismatch, missing payment evidence, duplicate sources and unexpecte
 
 test('known, dispatched and uncertain accounting history is retained and blocks any assumption of a fresh final posting', () => {
   const missing = ledgerReport({ orders: [order()], accounting: [] });
-  assert.equal(missing.history[0].status, 'missing'); assert.equal(missing.preview.canSend, false);
+  assert.equal(missing.history.length, 0); assert.equal(missing.preview.canSend, false);
   for (const patch of [{ status: 'synced', receipt_id: '145', realm_id: '123' }, { dispatched_at: '2026-10-13T02:06:00Z' },
     { status: 'review' }, { status: 'processing' }, { realm_id: '123' }]) {
     const o = order(), raw = snapshot([o]); Object.assign(raw.accounting[0], patch);
     const report = ledgerReport(raw);
     assert.equal(report.history.length, 1); assert.equal(report.paidAmount, o.amount);
-    assert.equal(report.preview.canSend, false); assert.match(report.preview.reasons.join(' '), /Resolve that history/);
+    assert.equal(report.preview.canSend, false); assert.match(report.preview.reasons.join(' '), /previously recorded sales/);
   }
 });
 
@@ -132,7 +132,7 @@ test('snapshot migration is read-only, complete past dashboard/API limits and pr
   }
   await db.exec('set role service_role'); assert.equal((await rpc()).orders.length, 1006); await db.exec('reset role');
   const inventory = (await db.query('select * from gala_inventory')).rows;
-  assert.ok(inventory.every(i => i.capacity === 20 && i.board_confirmed === false));
+  assert.ok(inventory.every(i => i.capacity === null && i.board_confirmed === true));
 });
 
 test('board ledger is read-only and the retired per-order sender remains inaccessible', () => {

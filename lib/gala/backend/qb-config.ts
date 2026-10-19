@@ -1,8 +1,10 @@
 import { readBackendConfig } from "./config";
 
+export const GALA_QUICKBOOKS_RETIRED = true;
 export const QB_SANDBOX_BASE = "https://sandbox-quickbooks.api.intuit.com/v3/company/";
 export const QB_SETUP_KEYS = ["GALA_QB_CLIENT_ID", "GALA_QB_CLIENT_SECRET", "GALA_QB_REALM_ID", "GALA_QB_ENCRYPTION_KEY"] as const;
 export function readQbConfig(env: NodeJS.ProcessEnv) {
+  if (GALA_QUICKBOOKS_RETIRED) throw new Error("Gala QuickBooks integration is retired; use ledger exports for manual bookkeeping.");
   const local = readBackendConfig(env);
   // Never fall back to the Belles & Beaux production credentials/token table.
   if (env.GALA_QB_ENVIRONMENT !== "sandbox") throw new Error("Explicit QuickBooks sandbox environment required.");

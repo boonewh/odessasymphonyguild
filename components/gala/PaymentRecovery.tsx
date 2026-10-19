@@ -29,7 +29,7 @@ export default function PaymentRecovery({onAttention}:{onAttention?:(message:str
     :!recent?'Automatic payment checks are paused. Contact the test organizer before testing a purchase.':'';
   useEffect(()=>{onAttention?.(attention);},[attention,onAttention]);
   return <section className={styles.panel} aria-label="Payment recovery"><h2>Payment checks</h2>
-    <p className={styles.note}>If a payment result is unclear, the table stays reserved until it is confirmed. These checks never charge a buyer again.</p>
+    <p className={styles.note}>If a payment result is unclear, the order stays pending until it is confirmed. These checks never charge a buyer again.</p>
     <p><strong>{!data?'Checking availability…':recent?'Automatic checks are running':'Automatic checks need the test organizer’s attention'}</strong></p>
     {error&&<p role="alert" className={styles.error}>{error}</p>}{notice&&<p role="status" className={styles.success}>{notice}</p>}
     {data&&<p>{data.total===0?'All current orders have a confirmed payment result.':`${data.total} orders are awaiting a confirmed payment result.`}</p>}

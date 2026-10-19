@@ -72,7 +72,7 @@ test('final sender remains blocked on hosted Preview and production',()=>{
  assert.equal(finalSenderAvailable({NODE_ENV:'production',GALA_QB_FINAL_ENABLED:'true'}),false);
  assert.equal(finalSenderAvailable({NODE_ENV:'development',GALA_BACKEND_ENABLED:'true',VERCEL:'1'}),false);
 });
-test('final-total HTTP handlers enforce accounting permissions, CSRF, flags and saved downloads',async()=>{
+test('retired QuickBooks HTTP handlers reject connection, callbacks and sending even with old flags enabled',async()=>{
  const result=await promisify(execFile)(process.execPath,['--conditions=react-server','--import','tsx',fileURLToPath(new URL('./helpers/gala-final-route.mts',import.meta.url))],{timeout:30000,windowsHide:true});
  assert.match(result.stdout,/Final route checks passed/);
 });

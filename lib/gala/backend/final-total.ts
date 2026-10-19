@@ -2,14 +2,15 @@ import { createHash } from "node:crypto";
 import { ledgerReport } from "./ledger";
 import { ledgerDate, type LedgerLine, type LedgerReport } from "../ledger";
 import type { AccountingMapping, Receipt, AccountingJob } from "./accounting";
-import { backendEnabled } from "./config";
+
 
 export type FinalBatch = AccountingJob & {
   id: string; revision: string; source: unknown; lines: LedgerLine[]; amount: number;
   mapping: AccountingMapping; payload: Receipt; realm_id: string; created_at: string; synced_at: string | null;
 };
 export function finalSenderAvailable(env: NodeJS.ProcessEnv) {
-  return backendEnabled(env) && env.NODE_ENV === "development" && !env.VERCEL && !env.VERCEL_ENV;
+  void env;
+  return false; // Retired: Gala bookkeeping is manual, including local development.
 }
 export function finalBlockers(report: LedgerReport) {
   return [

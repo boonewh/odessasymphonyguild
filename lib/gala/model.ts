@@ -7,10 +7,10 @@ export const EVENT = {
   refundPolicy: "All sales are final. No refunds.",
 } as const;
 
-// Development fixtures, NEVER a production inventory seed.
-export const PREVIEW_CAPACITY = { platinum: 20, gold: 20, silver: 20 } as const;
+// Board decision, October 19: no table sales cap. NULL retains an explicit unlimited mode.
+export const PREVIEW_CAPACITY: Record<Tier, number | null> = { platinum: null, gold: null, silver: null };
 export const RELEASE = {
-  inventoryConfirmed: false,
+  inventoryConfirmed: true,
   paymentTestingComplete: false,
   accountingReviewed: false,
   launchAuthorized: false,
@@ -91,8 +91,9 @@ export const orderSchema = z.object({
 });
 export type DemoOrder = z.infer<typeof orderSchema>;
 export type OrderStatus = DemoOrder["status"];
-export function remainingTables(orders: DemoOrder[], tier: Tier) {
-  return Math.max(0, PREVIEW_CAPACITY[tier] - orders.filter((order) =>
+export function remainingTables(orders: DemoOrder[], tier: Tier, capacity: number | null = PREVIEW_CAPACITY[tier]) {
+  if (capacity === null) return null;
+  return Math.max(0, capacity - orders.filter((order) =>
     order.purchase?.product === tier && ["awaiting_payment", "paid"].includes(order.status)).length);
 }
 export function transitionDemoOrder(order: DemoOrder, status: OrderStatus): DemoOrder {

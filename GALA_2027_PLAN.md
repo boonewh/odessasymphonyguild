@@ -4,6 +4,22 @@ Last updated: October 19, 2026 (America/Chicago).
 
 ## Resume here
 
+### October 19: current decision — unlimited tables and manual bookkeeping
+
+**This supersedes the earlier QuickBooks sender/clearing-account plan and the requirement to obtain finite table quantities.** The user relays the board's decision that Platinum, Gold and Silver sales have no table cap. Use an explicit unlimited setting, retain support for a finite cap if policy changes, and keep the existing 35-minute unpaid-checkout expiration. Expired orders remain in history; only verified paid orders count as sales and qualify for fulfillment. Unlimited sales does not approve unlimited per-checkout quantities or change prices, extra-seat rules or table assignment labels.
+
+Britni will initiate a manual payout of the available Stripe balance and enter the accounting herself. Keep the running item ledger, paid sales total and CSV exports. Gross sales and Stripe's net deposit are different: she uses Stripe's balance report for fees and any adjustments. The website must not post to QuickBooks or close sales to prepare an accounting batch. No Gala Stripe Clearing creation, QuickBooks mapping/connection or bank-import answer is required for this website workflow. The previously sent bank question may still help her bookkeeping, but is no longer an integration blocker. Live Stripe identity/bank setup remains her pending task. This decision does not itself change Stripe's payout settings.
+
+Implementation: migration 014 makes capacity nullable, sets all tiers unlimited with the user's board confirmation, retains finite-cap locking and paid/pending counts, stops new accounting jobs, removes the Gala connection tokens and disables accounting write RPCs. Preserve historical test receipts and batches. The ledger remains read-only and downloadable; the Gala connection/sending routes are retired even with old enable flags. Separate membership accounting remains untouched. **Development only; migration/validation status is recorded in the backend handoff. No production launch or Preview deployment is authorized by this change.**
+
+### October 19: Britni follow-up status clarified
+
+- **Bank import/rules:** the user has sent the question about how mobile-banking downloads enter QuickBooks and whether automatic deposit rules exist. Await her answer; do not ask the user to send it again. Manual categorization and mobile-banking downloads are already confirmed.
+- **Live Stripe verification/bank setup:** Britni has answered that it is not complete and she will work on it when she can. This is a pending setup task, not an unanswered question. Sandbox work can continue.
+- **Stripe Clearing:** the user confirms it has not been created. We promised to get back to Britni and help; preparing that guidance and assisting with creation/verification is our next responsibility, not another question for her. Existing sandbox clearing setup does not establish creation in OSG's real books.
+
+The agreed account names, no-tax instruction and one final combined Gala sales total remain settled. No account changes or production release are authorized by this status update.
+
 ### October 19: final-total sender built and tested locally in QuickBooks sandbox
 
 The user authorized building and sandbox-testing the final sender. It now saves one immutable Gala 2027 batch with all paid orders, payment references, item rows, source snapshot, company/mapping and exact receipt payload. Preparing that final batch closes new checkout creation; pending orders, stale review totals, missing payment evidence and earlier accounting attempts block preparation. Sending records one non-taxable **Symphony Ball Revenue** line in the existing sandbox. A durable dispatch marker makes uncertain retries lookup-only; the saved receipt reference and detailed ledger remain available afterward.

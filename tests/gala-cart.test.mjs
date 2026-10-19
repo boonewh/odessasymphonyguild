@@ -105,14 +105,14 @@ test('mixed and legacy buyers share inventory; oversize carts roll back every ti
   await assert.rejects(startCheckout(store,{},first,'http://localhost:3000'));
 });
 
-test('one mixed payment fulfills each table and student independently with one accounting job',async t=>{
+test('one mixed payment fulfills each table and student independently without an accounting job',async t=>{
   const {db,rpc,reserve,settle}=await setup(t);
   const id=await reserve(request([table(),table('student-date'),table('gold',2)],[gift,{...gift,grade:'9',roses:0,cookies:2}]));
   assert.deepEqual(await rpc('gala_assignment_list'),[]);assert.deepEqual(await rpc('gala_gift_list'),[]);
   await assert.rejects(rpc('gala_assign_table_line',[id,20,0,0]));
   await assert.rejects(rpc('gala_set_gift_status',[id,0,'prepared',0,'']));
   await settle(id);await settle(id);
-  assert.equal((await db.query('select * from gala_accounting_outbox')).rows.length,1);
+  assert.equal((await db.query('select * from gala_accounting_outbox')).rows.length,0);
   const assignments=await rpc('gala_assignment_list');assert.deepEqual(assignments.map(a=>[a.line_index,a.seats]),[[0,8],[2,10]]);
   await rpc('gala_assign_table_line',[id,20,0,0]);await rpc('gala_assign_table_line',[id,21,0,2]);
   await assert.rejects(rpc('gala_assign_table_line',[id,20,1,2])); // unique number even within one cart

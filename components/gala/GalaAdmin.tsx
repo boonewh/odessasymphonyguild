@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TABLES, RELEASE, money, quotePurchase, remainingTables, STATUS_LABELS, type DemoOrder, type OrderStatus } from "@/lib/gala/model";
+import { TABLES, money, quotePurchase, remainingTables, STATUS_LABELS, type DemoOrder, type OrderStatus } from "@/lib/gala/model";
 import { useDemoOrders } from "@/lib/gala/use-demo-orders";
 import styles from "./gala-sales.module.css";
 
@@ -21,7 +21,7 @@ export default function GalaAdmin() {
   function run(action: () => void) { try { action(); setError(""); } catch (err) { setError(err instanceof Error ? err.message : "Could not update the preview."); } }
   function changeStatus(status: OrderStatus) { if (order) run(() => store.update(order.id, status)); }
   return <div className={styles.admin}>
-    <div className={styles.ribbon}><strong>Launch blocked.</strong> Inventory is {RELEASE.inventoryConfirmed ? "confirmed" : "unconfirmed"}. Stripe testing, accounting review, and launch approval are still outstanding.</div>
+    <div className={styles.ribbon}><strong>Launch blocked.</strong> Tables are unlimited by board decision. This is a test preview; production setup and launch approval remain separate.</div>
     <dl className={styles.stats}>
       <div><dt>Paid sample orders</dt><dd>{paid.length}</dd></div>
       <div><dt>Simulated revenue</dt><dd>{money(paid.reduce((sum, item) => sum + item.total, 0))}</dd></div>
@@ -30,11 +30,11 @@ export default function GalaAdmin() {
     </dl>
     <h2 className={styles.sectionTitle}>Table inventory · development only</h2>
     <div className={styles.tableScroll}><div className={styles.tableInner}><table className={styles.table}>
-      <caption className="sr-only">Placeholder table inventory, not approved for sales</caption>
-      <thead><tr><th scope="col">Tier</th><th scope="col">Placeholder total</th><th scope="col">Held</th><th scope="col">Sold</th><th scope="col">Available in preview</th></tr></thead>
-      <tbody>{TABLES.map((tier) => <tr key={tier.id}><th scope="row">{tier.name}</th><td>20 · unconfirmed</td>
+      <caption className="sr-only">Sample table counts with unlimited sales</caption>
+      <thead><tr><th scope="col">Tier</th><th scope="col">Sales limit</th><th scope="col">Held</th><th scope="col">Sold</th><th scope="col">Available in preview</th></tr></thead>
+      <tbody>{TABLES.map((tier) => <tr key={tier.id}><th scope="row">{tier.name}</th><td>Unlimited</td>
         <td>{store.orders.filter((item) => item.purchase?.product === tier.id && item.status === "awaiting_payment").length}</td>
-        <td>{paid.filter((item) => item.purchase?.product === tier.id).length}</td><td>{remainingTables(store.orders, tier.id)}</td></tr>)}</tbody>
+        <td>{paid.filter((item) => item.purchase?.product === tier.id).length}</td><td>{remainingTables(store.orders, tier.id) ?? "Unlimited"}</td></tr>)}</tbody>
     </table></div></div>
     <p className={styles.fine}>Ticket capacity is not set. This browser-only prototype cannot prove concurrent inventory safety. That requires the database and Stripe integration tests.</p>
     <div className={styles.toolbar} aria-label="Order categories">

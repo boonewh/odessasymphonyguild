@@ -108,9 +108,7 @@ export function buildLedger(raw: unknown): Ledger {
     if (job.status !== "pending" || job.dispatched_at || job.receipt_id || job.realm_id)
       result.history.push({ orderId: order.id, status: job.status, receiptId: job.receipt_id, companyId: job.realm_id, amount: order.amount });
   }
-  const jobs = new Set(snapshot.accounting.map(job => job.order_id));
-  for (const order of snapshot.orders) if (order.status === "paid" && !jobs.has(order.id))
-    result.history.push({ orderId: order.id, status: "missing", receiptId: null, companyId: null, amount: order.amount });
+  // Manual bookkeeping does not require an accounting job for each paid order.
   result.lines.sort((a, b) => b.createdAt.localeCompare(a.createdAt) || a.id.localeCompare(b.id));
   result.history.sort((a, b) => a.orderId.localeCompare(b.orderId));
   return result;

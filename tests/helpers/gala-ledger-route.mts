@@ -54,7 +54,7 @@ for (const format of ["json", "csv", "summary", "preview"]) assert.equal((await 
 fail = false;
 process.env.GALA_QB_SYNC_ENABLED = "true";
 const beforeSync = reads;
-assert.equal((await POST(new Request(origin + "/api/gala/quickbooks/sync", { method: "POST", headers: { cookie, origin } }))).status, 409);
+assert.equal((await POST(new Request(origin + "/api/gala/quickbooks/sync", { method: "POST", headers: { cookie, origin } }))).status, 404);
 assert.equal(reads, beforeSync, "Retired sender must not reach database or provider");
 process.env.GALA_ACCESS_MODE = "individual";
 const staffRequest = () => new Request(origin + "/api/gala/ledger", { headers: { cookie: "gala_staff_session=" + "b".repeat(64) } });

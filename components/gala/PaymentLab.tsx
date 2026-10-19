@@ -6,14 +6,13 @@ import { money, TABLES, quotePurchase, type Product } from "@/lib/gala/model";
 import { cartLines } from "@/lib/gala/cart";
 import { clearShoppingDetails } from "@/lib/gala/cart-storage";
 import { CartLink, cartChanged } from "./GalaCart";
-import { accountingLabel } from "@/lib/gala/display";
 import styles from "./PaymentLab.module.css";
 import GalaLedger from "./GalaLedger";
 import TableAssignments from "./TableAssignments";
 import GiftFulfillment from "./GiftFulfillment";
 import InvitationMailing from "./InvitationMailing";
 import PaymentRecovery from "./PaymentRecovery";
-type Dashboard = { orders: Order[]; inventory: {tier:string;capacity:number;available:number;held:number;paid:number}[]; accounting: {order_id:string;status:string}[] };
+type Dashboard = { orders: Order[]; inventory: {tier:string;capacity:number|null;available:number|null;held:number;paid:number;over_limit?:boolean}[] };
 const attemptKey = "osg-gala-sandbox-attempt";
 const adminTabs = [
   {id:"orders",label:"Orders"}, {id:"assignments",label:"Table assignments"},
@@ -82,7 +81,7 @@ export default function PaymentLab({ mode = "testing", individual = false }: { m
   return <main className={styles.lab}>
     <span className={styles.badge}>TEST SITE · NO REAL PAYMENTS</span>
     <h1>{mode==="admin"?"Gala administration":"Payment testing tools"}</h1>
-    <p className={styles.note}>Practice with fictional names and contact details. Test orders are separate from live records. Table quantities are for testing and have not been approved for sale.</p>
+    <p className={styles.note}>Practice with fictional names and contact details. Test orders are separate from live records. Only paid purchases count as confirmed sales. Unpaid checkouts still expire.</p>
     <nav className={styles.nav} aria-label="Gala test pages"><Link href="/gala/tables">Tables & tickets</Link><Link href="/gala/gifts">Celebration gifts</Link><Link href="/gala/invitations">Request invitations</Link><Link href="/gala/preview/admin">Gala admin</Link><CartLink /></nav>
     <details className={styles.testHelp}><summary>How to test the Gala website</summary>
       <ol><li>Choose Tables &amp; tickets, Celebration gifts or Request invitations above. Enter fictional details you will recognize later.</li>
@@ -106,7 +105,7 @@ export default function PaymentLab({ mode = "testing", individual = false }: { m
       {/* Keep panels mounted so switching tabs preserves filters and unsaved edits. */}
       <div role={mode==="admin"?"tabpanel":undefined} id="gala-panel-orders" aria-labelledby={mode==="admin"?"gala-tab-orders":undefined}
         tabIndex={mode==="admin"?0:undefined} hidden={mode==="admin"&&activeTab!=="orders"}>
-      <section className={styles.inventory} aria-label="Test table availability">{data.inventory.map(t=><div className={styles.stock} key={t.tier}><strong>{t.tier}</strong><span>{t.available}</span> available of {t.capacity}<p>{t.held} awaiting payment · {t.paid} paid</p></div>)}</section>
+      <section className={styles.inventory} aria-label="Test table availability">{data.inventory.map(t=><div className={styles.stock} key={t.tier}><strong>{t.tier}</strong><span>{t.capacity === null ? "Unlimited" : t.available}</span>{t.capacity !== null && <> available of {t.capacity}</>}<p>{t.held} awaiting payment · {t.paid} paid</p>{t.over_limit && <p role="status">Paid and pending tables exceed this limit. New purchases are paused; existing orders are kept.</p>}</div>)}</section>
       {individual&&mode==="testing"&&<p>Use the <Link href="/gala/tables">customer table form</Link> or <Link href="/gala/gifts">gift form</Link> to test a customer checkout.</p>}
       {mode==="testing"&&!individual&&<section className={styles.panel}><h2>Test Stripe-hosted checkout</h2>{attempt?<>
         <p>Current test order: <code>{attempt.requestId}</code></p><p>Status: <strong>{current?.status.replaceAll("_"," ")||"Not yet recorded / retry available"}</strong></p>
@@ -122,9 +121,9 @@ export default function PaymentLab({ mode = "testing", individual = false }: { m
       <section className={styles.panel}><h2>Test orders</h2><div className={styles.tools}>
         <label>Show<select value={filter} onChange={e=>setFilter(e.target.value)}><option value="paid">Paid orders</option><option value="pending">Awaiting payment</option><option value="expired">Closed without payment</option><option value="all">All orders</option></select></label>
         <button disabled={busy} onClick={()=>void refresh().catch(e=>setError(e.message))}>Refresh orders</button><button disabled={busy} onClick={()=>void action("/api/gala/reconcile")}>Check payment updates</button>
-      </div><p className={styles.note}>Latest 100 orders. Only paid orders are ready for table assignment or gift preparation. {accounting?(mode==="admin"?"The Sales ledger tab includes every order, item totals and the final QuickBooks total preview.":"The sales ledger below includes every order and the final QuickBooks total preview."):"Accounting is handled by staff with accounting access."}</p>
-      <div className={styles.table}><table><thead><tr><th>Buyer / order</th><th>Purchase</th><th>Total</th><th>Status</th><th>Accounting / action</th></tr></thead><tbody>{data.orders.filter(o=>filter==="all" || (filter==="pending" ? ["reserved","awaiting_payment"].includes(o.status) : o.status===filter)).map(o=><tr key={o.id}>
-        <td>{o.details.contact.name}<small>{o.details.contact.email}</small><details><summary>Order reference</summary><small>{o.id}</small></details></td><td>{o.description}{o.details.kind==="cart"&&cartLines(o.details).map((line,i)=><small key={i}>{line.name} · {money(line.amount)}</small>)}{o.details.kind==="gifts"&&o.details.gifts.map((g,i)=><small key={i}>{g.student}, grade {g.grade}: {g.roses} roses / {g.cookies} cookie bags</small>)}</td><td>{money(o.amount)}</td><td>{o.status==="paid"?"Paid":o.status==="expired"?"Closed without payment":"Awaiting payment"}</td><td>{accountingLabel(data.accounting.find(a=>a.order_id===o.id)?.status)}{["reserved","awaiting_payment"].includes(o.status)&&o.stripe_session_id&&<button disabled={busy} onClick={()=>void action("/api/gala/expire",{orderId:o.id})}>Close unpaid checkout</button>}</td>
+      </div><p className={styles.note}>Latest 100 orders. Only paid orders are ready for table assignment or gift preparation. {accounting?(mode==="admin"?"The Sales ledger tab includes every order, item totals and the total paid sales.":"The sales ledger below includes every order and the total paid sales."):"Accounting is handled by staff with accounting access."}</p>
+      <div className={styles.table}><table><thead><tr><th>Buyer / order</th><th>Purchase</th><th>Total</th><th>Status</th><th>Action</th></tr></thead><tbody>{data.orders.filter(o=>filter==="all" || (filter==="pending" ? ["reserved","awaiting_payment"].includes(o.status) : o.status===filter)).map(o=><tr key={o.id}>
+        <td>{o.details.contact.name}<small>{o.details.contact.email}</small><details><summary>Order reference</summary><small>{o.id}</small></details></td><td>{o.description}{o.details.kind==="cart"&&cartLines(o.details).map((line,i)=><small key={i}>{line.name} · {money(line.amount)}</small>)}{o.details.kind==="gifts"&&o.details.gifts.map((g,i)=><small key={i}>{g.student}, grade {g.grade}: {g.roses} roses / {g.cookies} cookie bags</small>)}</td><td>{money(o.amount)}</td><td>{o.status==="paid"?"Paid":o.status==="expired"?"Closed without payment":"Awaiting payment"}</td><td>{["reserved","awaiting_payment"].includes(o.status)&&o.stripe_session_id&&<button disabled={busy} onClick={()=>void action("/api/gala/expire",{orderId:o.id})}>Close unpaid checkout</button>}</td>
       </tr>)}</tbody></table></div></section>
       {mode==="admin" && <PaymentRecovery onAttention={setRecoveryAttention}/>}
       </div>

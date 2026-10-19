@@ -1,6 +1,17 @@
 # Gala sales: launch is blocked
 
-User instruction, September 28, 2026: keep this feature away from live until ready and tested. Firm inventory numbers are required. A generic request to push or publish does not waive this requirement.
+User instruction, September 28, 2026: keep this feature away from live until ready and tested. The October 19 board decision explicitly permits unlimited table sales; finite limits remain optional. A generic request to push or publish does not waive this requirement.
+
+## October 19: current scope — unlimited tables, manual bookkeeping
+
+- [x] User confirms the board wants unlimited Platinum, Gold and Silver table sales, retaining optional finite limits and unpaid-checkout expiration.
+- [x] User chooses manual Stripe payout/bookkeeping; retire Gala's QuickBooks connection/sender and retain the internal item ledger and exports.
+- [x] Apply migration 014 only to OSG Gala Development. Isolated tests verify unlimited/finite transitions, unchanged expiration/fulfillment and denied accounting writers; hosted read-only checks confirm unlimited tiers, denied connection access and an exactly unchanged ledger snapshot.
+- [x] Updated application verification: 144 tests, build and 63 built-app hosting checks pass; local manual-bookkeeping ledger walkthrough passes.
+- [x] Verify Unlimited for all three tiers in the actual development admin after applying migration 014, with existing paid counts and ledger exports intact.
+- [ ] Publish the updated application code to the board Preview separately; the shared development database already uses unlimited capacity.
+
+The older QuickBooks mapping, Stripe Clearing, automated final-total posting and bank-import integration tasks are canceled for this workflow. Live Stripe identity/bank setup remains pending with Britni. No production launch is authorized. Earlier dated sections are historical evidence, not new requirements to reconnect QuickBooks or obtain finite table quantities.
 
 ## October 19: final-total sender sandbox acceptance
 
@@ -17,7 +28,7 @@ Normal local sending stays off; the board Preview has not been updated for this 
 - [x] Prepare historical closed-order receipt preservation; 129 Gala tests, build and 59 built-app checks pass with proposed sandbox pin.
 - [x] User explicitly approves OSG sandbox credential/service access; connect local key/listener/account pin and verify historical ledger/receipts. New OSG hosted webhook created, disabled until deployment.
 - [x] Switch only branch Preview's Stripe credentials, deploy `cdec168`, enable the OSG webhook and verify hosted test payment/provider-triggered expiration/recovery with the local listener stopped. All 24 historical orders/accounting records are preserved; 30 hosted regression checks passed. Retire the old PathSix hosted endpoint after success. The existing board link/code are unchanged; QuickBooks sending stays disabled.
-- [ ] Britni completes live representative verification and bank setup; user has notified her. No production launch authorized.
+- [ ] Britni completes live representative verification and bank setup. October 19 user update: she has answered that these are not complete and will work on them when she can; this is pending work, not an unanswered question. No production launch authorized.
 
 ## October 13: ledger and final-total decision
 
@@ -38,10 +49,10 @@ The ledger/exports/preview are implemented and verified locally against hosted d
 - [x] Record manual categorization and downloads from mobile banking; this does not yet identify the QuickBooks import method or automatic rules.
 - [x] Record Britni's report that OSG's Stripe account is created and an invitation sent to the user. This is reported status, not verified account access or readiness.
 - [x] Posting decision resolved October 13: one combined Gala sales total, all at the end; maintain the detailed ledger in admin.
-- [ ] Clarify how downloaded transactions enter QuickBooks and whether deposit categorization rules exist; agree on bank matching to avoid duplicate revenue.
-- [ ] Guide/verify creation of Stripe Clearing in OSG's books; verify real account IDs/types, item/customer and tax settings.
+- Canceled as an integration requirement October 19: bank-import/rules question was sent, but Britni now handles bookkeeping manually.
+- Canceled October 19: Gala Stripe Clearing creation and QuickBooks mapping/connection setup are no longer required.
 - [ ] Verify OSG Stripe invitation/access, account identity, activation and payout setup during the next authorized setup session. Test any integration switch in its sandbox; do not substitute live credentials into Preview.
-- [ ] Complete and accept fee/payout reconciliation and outstanding accounting controls before live use.
+- Manual bookkeeping decision October 19: Britni handles fee/deposit reconciliation using Stripe reports; no automated Gala QuickBooks reconciliation is required.
 
 This was documentation-only. No account settings, code, database, deployment or credentials changed. Detailed decisions and the remaining bank-workflow question are in `GALA_2027_PLAN.md`; implementation implications are in `GALA_BACKEND_DEVELOPMENT.md`. The broad accounting release gate below stays open for the remaining implementation/setup/acceptance, not because the confirmed account names or no-tax instruction need to be asked again. **No launch authorization; 20 tables per tier is still unapproved test inventory.**
 
@@ -152,7 +163,7 @@ October 2 backend progress: see `GALA_BACKEND_DEVELOPMENT.md`. Isolated database
 
 Client-review verification, September 29: all 10 model/access tests passed; preview-mode and production-mode builds passed. A local production-mode server configured as Vercel Preview returned 200/noindex for the three designs and 404 for admin, existing APIs, student registration, and submission requests. Browser review confirmed interactive Platinum + two seats totals $6,875 while buyer fields and submission remain disabled. A separately built production configuration returned 404 for all four Gala prototype routes even with the review flag set to true; the existing homepage remained 200. Actual hosted deployment verification is still required after Vercel setup.
 
-- [ ] Board confirms firm Platinum, Gold, and Silver quantities. **20 each is test data only.** Record who confirmed the figures and when.
+- [x] October 19: user relays board approval for unlimited Platinum, Gold and Silver table sales. This supersedes the finite-quantity requirement; never treat old 20-table fixtures as approved limits.
 - [ ] Confirm ticket and total venue capacity, including rules for extra seats.
 - [ ] Approve checkout hold duration, payment methods, and delayed-payment handling.
 - [x] Configure an isolated Stripe test account/environment and isolated database; no production credentials in previews. Completed for development; live account setup remains separate.
@@ -161,7 +172,7 @@ Client-review verification, September 29: all 10 model/access tests passed; prev
 - [ ] Test the last-table race, double submits, old checkout pages, payment at expiry, interrupted responses, outages, and duplicate/out-of-order notifications.
 - [ ] Prove inventory releases only after verified provider expiration; uncertain or processing payments retain their hold.
 - [ ] Confirm administrative access, audit logs, contact-data retention, and paid-only fulfillment exports.
-- [ ] Complete final-total QuickBooks synchronization and prove retries do not duplicate revenue. Income/fee/bank names and no-tax business instruction are confirmed October 12; posting grouping is confirmed October 13. Verify actual mappings/settings and obtain acceptance of final posting, fee/payout reconciliation and exceptional corrections/disputes.
+- Canceled October 19: automated Gala QuickBooks synchronization. Keep the ledger/exports for Britni's manual entry and leave sending retired.
 - [ ] Confirm gift cutoff year and exact local time; enforce it server-side. Confirm invitation mailing cutoff.
 - [ ] Confirm final limits for multiple-table purchases, ticket quantities, gifts, and invitations.
 - [ ] Verify no-refund acknowledgment and receipt wording; provide an exceptional correction/dispute process without assuming refunds or restocking.

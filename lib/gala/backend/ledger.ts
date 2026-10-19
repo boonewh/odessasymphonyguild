@@ -10,8 +10,8 @@ export function ledgerReport(snapshot: unknown, checkedAt = new Date().toISOStri
   return { ...ledger, checkedAt, preview: {
     revision, account: "Symphony Ball Revenue", amount: ledger.paidAmount,
     orderIds: [...new Set(paid.map(l => l.orderId))].sort(), canSend: false,
-    reasons: ["Preview only. Final sending is not enabled.",
-      ...(ledger.history.length ? ["Some sales have earlier QuickBooks entries or accounting history that needs review. Resolve that history before sending any combined total."] : []),
+    reasons: ["For manual bookkeeping. Nothing is sent to QuickBooks.",
+      ...(ledger.history.length ? ["Historical accounting entries are retained for reference. Check for previously recorded sales before making a manual entry."] : []),
       ...(ledger.pendingOrderCount ? ["Some orders still await payment. Their amounts are excluded; the final total may change."] : []),
       ...(!paid.length ? ["There are no paid sales to include."] : [])],
   } };
