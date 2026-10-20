@@ -1,5 +1,33 @@
 # Dependency security review
 
+## October 20: release dependency review completed with recorded residual findings
+
+This is the current dependency-review result. It supersedes the October 19 instruction to investigate the 13-entry audit. It is not a full application security audit or production launch approval. No provider settings, deployed application or membership behavior changed.
+
+### Applied compatible fixes
+
+Only two transitive versions changed in `package-lock.json`; direct framework/payment dependencies and `package.json` are unchanged. Installed with `npm update <package> --ignore-scripts`, without a forced bulk fix, overrides or a framework migration.
+
+| Package | Before | After | Evidence |
+|---|---|---|---|
+| source-map-js | 1.2.1 | **1.2.2** | [Maintainer release](https://github.com/7rulnik/source-map-js/releases/tag/v1.2.2) fixes the indexed-source-map denial of service; the npm finding disappears. |
+| postcss-selector-parser | 6.1.4 | **6.1.5** | [Maintainer security advisory](https://github.com/postcss/postcss-selector-parser/security/advisories/GHSA-rj75-hqrm-r3gf) explicitly lists **6.1.5** and 7.1.6 as patched. The 6.x backport satisfies the existing Tailwind/postcss-nested ranges. |
+
+The final npm report still lists **12 affected package entries: 7 high, 5 moderate, 0 critical**. These are dependency-chain entries, not twelve independently demonstrated application vulnerabilities. The npm/GitHub aggregate advisory range still flags selector-parser versions below 7.1.6, including the maintainer-confirmed 6.1.5 backport; preserve this discrepancy rather than forcing a 7.x override or claiming a clean audit. A bounded local 20,000-class selector fixture round-tripped unchanged in 22 ms on 6.1.5.
+
+### Residual exposure and disposition
+
+- **braces 3.0.3 (seven high entries through Tailwind/ESLint):** no compatible patched release is published in the registry at this review. The [reported recursion issue](https://github.com/micromatch/braces/issues/70) requires attacker-controlled nested brace patterns. This repository's Tailwind content globs and CSS are fixed source/configuration; source inspection found no buyer/admin request path passing submitted patterns to these build tools. Retain the current compatible tooling and track an upstream fix. Do not accept user-uploaded patterns/CSS into build processing without reassessing this risk. The audit's suggested Tailwind major upgrade/Next ESLint downgrade is not an appropriate automatic release fix.
+- **postcss-selector-parser/postcss-nested (two moderate entries):** patched locally to the maintainer-listed 6.1.5 backport, despite the aggregate audit warning. Its [maintainer advisory](https://github.com/postcss/postcss-selector-parser/security/advisories/GHSA-rj75-hqrm-r3gf) also distinguishes untrusted request-time selectors from ordinary trusted build-time use. No submitted-selector processing was found in this app.
+- **decode-uri-component via query-string/intuit-oauth (three moderate entries):** retained for the separate membership QuickBooks integration. The [maintainer advisory](https://github.com/SamVerschueren/decode-uri-component/security/advisories/GHSA-vcc3-ghjq-m6fr) identifies a malformed-input CPU-exhaustion issue and a patched 0.5.0 release. The current SDK uses the older CommonJS chain; no compatible SDK fix is reported. Both repository `createToken` callers already pass through `oauthCallbackForTokenExchange`, which bounds the callback, parses natively and re-encodes only allowed fields before the legacy decoder runs. Existing SDK-level tests cover malformed encodings, size/duplicate-field rejection and token-field preservation. Retain that mitigation; no raw callback may be passed to `createToken` in a future change. Gala QuickBooks endpoints remain retired. Do not remove the membership SDK or claim its broader OAuth security is solved.
+
+The previously documented membership OAuth state-validation gap remains separate and unchanged; its preserved branch is described below. Decoder tests are not proof of CSRF/replay protection. The residual dependency findings above are documented maintenance risks for this architecture, not new OSG operating questions. Reassess when upgrading tooling/SDKs or adding any new parser input path.
+
+Validation: **175 Gala tests**, **3 existing OAuth SDK tests**, the production build and **82 built-app Preview/production HTTP checks** pass. All three generated CSS files have identical content hashes before and after the patches. The 20,000-class selector fixture also preserves its input. No test payment, hosted database write or deployment was performed.
+
+Local evidence (ignored, not committed): `.codex-remote-attachments/gala-release-audit.json`, `gala-release-audit-final.json`, `gala-dependency-tree.txt`, and the dependency build/test logs. Deployment traces alone were not used as proof of non-reachability because dependencies can be bundled into server chunks.
+
+
 ## October 19: production preparation audit refresh
 
 Read-only `npm audit --json` against the current lockfile reports **13 affected package entries: 8 high, 5 moderate, 0 critical**. This supersedes the older count below; it is a dependency report, not a count of independently exploitable application flaws. No package was changed during this payment-preparation pass. The private report is `.codex-remote-attachments/live-preparation-audit.json`.

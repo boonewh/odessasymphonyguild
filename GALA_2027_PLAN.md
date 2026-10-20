@@ -1,5 +1,12 @@
 # Gala 2027: decisions, payment research, and implementation handoff
 
+### October 20: dependency release check completed locally
+
+Applied compatible transitive patches: source-map-js 1.2.1 → 1.2.2 and postcss-selector-parser 6.1.4 → 6.1.5. No framework migration, provider change or deployment. The dependency review is complete with residual findings documented in `GALA_DEPENDENCY_SECURITY.md`: build-tool braces, the mitigated legacy membership decoder, and an npm warning that still includes the maintainer-confirmed selector-parser backport. The raw audit is 12 package entries (7 high, 5 moderate, 0 critical); this is not a clean-audit or broad application-security claim. These are technical maintenance findings, not additional OSG questions.
+
+Validation: **175 Gala tests**, **3 existing OAuth SDK tests**, the production build and **82 built-app Preview/production HTTP checks** pass. All three generated CSS files have identical content hashes before and after the patches. The 20,000-class selector fixture also preserves its input. No test payment, hosted database write or deployment was performed.
+
+
 ### October 20: card payments and support questions closed
 
 Online card payments through Stripe are the established purpose and scope of this project, not an unanswered launch question. Do not ask whether another payment method is required or propose one without a new user request.
@@ -507,7 +514,7 @@ Useful operational follow-ups, **not additional checkout feature blockers**: eve
 
 **Settled; do not ask again:** online card payments through Stripe; the existing website Contact section for buyer help; corrections handled when contacted, with the same available tools for everyone holding the shared admin password and no separate approver requirement; La Hacienda; February 27, 2027; existing flyer prices; unlimited Platinum/Gold/Silver tables with optional future caps; retained 35-minute unpaid-checkout expiration; shared cart; no tax per Britni; all sales final/no refunds; manual Stripe payout and QuickBooks entry by Britni; item ledger/CSV exports; shared Dues/Gala password managed by Will through 2027. No Gala QuickBooks connection, Stripe Clearing account, finite table quantities or individual volunteer accounts are required.
 
-**Our remaining engineering/setup work, not questions for OSG:** finish production database/configuration, live Stripe webhook and scheduled recovery, dependency review and final acceptance/rollback evidence. Verify payout bank/manual schedule with authorized access; do not change those settings without instruction. Keep live activation disabled until the concrete release is approved.
+**Our remaining engineering/setup work, not questions for OSG:** finish production database/configuration, live Stripe webhook and scheduled recovery, and final acceptance/rollback evidence. Verify payout bank/manual schedule with authorized access; do not change those settings without instruction. Keep live activation disabled until the concrete release is approved.
 
 ## Test plan and release gates
 
