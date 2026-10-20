@@ -63,6 +63,8 @@
 .error { color:#932a24; background:#ffebe5; padding:14px; margin:20px 0; line-height:1.6; }
 .success { border-left:3px solid var(--teal); padding:24px; margin:28px 0; background:#e5f1e8; line-height:1.8; }
 .success a { text-decoration:underline; text-underline-offset:4px; }
+.cartConfirmation { display:grid; gap:16px; justify-items:start; }
+.cartConfirmation p { margin:0; }
 .giftIntro { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:32px; border-block:1px solid #b88b3670; padding:28px 0; }
 .giftIntro h2 { font:400 28px Georgia,serif; margin-bottom:12px; }
 .giftIntro p { line-height:1.8; color:#52615b; }
