@@ -1,3 +1,4 @@
+import { galaExportFilename } from "@/lib/gala/presentation";
 import { authorizeStaff } from "@/lib/gala/backend/request-access";
 import { backendEnabled, readBackendConfig } from "@/lib/gala/backend/config";
 import { SupabaseOrderStore } from "@/lib/gala/backend/store";
@@ -22,11 +23,11 @@ async function handle(request:Request,write:boolean) {
     if(!write && query.get("format")==="csv") {
       const filter=query.get("filter")||"all";
       if(!["all","pending","prepared","delivered"].includes(filter))return new Response(null,{status:400});
-      return new Response(giftsCsv(filterGifts(rows,filter)),{headers:{"Content-Type":"text/csv; charset=utf-8",
-        "Content-Disposition":'attachment; filename="gala-2027-development-gifts.csv"',"Cache-Control":"no-store","X-Content-Type-Options":"nosniff"}});
+      return new Response(giftsCsv(filterGifts(rows,filter), config.paymentMode === "live"),{headers:{"Content-Type":"text/csv; charset=utf-8",
+        "Content-Disposition":`attachment; filename="${galaExportFilename("gifts", config.paymentMode === "live")}"`,"Cache-Control":"no-store","X-Content-Type-Options":"nosniff"}});
     }
     return Response.json({gifts:rows},{headers:{"Cache-Control":"no-store"}});
-  }catch{return Response.json({error:write?"Gift update was not confirmed. Refresh before retrying. Gifts must be prepared before handout, and corrections need a reason.":"Cannot load gift fulfillment. Check the local connection and development migration 004."},{status:write?409:503});}
+  }catch{return Response.json({error:write?"Gift update was not confirmed. Refresh before retrying. Gifts must be prepared before handout, and corrections need a reason.":"Cannot load gift fulfillment. Refresh to try again; contact the site administrator if this continues."},{status:write?409:503});}
 }
 export const GET=(request:Request)=>handle(request,false);
 export const POST=(request:Request)=>handle(request,true);

@@ -1,4 +1,6 @@
 "use client";
+import { useLiveGala } from "./GalaRuntime";
+import { galaExportFilename } from "@/lib/gala/presentation";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { filterAssignments, type TableAssignment, type AssignmentFilter } from "@/lib/gala/assignments";
 import styles from "./PaymentLab.module.css";
@@ -13,7 +15,7 @@ function AssignmentEditor({ row, saved, started }: { row: TableAssignment; saved
     try {
       const response = await fetch("/api/gala/assignments", {method: "POST", headers: {"Content-Type":"application/json"},
         body: JSON.stringify({orderId:row.id, lineIndex:row.line_index ?? 0, revision:row.revision, tableNumber:number.trim() === "" ? null : Number(number)})});
-      if (!response.ok) throw new Error(response.status === 401 ? "Session expired. Reload and unlock the local admin." : (await response.json()).error);
+      if (!response.ok) throw new Error(response.status === 401 ? "Session expired. Reload and sign in again." : (await response.json()).error);
       await saved();
     } catch (e) { setError((e as Error).message || "Cannot confirm the assignment. Refresh before retrying."); setUncertain(true); }
     finally { setBusy(false); }
@@ -28,6 +30,7 @@ function AssignmentEditor({ row, saved, started }: { row: TableAssignment; saved
 }
 
 export default function TableAssignments() {
+  const live = useLiveGala();
   const [rows, setRows] = useState<TableAssignment[] | null>(null), [error, setError] = useState("");
   const [filter, setFilter] = useState<AssignmentFilter>("all"), [generation, setGeneration] = useState(0);
   const [busy, setBusy] = useState(false), [notice, setNotice] = useState("");
@@ -35,7 +38,7 @@ export default function TableAssignments() {
     setBusy(true); setError("");
     try {
       const response = await fetch("/api/gala/assignments", {cache:"no-store"});
-      if (!response.ok) throw new Error(response.status === 401 ? "Session expired. Reload and unlock the local admin." : (await response.json()).error);
+      if (!response.ok) throw new Error(response.status === 401 ? "Session expired. Reload and sign in again." : (await response.json()).error);
       setRows((await response.json()).assignments); setGeneration(g => g + 1);
     } catch(e) { setError((e as Error).message); throw e; }
     finally { setBusy(false); }
@@ -48,7 +51,7 @@ export default function TableAssignments() {
       const response = await fetch(`/api/gala/assignments?format=csv&filter=${filter}`, {cache:"no-store"});
       if (!response.ok) throw new Error("Export unavailable. Refresh assignments and try again.");
       const url = URL.createObjectURL(await response.blob());
-      const link = document.createElement("a"); link.href = url; link.download = "gala-2027-development-table-assignments.csv";
+      const link = document.createElement("a"); link.href = url; link.download = galaExportFilename("table-assignments", live);
       document.body.appendChild(link); link.click(); link.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000);
     } catch(e) { setError((e as Error).message); }
     finally { setBusy(false); }

@@ -1,3 +1,4 @@
+import { galaExportFilename } from "@/lib/gala/presentation";
 import { backendEnabled, readBackendConfig } from "@/lib/gala/backend/config";
 import { authorizeCustomer, authorizeStaff } from "@/lib/gala/backend/request-access";
 import { SupabaseOrderStore } from "@/lib/gala/backend/store";
@@ -36,19 +37,19 @@ async function handle(request:Request) {
     if(query.get("format")==="labels"){
       const skip=query.get("skip")||"0";
       if(!/^(?:[0-9]|[12][0-9])$/.test(skip))return Response.json({error:"Skip must be a whole number from 0 to 29."},{status:400,headers});
-      try{return new Response(invitationLabelsHtml(rows,filter,Number(skip)),{headers:{...headers,
+      try{return new Response(invitationLabelsHtml(rows,filter,Number(skip), config.paymentMode === "live"),{headers:{...headers,
         "Content-Type":"text/html; charset=utf-8","X-Content-Type-Options":"nosniff","Referrer-Policy":"no-referrer",
         "X-Robots-Tag":"noindex, nofollow, noarchive",
         "Content-Security-Policy":`default-src 'none'; style-src 'unsafe-inline'; script-src 'sha256-${createHash("sha256").update(invitationPrintScript).digest("base64")}'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'`}});
       }catch(error){if(error instanceof InvitationPrintError)return new Response(invitationPrintProblem(error.message),{status:409,headers:{...headers,"Content-Type":"text/html; charset=utf-8","Content-Security-Policy":"default-src 'none'; frame-ancestors 'none'; base-uri 'none'","X-Content-Type-Options":"nosniff"}});throw error;}
     }
     if(!["all","requested","prepared","mailed"].includes(filter))return new Response(null,{status:400,headers});
-    if(query.get("format")==="csv")return new Response(invitationsCsv(filterInvitations(rows,filter),duplicateInvitations(rows)),{headers:{...headers,
-      "Content-Type":"text/csv; charset=utf-8","Content-Disposition":'attachment; filename="gala-2027-development-invitations.csv"',"X-Content-Type-Options":"nosniff"}});
+    if(query.get("format")==="csv")return new Response(invitationsCsv(filterInvitations(rows,filter),duplicateInvitations(rows), config.paymentMode === "live"),{headers:{...headers,
+      "Content-Type":"text/csv; charset=utf-8","Content-Disposition":`attachment; filename="${galaExportFilename("invitations", config.paymentMode === "live")}"`,"X-Content-Type-Options":"nosniff"}});
     return Response.json({invitations:rows},{headers});
   }catch{return Response.json({error:request.method==="POST"?"Request not confirmed. Retry the same saved request; do not start another."
-    :request.method==="PATCH"?"Update not confirmed. Refresh before retrying. Mailed addresses are locked; corrections need a reason. Check that development migration 006 is installed for address edits."
-    :"Cannot load invitations. Check the local connection and development migrations."},{status:request.method==="GET"?503:409,headers});}
+    :request.method==="PATCH"?"Update not confirmed. Refresh before retrying. Mailed addresses are locked; corrections need a reason."
+    :"Cannot load invitations. Refresh to try again; contact the site administrator if this continues."},{status:request.method==="GET"?503:409,headers});}
 }
 export const GET=handle;
 export const POST=handle;

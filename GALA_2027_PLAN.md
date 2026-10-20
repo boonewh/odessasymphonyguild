@@ -1,5 +1,14 @@
 # Gala 2027: decisions, payment research, and implementation handoff
 
+### October 19: live wording pass (local only)
+
+Functional buyer forms, cart, invitation confirmation, payment returns, admin help/errors, CSV environment labels/filenames and printed mailing labels now distinguish future live mode from the test site. Live invitation confirmation explicitly confirms receipt of the request, not mailing; payment help preserves the order reference and points to the existing website Contact section. No receipt email is promised. Test card instructions, fictional-data warnings and development export/label marks remain in sandbox mode. Shared Gala admin now provides the same runtime mode to its child panels.
+
+Validation: **173 Gala tests**, production build and **82 built-app Preview/production HTTP checks** pass. An isolated browser rehearsal with fictional responses checked live cart wording, paid/unverified returns, invitation receipt and test-mode confirmation, and the shared admin mailing panel. Export tests cover mode labels, unchanged data, escaped addresses, duplicate/mailed exclusions and print safeguards. No real payment or hosted write was made.
+
+The hard-coded live release gate remains false. This wording pass does not enforce the still-unconfirmed deadlines, enable sales, apply a migration, configure a provider or publish a deployment. The current OSG questions are consolidated in **Remaining OSG decisions** below; older dated accounting/access notes are historical.
+
+
 Last updated: October 19, 2026 (America/Chicago).
 
 ## Resume here
@@ -466,22 +475,23 @@ These are engineering requirements. Several now have development implementations
 - All sales channels, including any staff-entered sales, must use the same inventory controls.
 - Keep a useful audit trail without logging card data, credentials, or unnecessary personal information.
 
-## Open decisions
+## Remaining OSG decisions — current as of October 19
 
-| Question | Status / owner |
-|---|---|
-| Correct venue name: La Hacienda or Black Gold Event Center? | La Hacienda selected for now, subject to later change. |
-| Number of Platinum, Gold, and Silver tables; individual-ticket capacity; total venue capacity? | 20 of each tier for development only. Firm counts required for launch; ticket/venue capacity still unknown. |
-| Intuit-only processing required, or willing to add Stripe? | Stripe sales with QuickBooks sync has initial approval. |
-| Short checkout window while entering card details, and its duration? | Needs board agreement; processing-only hold is already approved. |
-| Refunds, cancellations, substitutions, and restocking policy? | No refunds is current policy. Exceptional corrections, substitutions, and restocking still need rules. |
-| Cards only initially, or bank transfers/checks/offline purchases? | Cards recommended for immediate confirmation; final policy not decided. |
-| Allow multiple tables per order and later extra-seat purchases? | Shared cart/multiple tables approved and implemented October 10 in development. Final quantity limits and later purchases of extra seats remain undecided. |
-| Gift cutoff year/time, timezone, and production/fulfillment rules? | January 29 flyer deadline; exact cutoff unconfirmed. |
-| Invitation submission cutoff and mailing workflow? | Not decided. |
-| Accounting mappings and tax? | Britni confirmed Symphony Ball Revenue, Bank service fees, Southwest Bank and no tax on Gala purchases (including cookies/roses). Stripe Clearing needs creation/verification. See October 12 evidence above; actual account IDs/settings remain setup work. |
-| Accounting grouping, bank import/rules, and receipt wording? | October 13: detailed item ledger in admin, one final combined sales total to QuickBooks. Grouping is decided; aggregate posting/exports still need implementation. Exact bank import/rules, final receipt wording and fee/payout/correction reconciliation acceptance remain open. |
-| Event start time and feature launch date? | Unknown. |
+This list replaces the old open-decisions table. These are final operating settings, not a new feature backlog. The production launch sequence is in `GALA_RELEASE_CHECKLIST.md`.
+
+| Question to OSG | Already answered / current behavior | Why an answer is needed |
+|---|---|---|
+| **What are the exact gift and invitation deadlines?** Confirm January 29, **2027** for gifts, its cutoff time in Central time, and the last date/time for invitation requests. | Gift flyer says January 29, no late gift orders and no gift sales at the Ball. The year/time and invitation cutoff are not confirmed. | Implement server-side cutoffs, including how an already-open unpaid checkout is treated at the gift deadline. Do not invent a time or say a cutoff is enforced before it is. |
+| **Are the current order limits and extra-seat workflow acceptable?** | Unlimited table sales across the event is settled. Each checkout allows up to **10 table/ticket selections** (one table per selection; up to **10 couples-ticket or student-date-ticket units per ticket selection**), plus **20 gift-recipient entries**, each with up to **50 roses and 50 cookie bags**. A couples-ticket unit admits two people. Each invitation request allows **20 addresses**. Each table has eight seats with up to two extra seats, purchased with that table; there is no separate later extra-seat purchase. | These are existing implementation bounds, not approved event capacity. Confirm them or specify changes before release. |
+| **Is online card payment sufficient for launch?** | Stripe is selected and activated. The website uses card checkout; no check, cash or bank-transfer ordering workflow is built. | Confirm the intended online sales policy. This does not require adding another payment method if cards are sufficient. |
+| **Who should buyers contact for help, and who approves exceptional corrections?** | All sales are final/no refunds is settled. Live help currently points to the existing website Contact section. Address corrections have an audit reason; paid buyer/gift changes do not have a general self-service correction flow. | Confirm the existing contact is appropriate or provide the public contact to display, and identify the person who authorizes mistaken names, gift recipients or other paid-order corrections. No named admin accounts are needed. |
+| **When should unused buyer and invitation contact details be removed or anonymized?** | Keep the item ledger and financial records. No retention period for abandoned-checkout contact details or invitation addresses has been agreed. | Set a documented cleanup policy without deleting financial history or promising automatic deletion that is not implemented. |
+
+Useful operational follow-ups, **not additional checkout feature blockers**: event start time for publication, and the actual mailing-label stock/physical alignment check before printing. The user chooses launch timing and gives explicit final release approval after technical acceptance.
+
+**Settled; do not ask again:** La Hacienda; February 27, 2027; existing flyer prices; unlimited Platinum/Gold/Silver tables with optional future caps; retained 35-minute unpaid-checkout expiration; shared cart; no tax per Britni; all sales final/no refunds; manual Stripe payout and QuickBooks entry by Britni; item ledger/CSV exports; shared Dues/Gala password managed by Will through 2027. No Gala QuickBooks connection, Stripe Clearing account, finite table quantities or individual volunteer accounts are required.
+
+**Our remaining engineering/setup work, not questions for OSG:** implement approved deadlines/limit changes; finish production database/configuration, live Stripe webhook and scheduled recovery, dependency review and final acceptance/rollback evidence. Verify payout bank/manual schedule with authorized access; do not change those settings without instruction. Keep live activation disabled until the concrete release is approved.
 
 ## Test plan and release gates
 

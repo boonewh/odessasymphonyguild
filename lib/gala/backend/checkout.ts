@@ -4,7 +4,7 @@ import { cartLines } from "../cart";
 import { paymentEnvironment, type PaymentMode } from "./payment-mode";
 
 export type StripeGateway = Pick<Stripe, "checkout" | "paymentIntents">;
-// DEVELOPMENT ONLY. Final checkout duration still needs board approval.
+// Retained 35-minute unpaid-checkout window; legacy constant name kept for compatibility.
 export const DEVELOPMENT_CHECKOUT_SECONDS = 35 * 60;
 export function sessionParameters(order: Order, origin: string, mode: PaymentMode = "sandbox"): Stripe.Checkout.SessionCreateParams {
   const environment = paymentEnvironment(mode);

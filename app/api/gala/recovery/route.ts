@@ -21,6 +21,6 @@ async function handle(request:Request){
       return Response.json({queued:true},{headers});
     }
     return Response.json(await queue.dashboard(),{headers});
-  }catch{return Response.json({error:request.method==='POST'?'Retry not confirmed. Refresh; the order may already be settled or being checked.':'Recovery status unavailable. Check the connection and development migration 008.'},{status:request.method==='POST'?409:503,headers});}
+  }catch{return Response.json({error:request.method==='POST'?'Retry not confirmed. Refresh; the order may already be settled or being checked.':'Payment checks are unavailable. Contact the site administrator.'},{status:request.method==='POST'?409:503,headers});}
 }
 export const GET=handle;export const POST=handle;

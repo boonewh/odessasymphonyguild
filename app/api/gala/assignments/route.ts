@@ -1,3 +1,4 @@
+import { galaExportFilename } from "@/lib/gala/presentation";
 import { authorizeStaff } from "@/lib/gala/backend/request-access";
 import { backendEnabled, readBackendConfig } from "@/lib/gala/backend/config";
 import { SupabaseOrderStore } from "@/lib/gala/backend/store";
@@ -24,8 +25,8 @@ async function handle(request: Request, write: boolean) {
     if (!write && query.get("format") === "csv") {
       const filter = query.get("filter") || "all";
       if (!["all", "assigned", "unassigned"].includes(filter)) return new Response(null, { status: 400 });
-      return new Response(assignmentsCsv(filterAssignments(rows, filter as AssignmentFilter)), { headers: {
-        "Content-Type": "text/csv; charset=utf-8", "Content-Disposition": 'attachment; filename="gala-2027-development-table-assignments.csv"',
+      return new Response(assignmentsCsv(filterAssignments(rows, filter as AssignmentFilter), config.paymentMode === "live"), { headers: {
+        "Content-Type": "text/csv; charset=utf-8", "Content-Disposition": `attachment; filename="${galaExportFilename("table-assignments", config.paymentMode === "live")}"`,
         "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff",
       } });
     }
@@ -33,7 +34,7 @@ async function handle(request: Request, write: boolean) {
   } catch {
     return Response.json({ error: write
       ? "Assignment was not confirmed. The number may be taken or this order changed. Refresh before retrying; your current assignment is preserved if the change was rejected."
-      : "Cannot load table assignments. Check the local connection and development migration 003." }, { status: write ? 409 : 503 });
+      : "Cannot load table assignments. Refresh to try again; contact the site administrator if this continues." }, { status: write ? 409 : 503 });
   }
 }
 export const GET = (request: Request) => handle(request, false);

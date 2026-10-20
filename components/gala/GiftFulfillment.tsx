@@ -1,4 +1,6 @@
 "use client";
+import { useLiveGala } from "./GalaRuntime";
+import { galaExportFilename } from "@/lib/gala/presentation";
 import { useCallback,useEffect,useState,type FormEvent } from "react";
 import { filterGifts,giftLabels,giftTotals,type GiftRow,type GiftStatus } from "@/lib/gala/gift-fulfillment";
 import styles from "./PaymentLab.module.css";
@@ -13,7 +15,7 @@ function GiftEditor({row,saved,started}:{row:GiftRow;saved:(student:string,statu
     try {
       const r=await fetch("/api/gala/gifts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
         orderId:row.order_id,recipientIndex:row.recipient_index,status,revision:row.revision,reason:correction?reason:""})});
-      if(!r.ok)throw new Error(r.status===401?"Session expired. Reload and unlock the local admin.":(await r.json()).error);
+      if(!r.ok)throw new Error(r.status===401?"Session expired. Reload and sign in again.":(await r.json()).error);
       await saved(row.student,status);
     }catch(e){setError((e as Error).message||"Cannot confirm this update. Refresh gifts before retrying.");}
     finally{setBusy(false);}
@@ -30,13 +32,14 @@ function GiftEditor({row,saved,started}:{row:GiftRow;saved:(student:string,statu
 }
 
 export default function GiftFulfillment() {
+  const live = useLiveGala();
   const [rows,setRows]=useState<GiftRow[]|null>(null),[filter,setFilter]=useState("all");
   const [busy,setBusy]=useState(false),[error,setError]=useState(""),[notice,setNotice]=useState(""),[generation,setGeneration]=useState(0);
   const refresh=useCallback(async()=>{
     setBusy(true);setError("");
     try {
       const r=await fetch("/api/gala/gifts",{cache:"no-store"});
-      if(!r.ok)throw new Error(r.status===401?"Session expired. Reload and unlock the local admin.":(await r.json()).error);
+      if(!r.ok)throw new Error(r.status===401?"Session expired. Reload and sign in again.":(await r.json()).error);
       setRows((await r.json()).gifts);setGeneration(g=>g+1);
     }catch(e){setError((e as Error).message);throw e;}finally{setBusy(false);}
   },[]);
@@ -46,7 +49,7 @@ export default function GiftFulfillment() {
     const r=await fetch(`/api/gala/gifts?format=csv&filter=${filter}`,{cache:"no-store"});
     if(!r.ok)throw new Error("Export unavailable. Refresh gifts and try again.");
     const url=URL.createObjectURL(await r.blob()),link=document.createElement("a");
-    link.href=url;link.download="gala-2027-development-gifts.csv";document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+    link.href=url;link.download=galaExportFilename("gifts", live);document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
   }catch(e){setError((e as Error).message);}finally{setBusy(false);}}
   const shown=filterGifts(rows||[],filter),totals=giftTotals(shown);
   return <section className={styles.panel} aria-label="Paid gift fulfillment"><h2>Paid gift fulfillment</h2>
@@ -67,6 +70,6 @@ export default function GiftFulfillment() {
           <td data-label="Gift quantities">{row.roses} roses<br/>{row.cookies} cookie bags</td><td data-label="Current status">{giftLabels[row.status]}</td>
           <td data-label="Update fulfillment"><GiftEditor key={`${row.order_id}-${row.recipient_index}-${row.revision}-${generation}`} row={row} saved={saved} started={()=>setNotice("")}/></td>
         </tr>)}</tbody></table></div>}
-    <p className={styles.note}>Use status changes only after the work is done. To correct a mistake, select an earlier status and give a reason. Corrections are recorded; orders, payments and quantities remain unchanged. Development only.</p>
+    <p className={styles.note}>Use status changes only after the work is done. To correct a mistake, select an earlier status and give a reason. Corrections are recorded; orders, payments and quantities remain unchanged.{!live && " Development only."}</p>
   </section>;
 }

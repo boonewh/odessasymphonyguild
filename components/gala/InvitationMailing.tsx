@@ -1,4 +1,6 @@
 "use client";
+import { useLiveGala } from "./GalaRuntime";
+import { galaExportFilename } from "@/lib/gala/presentation";
 import { useCallback,useEffect,useState,type FormEvent } from "react";
 import { duplicateInvitations,filterInvitations,invitationKey,invitationLabels,isSuppressed,type InvitationRow,type InvitationStatus } from "@/lib/gala/invitations";
 import styles from "./PaymentLab.module.css";
@@ -13,7 +15,7 @@ function MailingEditor({row,saved,started}:{row:InvitationRow;saved:(recipient?:
   async function submit(event:FormEvent){event.preventDefault();if(busy||error)return;setBusy(true);started();
     try{const r=await fetch("/api/gala/invitations",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({
       requestId:row.request_id,recipientIndex:row.recipient_index,status,revision:row.revision,reason:correction?reason:""})});
-      if(!r.ok)throw new Error(r.status===401?"Session expired. Reload and unlock the local admin.":(await r.json()).error);
+      if(!r.ok)throw new Error(r.status===401?"Session expired. Reload and sign in again.":(await r.json()).error);
       await saved(row.recipient.name,status);
     }catch(e){setError((e as Error).message||"Cannot confirm this change. Refresh invitations before retrying.");}finally{setBusy(false);}}
   return <form onSubmit={submit} className={styles.assignmentForm}>
@@ -27,12 +29,13 @@ function MailingEditor({row,saved,started}:{row:InvitationRow;saved:(recipient?:
   </form>;
 }
 export default function InvitationMailing(){
+  const live = useLiveGala();
   const [rows,setRows]=useState<InvitationRow[]|null>(null),[filter,setFilter]=useState("all");
   const [busy,setBusy]=useState(false),[error,setError]=useState(""),[notice,setNotice]=useState(""),[generation,setGeneration]=useState(0);
   const [manualComparison,setManualComparison]=useState(false);
   const refresh=useCallback(async()=>{setBusy(true);setError("");try{
     const r=await fetch("/api/gala/invitations",{cache:"no-store"});
-    if(!r.ok)throw new Error(r.status===401?"Session expired. Reload and unlock the local admin.":(await r.json()).error);
+    if(!r.ok)throw new Error(r.status===401?"Session expired. Reload and sign in again.":(await r.json()).error);
     setRows((await r.json()).invitations);setGeneration(g=>g+1);
   }catch(e){setError((e as Error).message);throw e;}finally{setBusy(false);}},[]);
   useEffect(()=>{void refresh().catch(()=>{});},[refresh]);
@@ -42,7 +45,7 @@ export default function InvitationMailing(){
   async function download(){setBusy(true);setError("");try{
     const r=await fetch(`/api/gala/invitations?format=csv&filter=${filter}`,{cache:"no-store"});
     if(!r.ok)throw new Error("Export unavailable. Refresh invitations and try again.");
-    const url=URL.createObjectURL(await r.blob()),link=document.createElement("a");link.href=url;link.download="gala-2027-development-invitations.csv";
+    const url=URL.createObjectURL(await r.blob()),link=document.createElement("a");link.href=url;link.download=galaExportFilename("invitations", live);
     document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
   }catch(e){setError((e as Error).message);}finally{setBusy(false);}}
   const shown=filterInvitations(rows||[],filter),duplicates=duplicateInvitations(rows||[]);
@@ -87,6 +90,6 @@ export default function InvitationMailing(){
           <InvitationDuplicateEditor key={`duplicate-${invitationKey(row)}-${row.revision}-${generation}`} row={row} rows={rows||[]} saved={saved} started={()=>setNotice("")} allowManual={manualComparison} showSuppressed={()=>{setFilter("suppressed");setNotice("");}}/></td>
       </tr>)}
     </tbody></table></div>}
-    <p className={styles.note}>Corrections and duplicate decisions require a reason and are recorded. No records are deleted. The final mailing deadline is not enabled yet. Development only; use fictional addresses.</p>
+    <p className={styles.note}>Corrections and duplicate decisions require a reason and are recorded. No records are deleted.{!live && " The final mailing deadline is not enabled yet. Development only; use fictional addresses."}</p>
   </section>;
 }

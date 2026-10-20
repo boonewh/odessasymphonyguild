@@ -78,7 +78,7 @@ export function SandboxOrderStatus({ id, retry, startAnother, returnToWebsite = 
       const r = await fetch(action === "expire" ? "/api/gala/expire" : `/api/gala/order?orderId=${encodeURIComponent(id)}`, {
         method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(action === "expire" ? { orderId: id } : {}),
       });
-      if (r.status === 401 || r.status === 403) throw new Error("Your test session expired. Reload this page to sign in again.");
+      if (r.status === 401 || r.status === 403) throw new Error(live ? "Your session could not be verified. Keep your order reference and contact the Guild before starting another purchase." : "Your test session expired. Reload this page to sign in again.");
       const result = await r.json();
       if (!r.ok) throw new Error(result.error || "Payment status could not be verified.");
       if (action === "resume" && result.url) { window.location.assign(checkoutUrl(result.url)); return; }
@@ -100,7 +100,7 @@ export function SandboxOrderStatus({ id, retry, startAnother, returnToWebsite = 
       <button className={styles.secondary} disabled={busy} onClick={() => void act("check")}>Check payment status</button>
       {order && <button className={styles.secondary} disabled={busy} onClick={() => void act("expire")}>Cancel unpaid checkout</button>}
     </div>}
-    {closed && (startAnother ? <button className={styles.primary} onClick={startAnother}>{order.status === "expired" ? "Return to your saved cart" : "Start another test order"}</button>
+    {closed && (startAnother ? <button className={styles.primary} onClick={startAnother}>{order.status === "expired" ? "Return to your saved cart" : live ? "Start another order" : "Start another test order"}</button>
       : <div className={styles.actions}>
         {(!returnToWebsite || order.status === "expired") && <Link className={styles.secondary} href="/gala/cart" onClick={event => {
         try {
@@ -111,6 +111,7 @@ export function SandboxOrderStatus({ id, retry, startAnother, returnToWebsite = 
       }}>Return to your cart</Link>}
         {returnToWebsite && <Link className={styles.primary} href="/">Return to website</Link>}
       </div>)}
+    {live && <p className={styles.fine}>Need help with this order? <Link href="/#contact">Contact the Guild</Link> and include your order reference.</p>}
     {!live && <p className={styles.fine}>Test only. No real money is charged. <Link href="/gala/preview/admin">View in Gala admin</Link></p>}
   </section>;
 }

@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     await store.verifyEnvironment(config.paymentMode);
     const report = ledgerReport(await store.ledgerSnapshot(), new Date().toISOString(), config.paymentMode);
     if (format === "json") return Response.json(report, { headers });
-    if (format === "preview") return Response.json({ testOnly: true, notice: "Review copy only. This does not send or reserve an accounting entry.",
+    if (format === "preview") return Response.json({ testOnly: config.paymentMode !== "live", notice: "Review copy only. Bookkeeping is handled separately; this does not send data to QuickBooks.",
       checkedAt: report.checkedAt, ...report.preview, accountingHistory: report.history, lines: report.lines.filter(l => l.status === "paid") },
       { headers: { ...headers, "Content-Disposition": 'attachment; filename="gala-final-total-preview.json"' } });
     const lines = filterLedger(report.lines, filter.data);

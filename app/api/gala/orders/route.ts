@@ -9,5 +9,5 @@ export async function GET(request: Request) {
   try {
     const { store } = await backend();
     return Response.json(await store.dashboard(), { headers: { "Cache-Control": "no-store" } });
-  } catch { return Response.json({ error: "Could not load development orders." }, { status: 503 }); }
+  } catch { return Response.json({ error: "Could not load orders. Please refresh to try again." }, { status: 503 }); }
 }

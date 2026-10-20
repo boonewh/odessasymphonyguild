@@ -41,7 +41,7 @@ export default function InvitationAddressEditor({ row, saved, started }: {
         method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(parsed.data),
       });
       if (!response.ok) throw new Error(response.status === 401
-        ? "Session expired. Reload and unlock the local admin."
+        ? "Session expired. Reload and sign in again."
         : "Address change not confirmed. Refresh invitations before retrying.");
       await saved();
     } catch (e) {

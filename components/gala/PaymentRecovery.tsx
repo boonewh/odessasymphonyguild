@@ -18,23 +18,23 @@ function Retry({entry,saved}:{entry:Entry;saved:()=>Promise<void>}){
 export default function PaymentRecovery({onAttention}:{onAttention?:(message:string)=>void}){
   const [data,setData]=useState<Dashboard|null>(null),[error,setError]=useState(''),[notice,setNotice]=useState(''),[generation,setGeneration]=useState(0),[busy,setBusy]=useState(false);
   const refresh=useCallback(async(resetEditors=true)=>{setBusy(true);try{const r=await fetch('/api/gala/recovery',{cache:'no-store'});
-    if(!r.ok)throw new Error(r.status===401?'Your session expired. Reload and sign in again.':'Payment checks are unavailable. Contact the test organizer.');
+    if(!r.ok)throw new Error(r.status===401?'Your session expired. Reload and sign in again.':'Payment checks are unavailable. Contact the site administrator.');
     setData(await r.json());setError('');if(resetEditors)setGeneration(g=>g+1);
   }catch(e){setError((e as Error).message);throw e;}finally{setBusy(false);}},[]);
   useEffect(()=>{void refresh().catch(()=>{});},[refresh]);
   useEffect(()=>{const timer=setInterval(()=>{void refresh(false).catch(()=>{});},60_000);return()=>clearInterval(timer);},[refresh]);
   const recent=!!data?.lastPollAt&&Date.now()-Date.parse(data.lastPollAt)<180_000;
-  const attention=error?'Payment status could not be checked. Contact the test organizer.'
+  const attention=error?'Payment status could not be checked. Contact the site administrator.'
     :!data?'':data.total>0?`${data.total} payment${data.total===1?' is':'s are'} awaiting confirmation. See payment checks in Orders.`
-    :!recent?'Automatic payment checks are paused. Contact the test organizer before testing a purchase.':'';
+    :!recent?'Automatic payment checks are paused. Contact the site administrator before accepting new purchases.':'';
   useEffect(()=>{onAttention?.(attention);},[attention,onAttention]);
   return <section className={styles.panel} aria-label="Payment recovery"><h2>Payment checks</h2>
     <p className={styles.note}>If a payment result is unclear, the order stays pending until it is confirmed. These checks never charge a buyer again.</p>
-    <p><strong>{!data?'Checking availability…':recent?'Automatic checks are running':'Automatic checks need the test organizer’s attention'}</strong></p>
+    <p><strong>{!data?'Checking availability…':recent?'Automatic checks are running':'Automatic checks need the site administrator’s attention'}</strong></p>
     {error&&<p role="alert" className={styles.error}>{error}</p>}{notice&&<p role="status" className={styles.success}>{notice}</p>}
     {data&&<p>{data.total===0?'All current orders have a confirmed payment result.':`${data.total} orders are awaiting a confirmed payment result.`}</p>}
-    <details><summary>Payment troubleshooting — for the test organizer</summary>
-    <p>Last automatic check: {time(data?.lastPollAt||null)}. The test organizer can check the payment-check service if this stops updating.</p>
+    <details><summary>Payment troubleshooting — for the site administrator</summary>
+    <p>Last automatic check: {time(data?.lastPollAt||null)}. The site administrator can check the payment-check service if this stops updating.</p>
     <div className={styles.tools}><button disabled={busy} onClick={()=>{setNotice('');void refresh().catch(()=>{});}}>Refresh payment checks</button></div>
     {data&&data.entries.length>0&&<div className={`${styles.table} ${styles.assignmentTable}`}><table><thead><tr><th>Order</th><th>Payment check status</th><th>Staff review</th></tr></thead><tbody>{data.entries.map(entry=><tr key={entry.id}>
       <td data-label="Order">{entry.description}<small>{entry.id}</small><small>Created: {time(entry.created_at)}</small><small>Checkout: {entry.stripe_session_id||'Not linked'}</small></td>

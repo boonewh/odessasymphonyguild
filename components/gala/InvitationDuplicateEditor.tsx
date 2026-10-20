@@ -52,7 +52,7 @@ export default function InvitationDuplicateEditor({ row, rows, saved, started, s
           ...(!suppressed && target ? { targetRequestId: target.request_id, targetRecipientIndex: target.recipient_index, targetRevision: target.revision } : {}),
         }),
       });
-      if (!response.ok) throw new Error(response.status === 401 ? "Session expired. Reload and unlock the local admin."
+      if (!response.ok) throw new Error(response.status === 401 ? "Session expired. Reload and sign in again."
         : "Decision not confirmed. Refresh invitations before retrying; either entry may have changed.");
       await saved();
     } catch (e) { setError((e as Error).message); } finally { setBusy(false); }

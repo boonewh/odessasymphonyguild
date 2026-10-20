@@ -1,5 +1,13 @@
 # Gala backend development
 
+## October 19: live wording and export presentation
+
+Local-only preparation: live customer forms/payment returns use real-order wording, test instructions remain in sandbox, and the shared Gala admin supplies `GalaRuntime` to its fulfillment panels. API errors give actionable customer/admin guidance without development migration numbers. CSV builders and mailing-label HTML accept an explicit live presentation flag supplied from verified backend configuration; omitted flags retain development labeling for existing callers/tests. Live labels omit the fictional-address watermark while preserving address escaping, fit checks, duplicate safeguards and truthful mailing instructions. No payment, storage, inventory or authorization rules change. The production release gate remains false; nothing is deployed or migrated by this pass.
+
+Validation: **173 Gala tests**, production build and **82 built-app Preview/production HTTP checks** pass. An isolated browser rehearsal with fictional responses checked live cart wording, paid/unverified returns, invitation receipt and test-mode confirmation, and the shared admin mailing panel. Export tests cover mode labels, unchanged data, escaped addresses, duplicate/mailed exclusions and print safeguards. No real payment or hosted write was made.
+
+Current unresolved OSG decisions are centralized in `GALA_2027_PLAN.md` under **Remaining OSG decisions**. Superseded QuickBooks/capacity/account-access questions are not release work.
+
 ## October 19: live request wiring and shared Dues integration
 
 `GALA_LIVE_ACCESS.md` records the connected route behavior, separate live configuration names, and release acceptance requirements. `/api/gala/session` now mounts the live buyer helper; live checkout/invitation writes cannot bypass buyer ownership through an admin cookie. Existing-order investigation accepts the shared admin. `/api/admin/session` mounts throttled, password-bound live login/logout; middleware covers the existing Dues pages and APIs. `/admin/dues` enters the original roster; its nested pages/pricing retain membership operations and receive shared navigation. Existing Dues login/logout become shared-handler aliases only after release.

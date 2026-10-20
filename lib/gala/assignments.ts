@@ -1,3 +1,4 @@
+import { galaExportEnvironment } from "./presentation";
 import { z } from "zod";
 import { csvDocument } from "./csv";
 export const assignmentRequest = z.object({
@@ -13,9 +14,9 @@ export type AssignmentFilter = "all" | "assigned" | "unassigned";
 export function filterAssignments(rows: TableAssignment[], filter: AssignmentFilter) {
   return rows.filter(row => filter === "all" || (filter === "assigned" ? row.table_number !== null : row.table_number === null));
 }
-export function assignmentsCsv(rows: TableAssignment[]) {
+export function assignmentsCsv(rows: TableAssignment[], live = false) {
   const records: unknown[][] = [["Environment", "Table number", "Tier", "Buyer", "Email", "Phone", "Purchased seats", "Assignment status", "Order reference", "Order selection"]];
-  for (const row of rows) records.push(["DEVELOPMENT ONLY", row.table_number ?? "", row.tier, row.buyer.name,
+  for (const row of rows) records.push([galaExportEnvironment(live), row.table_number ?? "", row.tier, row.buyer.name,
     row.buyer.email, row.buyer.phone, row.seats, row.table_number === null ? "Unassigned" : "Assigned", row.id, (row.line_index ?? 0) + 1]);
   return csvDocument(records);
 }

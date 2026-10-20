@@ -1,4 +1,5 @@
 "use client";
+import { useLiveGala } from "./GalaRuntime";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { ZodError } from "zod";
@@ -19,7 +20,7 @@ function useCart() {
   const [ready, setReady] = useState(false), [error, setError] = useState("");
   const refresh = useCallback(() => {
     try { const saved = readShopping(sessionStorage); setCart(saved.cart); setReference(saved.reference); setReady(true); }
-    catch { setReady(false); setError("Your saved cart could not be read. Check Gala admin for an unfinished order before starting another purchase."); }
+    catch { setReady(false); setError("Your saved cart could not be read. Contact the Guild to check for an unfinished order before starting another purchase."); }
   }, []);
   useEffect(() => { refresh(); window.addEventListener(CART_EVENT, refresh); window.addEventListener("pageshow", refresh);
     return () => { window.removeEventListener(CART_EVENT, refresh); window.removeEventListener("pageshow", refresh); }; }, [refresh]);
@@ -55,6 +56,7 @@ export function CartCatalog({ kind }: { kind: "tables" | "gifts" }) {
   </>;
 }
 export default function GalaCart() {
+  const live = useLiveGala();
   const state = useCart();
   const [agreed, setAgreed] = useState(false), [busy, setBusy] = useState(false);
   const lock = useRef(false);
@@ -138,8 +140,8 @@ export default function GalaCart() {
           <aside className={styles.summary} aria-label="Cart total"><h2>One order, one payment</h2><p className={styles.price}>{money(cartTotal(cart))}</p>
             <p>Tables are reserved when you open checkout, for about 35 minutes. Adding them to your cart does not reserve them. Availability is checked before checkout opens.</p>
             <label className={styles.agreement}><input type="checkbox" required checked={agreed} onChange={e=>setAgreed(e.target.checked)}/><span>I understand that all sales are final and no refunds are offered.</span></label>
-            <button className={styles.primary} disabled={busy}>{busy?"Opening checkout…":"Continue to Stripe test checkout"}</button>
-            <p className={styles.fine}>Test only. Enter the test card on Stripe’s website. No real money is charged.</p>
+            <button className={styles.primary} disabled={busy}>{busy?"Opening checkout…":live ? "Continue to secure checkout" : "Continue to Stripe test checkout"}</button>
+            <p className={styles.fine}>{live ? "Enter your payment details securely on Stripe’s website. Your order is confirmed after payment." : "Test only. Enter the test card on Stripe’s website. No real money is charged."}</p>
           </aside>
         </div>
       </fieldset></form>}

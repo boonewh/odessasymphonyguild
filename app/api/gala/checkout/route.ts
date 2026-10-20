@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   if (!backendEnabled(process.env)) return new Response(null, { status: 404 });
   let customerHash: string | undefined;
   try { customerHash = authorizeCustomer(request); }
-  catch { return Response.json({ error: "Local development setup or authorization required." }, { status: 403 }); }
+  catch { return Response.json({ error: "Your session could not be verified. Reload this page before trying again." }, { status: 403 }); }
   try {
     const body = await request.text();
     if (body.length > 32000) return new Response(null, { status: 413 });

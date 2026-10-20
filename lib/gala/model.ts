@@ -45,7 +45,7 @@ export const purchaseSchema = z.object({
   extraSeats: z.number().int().min(0).max(2),
 }).superRefine((value, ctx) => {
   const table = TABLES.some((item) => item.id === value.product);
-  if (table && value.quantity !== 1) ctx.addIssue({ code: "custom", message: "Preview orders support one table at a time." });
+  if (table && value.quantity !== 1) ctx.addIssue({ code: "custom", message: "Add each table as a separate cart selection." });
   if (!table && value.extraSeats !== 0) ctx.addIssue({ code: "custom", message: "Extra seats apply only to tables." });
 });
 export type Purchase = z.infer<typeof purchaseSchema>;

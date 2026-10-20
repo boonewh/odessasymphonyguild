@@ -1,3 +1,4 @@
+import { galaExportEnvironment } from "./presentation";
 import { z } from "zod";
 import { contactSchema, recipientSchema, recipientsSchema, type Recipient } from "./model";
 import { csvDocument } from "./csv";
@@ -51,8 +52,8 @@ export function duplicateInvitations(rows:InvitationRow[]) {
     grouped.set(key,[...(grouped.get(key)||[]),row]);}
   return new Set([...grouped.values()].flatMap(group=>group.filter(row=>duplicateCandidates(row,group).length>0)).map(invitationKey));
 }
-export function invitationsCsv(rows:InvitationRow[],duplicates:Set<string>) {
+export function invitationsCsv(rows:InvitationRow[],duplicates:Set<string>, live = false) {
   return csvDocument([["Environment","Envelope name","Address","Address line 2","City","State","ZIP","Status","Possible duplicate","Requested by","Requester email","Requester phone","Request reference","Recipient number"],
-    ...rows.filter(r=>!isSuppressed(r)).map(r=>["DEVELOPMENT ONLY",r.recipient.name,r.recipient.address,r.recipient.address2,r.recipient.city,r.recipient.state,r.recipient.zip,
+    ...rows.filter(r=>!isSuppressed(r)).map(r=>[galaExportEnvironment(live),r.recipient.name,r.recipient.address,r.recipient.address2,r.recipient.city,r.recipient.state,r.recipient.zip,
       invitationLabels[r.status],duplicates.has(invitationKey(r))?"REVIEW":"",r.contact.name,r.contact.email,r.contact.phone,r.request_id,r.recipient_index+1])]);
 }

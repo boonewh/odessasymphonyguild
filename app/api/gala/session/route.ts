@@ -42,7 +42,7 @@ export async function POST(request: Request) {
       httpOnly: true, sameSite: "lax", secure: config.hosted, path: "/", maxAge: 8 * 3600,
     });
     return response;
-  } catch (error) { return Response.json({ error: "Test sign-in failed." }, { status: error instanceof LoginBodyTooLarge ? 413 : 403 }); }
+  } catch (error) { return Response.json({ error: "Sign-in failed." }, { status: error instanceof LoginBodyTooLarge ? 413 : 403 }); }
 }
 export async function DELETE(request: Request) {
   if (!backendEnabled(process.env)) return new Response(null, { status: 404 });
