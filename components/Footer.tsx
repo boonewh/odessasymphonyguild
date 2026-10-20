@@ -18,7 +18,7 @@ export default function Footer({ theme = "default" }: { theme?: "default" | "gal
           {" · "}
           <Link href="/terms" className="hover:text-gray-400 transition-colors">Terms of Use</Link>
           {" · "}
-          <Link href="/admin/belles-beaux" className="hover:text-gray-400 transition-colors">Admin</Link>
+          <Link href="/admin" className="hover:text-gray-400 transition-colors">Admin</Link>
         </p>
         <p className="text-xs text-gray-600 mt-4">
           webpage by:{' '}
