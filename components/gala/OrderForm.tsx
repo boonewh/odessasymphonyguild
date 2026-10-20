@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ZodError } from "zod";
 import { TABLES, contactSchema, giftsSchema, recipientsSchema, quotePurchase, quoteGifts, money,
-  type Product, type Gift, type Recipient, type DemoOrder } from "@/lib/gala/model";
+  type Product, type Purchase, type Gift, type Recipient, type DemoOrder } from "@/lib/gala/model";
 import { useDemoOrders } from "@/lib/gala/use-demo-orders";
 import styles from "./gala-sales.module.css";
 import { SAME_TAB_NOTICE, type CartAddition } from "@/lib/gala/cart";
@@ -46,6 +46,7 @@ export function OrderFormContent({ kind, store, clientReview = false, checkout, 
   const [product, setProduct] = useState<Product>("gold");
   const [quantity, setQuantity] = useState(1);
   const [extraSeats, setExtraSeats] = useState(0);
+  const [selections, setSelections] = useState<Purchase[]>([]);
   const [contact, setContact] = useState({ name: "", email: "", phone: "" });
   const [gifts, setGifts] = useState<Gift[]>([blankGift()]);
   const [recipients, setRecipients] = useState<Recipient[]>([blankRecipient()]);
@@ -56,8 +57,20 @@ export function OrderFormContent({ kind, store, clientReview = false, checkout, 
   const table = TABLES.find((item) => item.id === product);
   const purchase = { product, quantity: table ? 1 : quantity, extraSeats: table ? extraSeats : 0 };
   const quote = quotePurchase(purchase);
-  const total = kind === "tables" ? quote.total : kind === "gifts" ? gifts.reduce((sum, gift) => sum + (gift.roses + gift.cookies) * 1000, 0) : 0;
-  function selectProduct(next: Product) { setProduct(next); setQuantity(1); setExtraSeats(0); }
+  const multiple = kind === "tables" && !!addToCart;
+  const selectedQuotes = selections.map(item => ({ product: item.product, ...quotePurchase(item) }));
+  const total = kind === "tables" ? (multiple ? selectedQuotes.reduce((sum, item) => sum + item.total, 0) : quote.total) : kind === "gifts" ? gifts.reduce((sum, gift) => sum + (gift.roses + gift.cookies) * 1000, 0) : 0;
+  const isSelected = (value: Product) => multiple ? selections.some(item => item.product === value) : product === value;
+  function selectProduct(next: Product) {
+    if (multiple) {
+      setSelections(items => items.some(item => item.product === next) ? items.filter(item => item.product !== next) : [...items, { product: next, quantity: 1, extraSeats: 0 }]);
+      setError(""); setAdded("");
+    } else { setProduct(next); setQuantity(1); setExtraSeats(0); }
+  }
+  function changeSelection(value: Product, patch: Partial<Pick<Purchase, "quantity" | "extraSeats">>) {
+    setSelections(items => items.map(item => item.product === value ? { ...item, ...patch } : item));
+    setAdded("");
+  }
   function changeGift(index: number, patch: Partial<Gift>) { setGifts((items) => items.map((item, i) => i === index ? { ...item, ...patch } : item)); }
   function changeRecipient(index: number, patch: Partial<Recipient>) { setRecipients((items) => items.map((item, i) => i === index ? { ...item, ...patch } : item)); }
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -65,8 +78,10 @@ export function OrderFormContent({ kind, store, clientReview = false, checkout, 
     if (clientReview || (!store && !checkout && !invite && !addToCart) || saved || busy) return;
     try {
       if (addToCart && kind !== "invitations") {
-        if (addToCart(kind === "tables" ? { kind, purchase } : { kind, gifts: giftsSchema.parse(gifts) }))
-          setAdded(kind === "tables" ? quote.description : "Celebration gifts");
+        if (addToCart(kind === "tables" ? { kind, purchases: selections } : { kind, gifts: giftsSchema.parse(gifts) })) {
+          setAdded(kind === "tables" ? selectedQuotes.map(item => item.description).join("; ") : "Celebration gifts");
+          if (kind === "tables") setSelections([]);
+        }
         return;
       }
       const buyer = contactSchema.parse(contact);
@@ -101,22 +116,23 @@ export function OrderFormContent({ kind, store, clientReview = false, checkout, 
   }
   return <form onSubmit={submit}>
     <fieldset disabled={!!saved || busy} className={styles.formSection}>
-      <legend className="sr-only">{kind === "tables" ? "Choose your table or tickets" : kind === "gifts" ? "Choose your celebration gifts" : "Invitation details"}</legend>
+      <legend className="sr-only">{kind === "tables" ? "Choose your tables and tickets" : kind === "gifts" ? "Choose your celebration gifts" : "Invitation details"}</legend>
       {kind === "tables" && <>
+        {multiple && <p className={styles.selectionHint}>Choose any combination of tables and tickets, then add your selections to the cart together.</p>}
         <h2 className={styles.flyerSectionTitle}>Table options</h2>
         <div className={styles.tiers}>{TABLES.map((tier) => <article className={styles.tier} key={tier.id}>
           <div><p className={styles.tierOrnament} aria-hidden="true">❦</p><h3>{tier.name}</h3><p className={styles.price}>{money(tier.price)}</p>
             <p className={styles.tagline}>{tier.description}</p>
             <ul className={styles.benefits} role="list">{tier.benefits.map((benefit) => <li key={benefit}>{benefit}</li>)}</ul>
             <p className={styles.extra}>Add up to 2 extra seats at {money(tier.extra)} each.</p></div>
-          <label className={styles.choose}><input type="radio" name="product" value={tier.id} checked={product === tier.id} onChange={() => selectProduct(tier.id)} />Choose {tier.name.toLowerCase()}</label>
+          <label className={styles.choose}><input type={multiple ? "checkbox" : "radio"} name="product" value={tier.id} checked={isSelected(tier.id)} onChange={() => selectProduct(tier.id)} />Choose {tier.name.toLowerCase()}</label>
         </article>)}</div>
         <h2 className={styles.flyerSectionTitle}>Individual ticket options</h2>
         <div className={styles.tickets}>
           <article className={styles.ticket}><h3>Couples ticket</h3><p className={styles.price}>{money(30000)}</p><p>Open seating for 2 adults.</p>
-            <label className={styles.choose}><input name="product" type="radio" checked={product === "couples"} onChange={() => selectProduct("couples")} />Choose couples tickets</label></article>
+            <label className={styles.choose}><input name="product" type={multiple ? "checkbox" : "radio"} checked={isSelected("couples")} onChange={() => selectProduct("couples")} />Choose couples tickets</label></article>
           <article className={styles.ticket}><h3>Student date ticket</h3><p className={styles.price}>{money(10000)}</p><p>Admission for 1 student.</p>
-            <label className={styles.choose}><input name="product" type="radio" checked={product === "student-date"} onChange={() => selectProduct("student-date")} />Choose student date tickets</label></article>
+            <label className={styles.choose}><input name="product" type={multiple ? "checkbox" : "radio"} checked={isSelected("student-date")} onChange={() => selectProduct("student-date")} />Choose student date tickets</label></article>
         </div>
         <p className={styles.ribbon}>Belle &amp; Beau tickets are included with their membership fees.</p>
       </>}
@@ -132,8 +148,17 @@ export function OrderFormContent({ kind, store, clientReview = false, checkout, 
       <h2 id="gala-order-details" className={styles.flyerSectionTitle}>{kind === "invitations" ? "Your invitation information" : "Your order details"}</h2>
       <div className={styles.orderLayout}>
         <div>
-          {kind === "tables" && <fieldset className={styles.formSection}><legend>Your selection</legend>
-            {table ? <Quantity name="extraSeats" label="Additional seats" value={extraSeats} max={2} onChange={setExtraSeats} />
+          {kind === "tables" && <fieldset className={styles.formSection}><legend>{multiple ? "Your selections" : "Your selection"}</legend>
+            {multiple ? <>
+              {selections.length === 0 && <p>Choose the tables and tickets you would like above.</p>}
+              {selections.map(item => {
+                const selectedTable = TABLES.find(tier => tier.id === item.product);
+                return <div className={styles.selectionOptions} key={item.product}>
+                  {selectedTable ? <Quantity name={`extraSeats-${item.product}`} label={`${selectedTable.name} · additional seats`} value={item.extraSeats} max={2} onChange={extraSeats => changeSelection(item.product, { extraSeats })} />
+                    : <Quantity name={`quantity-${item.product}`} label={item.product === "couples" ? "Number of couples tickets" : "Number of student date tickets"} value={item.quantity} min={1} max={10} onChange={quantity => changeSelection(item.product, { quantity })} />}
+                </div>;
+              })}
+            </> : table ? <Quantity name="extraSeats" label="Additional seats" value={extraSeats} max={2} onChange={setExtraSeats} />
               : <Quantity name="quantity" label={product === "couples" ? "Number of couples tickets" : "Number of student date tickets"} value={quantity} min={1} max={10} onChange={setQuantity} />}
             <p className={styles.fine}>Table location is assigned by the Guild. Each table includes eight purchased seats; Belle and Beau attendance does not reduce that number.</p>
           </fieldset>}
@@ -172,12 +197,15 @@ export function OrderFormContent({ kind, store, clientReview = false, checkout, 
         <aside className={styles.summary} aria-label="Order summary">
           <h2>{kind === "invitations" ? "Your invitation request" : "Your evening, your way"}</h2>
           <dl>
-            {kind === "tables" && <><div><dt>{table?.name ?? (product === "couples" ? "Couples tickets" : "Student date tickets")}</dt><dd>{table ? "1 table" : `${quantity} ticket${quantity === 1 ? "" : "s"}`}</dd></div><div><dt>Purchased seats</dt><dd>{quote.seats}</dd></div></>}
+            {kind === "tables" && (multiple ? <>
+              {selectedQuotes.map(item => <div key={item.product}><dt>{item.description}</dt><dd>{money(item.total)}</dd></div>)}
+              <div><dt>Purchased seats</dt><dd>{selectedQuotes.reduce((sum, item) => sum + item.seats, 0)}</dd></div>
+            </> : <><div><dt>{table?.name ?? (product === "couples" ? "Couples tickets" : "Student date tickets")}</dt><dd>{table ? "1 table" : `${quantity} ticket${quantity === 1 ? "" : "s"}`}</dd></div><div><dt>Purchased seats</dt><dd>{quote.seats}</dd></div></>)}
             {kind === "gifts" && <><div><dt>Roses</dt><dd>{gifts.reduce((sum, gift) => sum + gift.roses, 0)}</dd></div><div><dt>Cookie bags</dt><dd>{gifts.reduce((sum, gift) => sum + gift.cookies, 0)}</dd></div></>}
             {kind === "invitations" ? <div><dt>Recipients</dt><dd>{recipients.length}</dd></div> : <div className={styles.total}><dt>Total</dt><dd>{money(total)}</dd></div>}
           </dl>
           {!addToCart && kind !== "invitations" && <label className={styles.agreement}><input disabled={clientReview} name="refundAcknowledgment" type="checkbox" required checked={agreed} onChange={(event) => setAgreed(event.target.checked)} /><span>I understand that all sales are final and no refunds are offered.</span></label>}
-          <button type="submit" className={styles.primary} disabled={clientReview || (!checkout && !invite && !addToCart && !store?.ready) || !!saved || busy}>{addToCart ? "Add to cart" : clientReview ? "Not open yet" : invite ? (busy ? "Saving request…" : "Submit test invitation request") : checkout ? (busy ? "Opening checkout…" : "Continue to Stripe test checkout") : kind === "invitations" ? "Save preview request" : "Create preview order"}</button>
+          <button type="submit" className={styles.primary} disabled={clientReview || (!checkout && !invite && !addToCart && !store?.ready) || !!saved || busy || (multiple && selections.length === 0)}>{multiple ? "Add selections to cart" : addToCart ? "Add to cart" : clientReview ? "Not open yet" : invite ? (busy ? "Saving request…" : "Submit test invitation request") : checkout ? (busy ? "Opening checkout…" : "Continue to Stripe test checkout") : kind === "invitations" ? "Save preview request" : "Create preview order"}</button>
           <p className={styles.fine}>{addToCart ? SAME_TAB_NOTICE : clientReview ? "Design review only. No information is saved or submitted, and no payment can be made." : invite ? "Test only. Use fictional names and addresses. Requests appear in Gala admin; no invitation is actually mailed and no payment is required." : checkout ? "Test only. Use fictional details and the test card shown above. Payment details are entered on Stripe’s website. A table is temporarily reserved while checkout is open." : kind === "invitations" ? "Preview only. No request is sent to the Guild and no invitation is mailed." : "Preview only. This creates an unpaid sample order for review in Gala admin."}</p>
           {addToCart && <p className={styles.fine}>Enter your contact information once at checkout. Tables are reserved only when checkout opens.</p>}
           {added && <div role="status" className={`${styles.success} ${styles.cartConfirmation}`}><p>{added} added to your cart.</p><Link href="/gala/cart">Review cart and checkout</Link><Link href={kind === "tables" ? "/gala/gifts" : "/gala/tables"}>{kind === "tables" ? "Add celebration gifts" : "Add tables or tickets"}</Link></div>}

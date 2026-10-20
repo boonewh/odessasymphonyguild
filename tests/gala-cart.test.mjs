@@ -41,8 +41,8 @@ test('mixed cart prices come from the server; Stripe item totals and restored re
 });
 
 test('same-tab draft survives navigation, allows incomplete contact edits, and blocks edits while a payment is unresolved',()=>{
-  const storage=memoryStorage();let cart=emptyCart();cart=addToCart(cart,{kind:'tables',purchase:table()});
-  cart=addToCart(cart,{kind:'tables',purchase:table('student-date')});cart=addToCart(cart,{kind:'gifts',gifts:[gift]});
+  const storage=memoryStorage();let cart=emptyCart();cart=addToCart(cart,{kind:'tables',purchases:[table()]});
+  cart=addToCart(cart,{kind:'tables',purchases:[table('student-date')]});cart=addToCart(cart,{kind:'gifts',gifts:[gift]});
   cart.contact={...contact,name:''};saveCart(storage,cart);
   assert.deepEqual(readShopping(storage).cart,cart);assert.throws(()=>cartCheckout(cart,randomUUID()));
   cart.contact=contact;saveCart(storage,cart);assert.equal(cartTotal(readCart(storage.getItem(CART_KEY))),213000);
@@ -50,6 +50,27 @@ test('same-tab draft survives navigation, allows incomplete contact edits, and b
   assert.equal(readShopping(storage).reference,payload.requestId);assert.throws(()=>saveCart(storage,emptyCart()));
   assert.deepEqual(readShopping(memoryStorage()).cart,emptyCart());
   for(const raw of ['broken','{}']) assert.throws(()=>readCart(raw));
+});
+
+test('one catalog action adds tables and ticket types together without replacing existing gifts or buyer details',()=>{
+  const original={...emptyCart(),contact,gifts:[gift]};
+  const purchases=[table('silver',2),{product:'student-date',quantity:3,extraSeats:0},{product:'couples',quantity:2,extraSeats:0}];
+  const next=addToCart(original,{kind:'tables',purchases});
+  assert.deepEqual(next.purchases,purchases);assert.deepEqual(next.gifts,[gift]);assert.deepEqual(next.contact,contact);
+  assert.deepEqual(original.purchases,[]);
+  assert.equal(cartTotal(next),343000);
+  const payload=cartCheckout(next,randomUUID());assert.equal(priceRequest(payload).amount,343000);
+  assert.equal(sessionParameters({id:payload.requestId,...priceRequest(payload),created_at:new Date().toISOString()},'http://localhost:3000').line_items.length,4);
+});
+
+test('invalid or over-limit catalog batches reject as a whole and preserve the saved cart',()=>{
+  const storage=memoryStorage();const original={...emptyCart(),contact,purchases:Array.from({length:9},()=>table('gold'))};
+  saveCart(storage,original);const saved=storage.getItem(CART_KEY);
+  for(const purchases of [[],[table('silver'),table('student-date')],[{...table('silver'),extraSeats:3}],[table('silver'),{...table('couples'),quantity:11}]]) {
+    assert.throws(()=>saveCart(storage,addToCart(readShopping(storage).cart,{kind:'tables',purchases})));
+    assert.equal(storage.getItem(CART_KEY),saved);
+  }
+  const last=addToCart(original,{kind:'tables',purchases:[table('silver')]});assert.equal(last.purchases.length,10);
 });
 
 test('payment confirmation only clears its matching draft; sign-out clears personal details but keeps an unresolved reference',()=>{

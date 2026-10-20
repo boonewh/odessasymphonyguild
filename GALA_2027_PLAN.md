@@ -4,6 +4,10 @@ Last updated: October 19, 2026 (America/Chicago).
 
 ## Resume here
 
+### October 19: select tables and tickets together
+
+The functional catalog now uses independent checkboxes instead of a single radio selection. Buyers can select multiple table tiers plus couples/student date tickets, set each selection's extra seats or ticket quantity, review an itemized total and add the batch to their existing cart in one action. Nothing is preselected. A successful add clears the current selections to prevent accidental repeat additions; invalid or over-limit batches leave the saved cart unchanged. Existing gifts/contact details, per-checkout limits, server prices and payment/inventory handling remain intact. The older design-only/local single-order preview retains its original behavior. Build and 16 relevant tests pass, including mixed batch pricing and atomic rejection; browser checks confirm independent selection, quantities and adding both items together. Publish only to the board Preview.
+
 ### October 19: checkout transition warning fixed
 
 Saving the checkout reference mounted the order-status reader before checkout creation finished, causing a temporary verification error. The cart now shows a neutral Opening secure checkout state throughout creation and navigation to Stripe. Actual failures still expose the saved order and recovery controls; browser back/forward-cache restoration clears the redirect state. No payment-verification or duplicate-prevention rules are relaxed. Build and 12 cart/checkout tests pass. An isolated browser fixture verified a delayed request makes no premature order reads, failure exposes recovery, and a successful response does not mount the status reader during navigation. Fixture testing created no database orders or payments. Keep publishing limited to the board Preview.

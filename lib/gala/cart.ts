@@ -16,15 +16,16 @@ export const cartDraftSchema = cartContentsSchema.extend({ contact: draftContact
 }).strict();
 export type CartDraft = z.infer<typeof cartDraftSchema>;
 export type CartContents = z.infer<typeof cartContentsSchema>;
-export type CartAddition = { kind: "tables"; purchase: Purchase } | { kind: "gifts"; gifts: Gift[] };
+export type CartAddition = { kind: "tables"; purchases: Purchase[] } | { kind: "gifts"; gifts: Gift[] };
 export const emptyCart = (): CartDraft => ({ purchases: [], gifts: [], contact: { name: "", email: "", phone: "" } });
 export function readCart(raw: string | null): CartDraft {
   return raw === null ? emptyCart() : cartDraftSchema.parse(JSON.parse(raw));
 }
 export function addToCart(cart: CartDraft, addition: CartAddition): CartDraft {
   if (addition.kind === "gifts") z.array(giftSchema).min(1).max(20).parse(addition.gifts);
+  else z.array(purchaseSchema).min(1, "Choose at least one table or ticket option.").max(10).parse(addition.purchases);
   return cartDraftSchema.parse({ ...cart,
-    purchases: addition.kind === "tables" ? [...cart.purchases, addition.purchase] : cart.purchases,
+    purchases: addition.kind === "tables" ? [...cart.purchases, ...addition.purchases] : cart.purchases,
     gifts: addition.kind === "gifts" ? [...cart.gifts, ...addition.gifts] : cart.gifts,
   });
 }
