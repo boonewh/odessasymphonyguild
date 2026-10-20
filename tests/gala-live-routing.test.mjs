@@ -2,14 +2,19 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { build } from 'esbuild';
-import { readFile, mkdir } from 'node:fs/promises';
+import { mkdir } from 'node:fs/promises';
 import { liveSiteEnabled } from '../lib/gala/live-release.ts';
 import { backendEnabled } from '../lib/gala/backend/config.ts';
 import { readLiveConfig } from '../lib/gala/backend/live-config.ts';
 
-test('committed release gate cannot be opened with production flags or credentials', () => {
+test('approved live routing requires explicit production flags and excludes test deployments', () => {
   const env = { NODE_ENV: 'production', VERCEL_ENV: 'production', GALA_LIVE_ENABLED: 'true', GALA_BACKEND_ENABLED: 'true' };
-  assert.equal(liveSiteEnabled(env), false); assert.equal(backendEnabled(env), false);
+  assert.equal(liveSiteEnabled(env), true); assert.equal(backendEnabled(env), true);
+  for (const patch of [{ GALA_LIVE_ENABLED: undefined }, { GALA_LIVE_ENABLED: 'false' },
+    { VERCEL_ENV: 'preview' }, { VERCEL_ENV: undefined }, { NODE_ENV: 'development' },
+    { GALA_BOARD_REVIEW: 'true' }, { GALA_CLIENT_REVIEW: 'true' }]) {
+    assert.equal(liveSiteEnabled({ ...env, ...patch }), false);
+  }
 });
 test('live configuration cannot fall back to test credentials or the development database', () => {
   const env = { GALA_LIVE_ORIGIN:'https://gala.example', GALA_LIVE_SUPABASE_URL:'https://abcdefghijklmnopqrst.supabase.co',
@@ -22,14 +27,10 @@ test('live configuration cannot fall back to test credentials or the development
     assert.throws(() => readLiveConfig({...env,...patch}));
 });
 test('mounted live routes integrate private buyers, shared admin and Dues with fake providers only', async () => {
-  // Enable the release gate only in an isolated test bundle; never change source
-  // or offer an application environment-variable backdoor.
+  // Exercise the actual approved routing code with fictional providers only.
   await mkdir('.codex-remote-attachments', {recursive:true});
   const outfile='.codex-remote-attachments/live-routes-fixture.mjs';
-  await build({entryPoints:['tests/helpers/live-routes.mts'],outfile,bundle:true,platform:'node',format:'esm',packages:'external',alias:{'next/server':'next/server.js'},
-    plugins:[{name:'offline-release-fixture',setup(b){b.onLoad({filter:/live-release\.ts$/},async args=>({
-      contents:(await readFile(args.path,'utf8')).replace('LIVE_RELEASE_APPROVED: boolean = false','LIVE_RELEASE_APPROVED: boolean = true'),loader:'ts'
-    }));}}]});
+  await build({entryPoints:['tests/helpers/live-routes.mts'],outfile,bundle:true,platform:'node',format:'esm',packages:'external',alias:{'next/server':'next/server.js'}});
   const result = spawnSync(process.execPath, ['--conditions=react-server',outfile],
     {encoding:'utf8', windowsHide:true});
   assert.equal(result.status, 0, result.stdout + result.stderr);

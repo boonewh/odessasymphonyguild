@@ -55,7 +55,9 @@ test('each payment environment is pinned to OSG and test configuration cannot se
     GALA_PAYMENT_MODE: 'live', GALA_LIVE_ENABLED: 'true' };
   assert.equal(readBackendConfig(env).paymentMode, 'sandbox');
   assert.throws(() => readBackendConfig({ ...env, GALA_STRIPE_SECRET_KEY: 'sk_live_fixture' }));
-  assert.equal(backendEnabled({ ...env, NODE_ENV: 'production', VERCEL_ENV: 'production' }), false);
+  const liveEnv = { ...env, NODE_ENV: 'production', VERCEL_ENV: 'production' };
+  assert.equal(backendEnabled(liveEnv), true);
+  assert.throws(() => readBackendConfig(liveEnv), /live HTTPS origin/);
 });
 
 test('existing sandbox payload stays identical; future live payload changes only payment identity', () => {
