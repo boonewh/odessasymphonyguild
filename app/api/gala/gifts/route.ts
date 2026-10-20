@@ -10,7 +10,7 @@ async function handle(request:Request,write:boolean) {
   catch { return new Response(null,{status:401}); }
   try {
     const config=readBackendConfig(process.env),store=new SupabaseOrderStore(config.url,config.dbKey); store.staffSession = staffSession;
-    await store.verifyEnvironment();
+    await store.verifyEnvironment(config.paymentMode);
     if(write) {
       const body=await request.text(); if(body.length>2048)return new Response(null,{status:413});
       let json;try {json=JSON.parse(body);}catch{return Response.json({error:"Invalid gift update."},{status:400});}

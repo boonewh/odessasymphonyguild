@@ -11,7 +11,7 @@ async function handle(request:Request){
   try{staffSession = await authorizeStaff(request);}catch{return new Response(null,{status:401});}
   const headers={'Cache-Control':'no-store'};
   try{
-    const config=readBackendConfig(process.env);await new SupabaseOrderStore(config.url,config.dbKey).verifyEnvironment();
+    const config=readBackendConfig(process.env);await new SupabaseOrderStore(config.url,config.dbKey).verifyEnvironment(config.paymentMode);
     const queue=new SupabaseRecoveryStore(config.url,config.dbKey); queue.staffSession=staffSession;
     if(request.method==='POST'){
       const text=await request.text();if(text.length>2048)return new Response(null,{status:413,headers});

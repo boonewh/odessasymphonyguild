@@ -2,8 +2,8 @@
 // Checkout Session or key supplied by a buyer. Production routes remain closed.
 export type PaymentMode = "sandbox" | "live";
 const environments = {
-  sandbox: Object.freeze({ livemode: false, application: "osg-gala-development", account: "acct_1UPo5p46WzPrgtpT" }),
-  live: Object.freeze({ livemode: true, application: "osg-gala-2027", account: "acct_1UPo5fKdKFOoaTnc" }),
+  sandbox: Object.freeze({ livemode: false, application: "osg-gala-development", account: "acct_1UPo5p46WzPrgtpT", database: "osg-gala-development", sessionPrefix: "cs_test_" }),
+  live: Object.freeze({ livemode: true, application: "osg-gala-2027", account: "acct_1UPo5fKdKFOoaTnc", database: "osg-gala-production", sessionPrefix: "cs_live_" }),
 } as const;
 
 export function paymentEnvironment(mode: PaymentMode) {

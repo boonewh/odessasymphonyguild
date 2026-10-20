@@ -14,7 +14,7 @@ async function handle(request:Request) {
   try{
     const config=readBackendConfig(process.env),store=new SupabaseOrderStore(config.url,config.dbKey);
     store.customerHash=customerHash; store.staffSession=staffSession;
-    await store.verifyEnvironment();
+    await store.verifyEnvironment(config.paymentMode);
     if(request.method!=="GET"){
       const body=await request.text();if(body.length>(request.method==="POST"?24000:2048))return new Response(null,{status:413,headers});
       let json;try{json=JSON.parse(body);}catch{return Response.json({error:"Invalid invitation request."},{status:400,headers});}

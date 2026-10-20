@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     const stripe = new Stripe(config.key, { maxNetworkRetries: 0, timeout: 10_000 });
     verifyStripeAccount((await stripe.accounts.retrieveCurrent()).id, config.paymentMode);
     const store = new SupabaseOrderStore(config.url, config.dbKey);
-    await store.verifyEnvironment();
+    await store.verifyEnvironment(config.paymentMode);
     const queue = new SupabaseRecoveryStore(config.url, config.dbKey);
     // Shared database leases make overlapping scheduler calls safe. A terminated
     // invocation leaves its lease/hold intact for the next scheduled pass.

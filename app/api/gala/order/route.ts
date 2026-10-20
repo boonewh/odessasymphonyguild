@@ -17,7 +17,7 @@ async function handle(request: Request, mutate: boolean) {
   try {
     const orderId = z.uuid().parse(new URL(request.url).searchParams.get("orderId"));
     const config = readBackendConfig(process.env);
-    const store = new SupabaseOrderStore(config.url, config.dbKey); await store.verifyEnvironment();
+    const store = new SupabaseOrderStore(config.url, config.dbKey); await store.verifyEnvironment(config.paymentMode);
     store.customerHash = customerHash;
     let order = await store.get(orderId);
     let url: string | null = null;

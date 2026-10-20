@@ -4,6 +4,16 @@ Last updated: October 19, 2026 (America/Chicago).
 
 ## Resume here
 
+### October 19: production database package and access foundations prepared locally
+
+Prepared `supabase/gala-production/001_initial.sql` and its offline generator/runbook. The installer is one transaction, refuses existing public relations, starts with an empty ledger and board-approved unlimited inventory, and leaves sales/invitation submissions closed. Live payment IDs are required. Customer ownership is required at commit and cannot be reassigned; closing new sales preserves settlement/recovery of already-issued orders. Application permissions cannot reopen sales, change the environment marker, enroll named staff or reconnect retired Gala accounting. No hosted migration or configuration changed.
+
+Prepared live buyer/shared-admin session primitives with distinct signed identities and secure host-only cookies. Test, customer and legacy dues sessions cannot substitute for live admin access. Buyers will not need a shared code; live buyer ownership remains separate from the admin password. The database adapter and ledger can now explicitly validate the live environment while retaining sandbox defaults. These are foundations: public live session/login routes, production configuration, shared Dues integration and live wording are **not yet wired or enabled**. Current production routes still deny access.
+
+Next engineering step is the live request/session and shared-admin/Dues integration, followed by live copy/deadlines and release configuration. The database installation is prepared locally, not applied. Do not copy fixture records or apply the package to the existing membership or Gala development project. See `supabase/gala-production/README.md` for rehearsal, hosted acceptance and safe sales-pause procedure.
+
+Validation: **168 Gala tests, build, 80 built-app Preview/production checks and schema reproducibility passed.** Saved locally on the feature branch; the hosted test site and production are unchanged.
+
 ### October 19: user walkthrough accepted; production preparation started
 
 The user has completed and accepted the walkthrough, including the latest cart, ledger and checkout-return polish, and authorized starting live-site preparation. This closes the development walkthrough milestone. It does **not** authorize merging to main, opening live sales, applying production SQL or changing live credentials/provider settings.

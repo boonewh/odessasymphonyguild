@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { checkoutRequest } from "./checkout-request";
 import { csvDocument } from "./csv";
+import { paymentEnvironment, type PaymentMode } from "./backend/payment-mode";
 
 // Historical October 2026 prices, deliberately independent of the live catalogue.
 // A price change needs a versioned source of line prices, never a rewrite of these.
@@ -57,7 +58,8 @@ function addMoney(a: number, b: number) {
   if (!Number.isSafeInteger(sum)) throw new Error("Ledger total exceeds safe precision.");
   return sum;
 }
-export function buildLedger(raw: unknown): Ledger {
+export function buildLedger(raw: unknown, mode: PaymentMode = "sandbox"): Ledger {
+  const sessionPrefix = paymentEnvironment(mode).sessionPrefix;
   const snapshot = ledgerSnapshotSchema.parse(raw);
   const orders = new Map(snapshot.orders.map(o => [o.id, o]));
   if (orders.size !== snapshot.orders.length || new Set(snapshot.accounting.map(a => a.order_id)).size !== snapshot.accounting.length)
@@ -66,7 +68,7 @@ export function buildLedger(raw: unknown): Ledger {
   const payments = new Set<string>(), sessions = new Set<string>();
   for (const order of snapshot.orders) {
     if (order.details.requestId !== order.id) throw new Error("Order reference mismatch.");
-    if (order.status === "paid" && (!order.payment_intent_id?.startsWith("pi_") || !order.stripe_session_id?.startsWith("cs_test_") || !order.confirmed_at))
+    if (order.status === "paid" && (!order.payment_intent_id?.startsWith("pi_") || !order.stripe_session_id?.startsWith(sessionPrefix) || !order.confirmed_at))
       throw new Error("Paid order lacks payment evidence.");
     for (const [value, seen] of [[order.payment_intent_id, payments], [order.stripe_session_id, sessions]] as const) {
       if (value && seen.has(value)) throw new Error("Duplicate payment reference.");

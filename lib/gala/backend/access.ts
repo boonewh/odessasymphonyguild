@@ -1,7 +1,9 @@
 import { createHash, createHmac, randomBytes } from "node:crypto";
 import { authorizeLocalRequest, equalSecret } from "./auth";
+import { paymentEnvironment, type PaymentMode } from "./payment-mode";
 
 export const CUSTOMER_COOKIE = "gala_customer_session";
+export const LIVE_CUSTOMER_COOKIE = "__Host-osg_gala_customer";
 export const STAFF_COOKIE = "gala_staff_session";
 export const CUSTOMER_SECONDS = 24 * 3600;
 export const STAFF_SECONDS = 8 * 3600;
@@ -14,15 +16,22 @@ export function sameOrigin(request: Request, origin: string) {
   if (!["GET", "HEAD"].includes(request.method) && request.headers.get("origin") !== origin)
     throw new Error("Same-origin request required.");
 }
-export function createCustomerSession(key: string, now = Date.now()) {
-  const payload = `${Math.floor(now / 1000) + CUSTOMER_SECONDS}.${randomBytes(32).toString("hex")}`;
-  return `${payload}.${createHmac("sha256", key).update(`gala-customer:${payload}`).digest("hex")}`;
+function customerPurpose(mode: PaymentMode, key: string) {
+  paymentEnvironment(mode);
+  if (mode === "live" && key.length < 32) throw new Error("Customer access is not configured.");
+  return mode === "live" ? "gala-live-customer" : "gala-customer";
 }
-export function customerIdentity(cookie: string, key: string, now = Date.now()) {
+export function createCustomerSession(key: string, now = Date.now(), mode: PaymentMode = "sandbox") {
+  const purpose = customerPurpose(mode, key);
+  const payload = `${Math.floor(now / 1000) + CUSTOMER_SECONDS}.${randomBytes(32).toString("hex")}`;
+  return `${payload}.${createHmac("sha256", key).update(`${purpose}:${payload}`).digest("hex")}`;
+}
+export function customerIdentity(cookie: string, key: string, now = Date.now(), mode: PaymentMode = "sandbox") {
+  const purpose = customerPurpose(mode, key);
   const match = /^(\d+)\.([a-f0-9]{64})\.([a-f0-9]{64})$/.exec(cookie);
   const seconds = Math.floor(now / 1000);
   if (!match || Number(match[1]) <= seconds || Number(match[1]) > seconds + CUSTOMER_SECONDS
-    || !equalSecret(match[3], createHmac("sha256", key).update(`gala-customer:${match[1]}.${match[2]}`).digest("hex")))
+    || !equalSecret(match[3], createHmac("sha256", key).update(`${purpose}:${match[1]}.${match[2]}`).digest("hex")))
     throw new Error("Customer session required.");
   return secretHash(match[2]);
 }

@@ -1,5 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { databaseFetch } from "./database-fetch";
+import { paymentEnvironment, type PaymentMode } from "./payment-mode";
 import type { Order, OrderStore, priceRequest } from "./domain";
 import { CartUnavailable, GalaSalesClosed } from "./domain";
 import type { TableAssignment } from "../assignments";
@@ -50,9 +51,10 @@ export class SupabaseOrderStore implements OrderStore {
   constructor(url: string, secret: string, transport = databaseFetch()) {
     this.db = createClient(url, secret, { auth: { persistSession: false, autoRefreshToken: false }, global: { fetch: transport } });
   }
-  async verifyEnvironment() {
+  async verifyEnvironment(mode: PaymentMode = "sandbox") {
+    const expected = paymentEnvironment(mode).database;
     const { data, error } = await this.db.from("gala_environment").select("name").eq("id", 1).single();
-    if (error || data?.name !== "osg-gala-development") throw new Error("Development database marker is missing.");
+    if (error || data?.name !== expected) throw new Error("Gala database marker is missing or does not match.");
   }
   async assignments(): Promise<TableAssignment[]> {
     const { data, error } = await this.db.rpc("gala_assignment_list");
@@ -77,7 +79,7 @@ export class SupabaseOrderStore implements OrderStore {
   private async rpc(name: string, args: Record<string, unknown>): Promise<Order> {
     const { data, error } = await this.db.rpc(name, args);
     // Do not echo provider errors: they can include customer data or implementation details.
-    if (error?.code === "P0001" && error.message === "Gala sales closed for final accounting") throw new GalaSalesClosed();
+    if (error?.code === "P0001" && ["Gala sales closed for final accounting", "Gala submissions are closed"].includes(error.message)) throw new GalaSalesClosed();
     if ((name === "gala_reserve" || name === "gala_customer_reserve") && error?.code === "P0001"
       && error.message === "Table tier sold out or reserved") throw new CartUnavailable();
     if (error) throw new Error(`Gala database operation failed: ${name}`);

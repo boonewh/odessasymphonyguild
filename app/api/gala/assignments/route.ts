@@ -11,7 +11,7 @@ async function handle(request: Request, write: boolean) {
   const config = readBackendConfig(process.env);
   const store = new SupabaseOrderStore(config.url, config.dbKey); store.staffSession = staffSession;
   try {
-    await store.verifyEnvironment();
+    await store.verifyEnvironment(config.paymentMode);
     if (write) {
       const body = await request.text();
       if (body.length > 1024) return new Response(null, { status: 413 });

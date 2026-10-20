@@ -16,8 +16,8 @@ export async function GET(request: Request) {
     return Response.json({ error: "Check the ledger filters and date range." }, { status: 400, headers });
   try {
     const config = readBackendConfig(process.env), store = new SupabaseOrderStore(config.url, config.dbKey);
-    await store.verifyEnvironment();
-    const report = ledgerReport(await store.ledgerSnapshot());
+    await store.verifyEnvironment(config.paymentMode);
+    const report = ledgerReport(await store.ledgerSnapshot(), new Date().toISOString(), config.paymentMode);
     if (format === "json") return Response.json(report, { headers });
     if (format === "preview") return Response.json({ testOnly: true, notice: "Review copy only. This does not send or reserve an accounting entry.",
       checkedAt: report.checkedAt, ...report.preview, accountingHistory: report.history, lines: report.lines.filter(l => l.status === "paid") },

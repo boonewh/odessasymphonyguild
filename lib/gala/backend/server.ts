@@ -14,6 +14,6 @@ export async function backend() {
   const account = await stripe.accounts.retrieveCurrent();
   verifyStripeAccount(account.id, config.paymentMode);
   const store = new SupabaseOrderStore(config.url, config.dbKey);
-  await store.verifyEnvironment();
+  await store.verifyEnvironment(config.paymentMode);
   return { config, stripe, store };
 }

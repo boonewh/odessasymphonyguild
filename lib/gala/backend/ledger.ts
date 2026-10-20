@@ -1,8 +1,9 @@
 import { createHash } from "node:crypto";
 import { buildLedger, type LedgerReport } from "../ledger";
+import type { PaymentMode } from "./payment-mode";
 
-export function ledgerReport(snapshot: unknown, checkedAt = new Date().toISOString()): LedgerReport {
-  const ledger = buildLedger(snapshot);
+export function ledgerReport(snapshot: unknown, checkedAt = new Date().toISOString(), mode: PaymentMode = "sandbox"): LedgerReport {
+  const ledger = buildLedger(snapshot, mode);
   const paid = ledger.lines.filter(l => l.status === "paid");
   // Content identity excludes read time and unpaid drafts. Never accept this
   // client-held reference as posting authority; a future sender must revalidate.
