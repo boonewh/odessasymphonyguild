@@ -2,6 +2,11 @@
 
 User instruction, September 28, 2026: keep this feature away from live until ready and tested. The October 19 board decision explicitly permits unlimited table sales; finite limits remain optional. A generic request to push or publish does not waive this requirement.
 
+## Required launch wording review — user reminder, October 19
+
+- [ ] Review every live buyer and admin flow for test/development language: navigation, access prompts, product pages, cart, checkout buttons, loading states, payment returns, confirmations, errors, invitation requests, admin actions and exports. Replace test-only wording with accurate live wording, remove test-card instructions and fictional-data prompts from live pages, and verify both successful and failed payment paths.
+- [ ] Preserve clear test labels and instructions on the separate test site. Confirm live pages reflect actual payment/fulfillment behavior and approved policies; changing wording alone does not enable or authorize live sales.
+
 ## October 19: current scope — unlimited tables, manual bookkeeping
 
 - [x] User chooses one shared admin password, managed by Will through 2027, with Dues/Gala navigation and a future Patron placeholder. Individual admin names/emails and separate ledger permissions are superseded by this decision.

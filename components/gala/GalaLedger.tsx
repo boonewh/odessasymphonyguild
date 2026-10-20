@@ -16,7 +16,7 @@ export default function GalaLedger({ active = true }: { active?: boolean }) {
     setBusy(true); setError("");
     try {
       const response = await fetch("/api/gala/ledger", { cache: "no-store", signal });
-      if (response.status === 401) throw new Error("Sign in again with accounting access to view the ledger.");
+      if (response.status === 401) throw new Error("Sign in again to view the ledger.");
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Could not load the ledger.");
       if (!signal?.aborted) setReport(result);
@@ -37,17 +37,17 @@ export default function GalaLedger({ active = true }: { active?: boolean }) {
   const items = ledgerProductTotals(lines);
   const paidSubtotal = items.reduce((sum, item) => sum + item.amount, 0);
   const lastPage = Math.max(0, Math.ceil(lines.length / pageSize) - 1), currentPage = Math.min(page, lastPage);
-  async function download(format: "csv" | "summary" | "preview") {
+  async function download(format: "csv" | "summary") {
     setBusy(true); setError("");
     try {
-      const query = new URLSearchParams(format === "preview" ? { format } : { ...filter, format });
+      const query = new URLSearchParams({ ...filter, format });
       const response = await fetch(`/api/gala/ledger?${query}`, { cache: "no-store" });
       if (!response.ok) {
-        if (response.status === 401) throw new Error("Sign in again with accounting access to download the ledger.");
+        if (response.status === 401) throw new Error("Sign in again to download the ledger.");
         const result = await response.json(); throw new Error(result.error || "Download failed. Try again.");
       }
       const url = URL.createObjectURL(await response.blob()), link = document.createElement("a");
-      link.href = url; link.download = format === "preview" ? "gala-final-total-preview.json" : format === "csv" ? "gala-item-ledger.csv" : "gala-paid-item-totals.csv";
+      link.href = url; link.download = format === "csv" ? "gala-item-ledger.csv" : "gala-paid-item-totals.csv";
       document.body.appendChild(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch (e) { setReport(null); setError((e as Error).message); }
     finally { setBusy(false); }
@@ -103,19 +103,6 @@ export default function GalaLedger({ active = true }: { active?: boolean }) {
         <nav className={styles.tools} aria-label="Ledger pages"><button type="button" className={ledgerStyles.secondary} disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)}>Previous</button>
           <span>Page {currentPage + 1} of {lastPage + 1}</span><button type="button" className={ledgerStyles.secondary} disabled={currentPage === lastPage} onClick={() => setPage(currentPage + 1)}>Next</button></nav>
       </>}
-      <section className={ledgerStyles.preview} aria-labelledby="final-total-title">
-        <h3 id="final-total-title">Total paid sales</h3>
-        <p className={ledgerStyles.finalAmount}>{money(report.preview.amount)}</p>
-        <p>For manual entry under <strong>{report.preview.account}</strong>, covering all {report.paidOrderCount} paid orders. Filters above do not change this total.</p>
-        <p>This is gross sales before Stripe fees, not the bank deposit amount. Use Stripe’s balance report to account for fees and deposits. Nothing is sent to QuickBooks.</p>
-        <ul role="list">{report.preview.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul>
-        {report.history.length > 0 && <details><summary>Historical test accounting records ({report.history.length})</summary>
-          <p>These sales remain in the ledger. Check these historical entries before manually recording the same sales again.</p>
-          <ul role="list">{report.history.map(item => <li key={item.orderId}>Order {item.orderId} · {money(item.amount)} · {item.receiptId ? `QuickBooks receipt ${item.receiptId}` : "Accounting attempt needs review"}</li>)}</ul>
-        </details>}
-        <details><summary>Save a detailed review copy</summary><p>This file includes the paid item details, included order references and a reference identifying this version of the total. It is for review, not a QuickBooks import.</p>
-          <button type="button" className={ledgerStyles.secondary} disabled={busy} onClick={() => void download("preview")}>Download review copy (JSON)</button></details>
-      </section>
     </>}
   </section>;
 }

@@ -4,6 +4,10 @@ Last updated: October 19, 2026 (America/Chicago).
 
 ## Resume here
 
+### October 19: simplify the Sales ledger footer
+
+Removed the obsolete accounting/final-total review section from the bottom of Sales ledger, including QuickBooks history and the technical JSON review-copy control. Paid sales totals, item details, filters and both CSV downloads remain. This is a presentation cleanup only; historical accounting data and the existing protected reporting endpoints are retained.
+
 ### October 19: select tables and tickets together
 
 The functional catalog now uses independent checkboxes instead of a single radio selection. Buyers can select multiple table tiers plus couples/student date tickets, set each selection's extra seats or ticket quantity, review an itemized total and add the batch to their existing cart in one action. Nothing is preselected. A successful add clears the current selections to prevent accidental repeat additions; invalid or over-limit batches leave the saved cart unchanged. Existing gifts/contact details, per-checkout limits, server prices and payment/inventory handling remain intact. The older design-only/local single-order preview retains its original behavior. Build and 16 relevant tests pass, including mixed batch pricing and atomic rejection; browser checks confirm independent selection, quantities and adding both items together. Publish only to the board Preview.
