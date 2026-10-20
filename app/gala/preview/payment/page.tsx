@@ -10,8 +10,7 @@ export default async function PaymentReturn({ searchParams }: { searchParams: Pr
   const parsed = z.uuid().safeParse((await searchParams).order_id);
   if (backendEnabled(process.env) && parsed.success) return <main className={styles.lab}>
     <span className={styles.badge}>TEST SITE · NO REAL PAYMENTS</span><h1>Your Gala order</h1>
-    <SandboxAccess><SandboxOrderStatus key={parsed.data} id={parsed.data} /></SandboxAccess>
-    <nav className={styles.nav} aria-label="Return navigation"><Link href="/">Return to website</Link></nav>
+    <SandboxAccess><SandboxOrderStatus key={parsed.data} id={parsed.data} returnToWebsite /></SandboxAccess>
   </main>;
   return <main style={{ maxWidth: 680, margin: "80px auto", padding: 24 }}>
     <h1>Gala payment testing</h1>

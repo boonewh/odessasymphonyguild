@@ -39,7 +39,7 @@ export function SandboxAccess({ children, invitations = false }: { children: Rea
 }
 
 type Summary = { id: string; status: "paid" | "expired" | "reserved" | "awaiting_payment"; kind: "tables" | "gifts" | "cart"; amount: number; description: string; lines?: { name: string; amount: number }[] };
-export function SandboxOrderStatus({ id, retry, startAnother }: { id: string; retry?: () => Promise<void>; startAnother?: () => void }) {
+export function SandboxOrderStatus({ id, retry, startAnother, returnToWebsite = false }: { id: string; retry?: () => Promise<void>; startAnother?: () => void; returnToWebsite?: boolean }) {
   const [order, setOrder] = useState<Summary | null>(null), [error, setError] = useState(""), [busy, setBusy] = useState(false);
   const lock = useRef(false);
   const refresh = useCallback(async () => {
@@ -97,13 +97,16 @@ export function SandboxOrderStatus({ id, retry, startAnother }: { id: string; re
       {order && <button className={styles.secondary} disabled={busy} onClick={() => void act("expire")}>Cancel unpaid checkout</button>}
     </div>}
     {closed && (startAnother ? <button className={styles.primary} onClick={startAnother}>{order.status === "expired" ? "Return to your saved cart" : "Start another test order"}</button>
-      : <Link href="/gala/cart" onClick={event => {
+      : <div className={styles.actions}>
+        {(!returnToWebsite || order.status === "expired") && <Link className={styles.secondary} href="/gala/cart" onClick={event => {
         try {
           if (checkoutReference(sessionStorage) === id) {
             sessionStorage.removeItem(FLYER_ATTEMPT_KEY); sessionStorage.removeItem(CHECKOUT_REFERENCE_KEY); cartChanged();
           }
         } catch { event.preventDefault(); setError("Your browser storage could not be updated. Reload before starting another order."); }
-      }}>Return to your cart</Link>)}
+      }}>Return to your cart</Link>}
+        {returnToWebsite && <Link className={styles.primary} href="/">Return to website</Link>}
+      </div>)}
     <p className={styles.fine}>Test only. No real money is charged. <Link href="/gala/preview/admin">View in Gala admin</Link></p>
   </section>;
 }
