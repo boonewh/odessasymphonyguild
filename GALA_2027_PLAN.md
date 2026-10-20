@@ -1,5 +1,15 @@
 # Gala 2027: decisions, payment research, and implementation handoff
 
+### October 20: shared production database installer adapted and rehearsed locally
+
+The user chooses the existing production membership database for Gala, with separate `public.gala_*` tables/functions, while keeping development/test data separate. This supersedes older dedicated/empty-project instructions below. No production application, deployment or launch is authorized.
+
+The installer now permits existing membership objects, rejects any preexisting Gala relation/function/type, and scopes its privacy restrictions exclusively to Gala. It preserves shared default privileges and all unrelated grants. The development installer still requires its empty development database. Future Gala migrations must explicitly secure their own objects because shared project defaults remain unchanged.
+
+Validation: **177 Gala tests**, **3 membership OAuth tests**, production build, **82 built-app Preview/production HTTP checks**, and SQL reproducibility pass. Disposable databases use the actual repository membership migrations plus fictional records and permissive grant defaults. Before/after comparisons preserve records, columns, constraints, policies, grants, functions, sequence state and defaults, including installation rollback. Dues roster/pricing/paid-status routes work against the combined local database; Gala payment settlement and ledger reporting also pass beside the unchanged membership data.
+
+These are local checks, not inspection of the hosted database's current schema. Before an authorized application, verify the actual production membership project, backup/recovery, schema/grants and baseline records, then install and confirm Dues and the closed Gala defaults. See `supabase/gala-production/README.md`. Live configuration keeps explicit `GALA_LIVE_*` names pointed at the shared production project; Preview remains on Gala Development. The release gate remains false.
+
 ### October 20: dependency release check completed locally
 
 Applied compatible transitive patches: source-map-js 1.2.1 → 1.2.2 and postcss-selector-parser 6.1.4 → 6.1.5. No framework migration, provider change or deployment. The dependency review is complete with residual findings documented in `GALA_DEPENDENCY_SECURITY.md`: build-tool braces, the mitigated legacy membership decoder, and an npm warning that still includes the maintainer-confirmed selector-parser backport. The raw audit is 12 package entries (7 high, 5 moderate, 0 critical); this is not a clean-audit or broad application-security claim. These are technical maintenance findings, not additional OSG questions.

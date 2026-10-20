@@ -62,14 +62,25 @@ revoke all on function public.gala_staff_identity(text,boolean),
 revoke insert,update,delete,truncate on public.gala_environment from service_role;
 revoke all on function public.gala_require_open(),public.gala_require_customer() from public,anon,authenticated;
 
--- All tables/functions in this dedicated project are private. Revoke defaults
--- as well as the current grants so future migrations do not silently expose data.
-revoke all on all tables in schema public from public,anon,authenticated;
-revoke all on all sequences in schema public from public,anon,authenticated;
-revoke all on all functions in schema public from public,anon,authenticated;
-alter default privileges in schema public revoke all on tables from public,anon,authenticated;
-alter default privileges in schema public revoke all on sequences from public,anon,authenticated;
-alter default privileges in schema public revoke execute on functions from public,anon,authenticated;
+-- Only Gala objects are private here. Never change membership grants or shared
+-- default privileges. Future Gala migrations must explicitly revoke browser
+-- access too; Supabase's existing defaults may grant it to newly created objects.
+do $gala_privacy$
+declare obj record;
+begin
+  for obj in select relname,relkind from pg_class
+    where relnamespace='public'::regnamespace and left(relname,5)='gala_'
+      and relkind in ('r','p','v','m','S','f')
+  loop
+    execute format('revoke all on %s public.%I from public,anon,authenticated',
+      case when obj.relkind='S' then 'sequence' else 'table' end,obj.relname);
+  end loop;
+  for obj in select oid::regprocedure as signature from pg_proc
+    where pronamespace='public'::regnamespace and left(proname,5)='gala_'
+  loop
+    execute format('revoke all on function %s from public,anon,authenticated',obj.signature);
+  end loop;
+end $gala_privacy$;
 
 do $$ begin
   if exists(select 1 from public.gala_orders) or exists(select 1 from public.gala_invitation_requests)

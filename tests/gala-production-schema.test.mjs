@@ -6,6 +6,7 @@ import { PGlite } from '@electric-sql/pglite';
 import { productionSchema } from '../scripts/gala-production-schema.mts';
 import { priceRequest } from '../lib/gala/backend/domain.ts';
 import { ledgerReport } from '../lib/gala/backend/ledger.ts';
+import { membershipDatabase, membershipSnapshot, studentId } from './helpers/membership-database.mjs';
 
 const alice = 'a'.repeat(64), bob = 'b'.repeat(64);
 const input = () => ({ requestId: randomUUID(), kind: 'cart', allSalesFinal: true,
@@ -45,16 +46,84 @@ test('production installer is reproducible, empty, unlimited, private and closed
   assert.equal(ledgerReport(await rpc('gala_ledger_snapshot')).paidAmount, 0);
 });
 
-test('installer refuses existing databases and a repeated installation without overwriting data', async t => {
+test('installer allows unrelated objects and refuses repeated installation without overwriting data', async t => {
   const { db } = await setup(t, false);
   await db.exec("create table membership_fixture(id int); insert into membership_fixture values(7)");
-  await assert.rejects(db.exec(await productionSchema()), /nonempty/); await db.exec('rollback');
-  assert.equal((await db.query('select id from membership_fixture')).rows[0].id, 7);
-  assert.equal((await db.query("select to_regclass('public.gala_orders') as name")).rows[0].name, null);
-  await db.exec('drop table membership_fixture');
   await db.exec(await productionSchema());
-  await assert.rejects(db.exec(await productionSchema()), /nonempty/); await db.exec('rollback');
+  assert.equal((await db.query('select id from membership_fixture')).rows[0].id, 7);
+  await assert.rejects(db.exec(await productionSchema()), /existing public.gala_/); await db.exec('rollback');
   assert.equal((await db.query('select count(*)::int as n from gala_inventory')).rows[0].n, 3);
+});
+
+test('partial Gala tables, views, sequences, functions and types are rejected before membership changes', async t => {
+  const db = await membershipDatabase(); t.after(() => db.close());
+  const before = await membershipSnapshot(db);
+  for (const [create, drop] of [
+    ["create table gala_environment(name text); insert into gala_environment values('osg-gala-development')", 'drop table gala_environment'],
+    ['create view gala_orders as select 1 as id', 'drop view gala_orders'],
+    ['create sequence gala_sequence', 'drop sequence gala_sequence'],
+    ["create function gala_reserve() returns text language sql as 'select ''preserve me''::text'", 'drop function gala_reserve()'],
+    ["create type gala_status as enum ('existing')", 'drop type gala_status'],
+  ]) {
+    await db.exec(create);
+    await assert.rejects(db.exec(await productionSchema()), /existing public.gala_/);
+    await db.exec('rollback');
+    assert.deepEqual(await membershipSnapshot(db), before);
+    if (create.startsWith('create function')) assert.equal((await db.query('select gala_reserve() as value')).rows[0].value, 'preserve me');
+    if (create.startsWith('create table')) assert.equal((await db.query('select name from gala_environment')).rows[0].name, 'osg-gala-development');
+    await db.exec(drop);
+  }
+});
+
+test('shared install preserves membership data, schema and permissions; Dues reads and writes still work', async t => {
+  const db = await membershipDatabase(); t.after(() => db.close());
+  const before = await membershipSnapshot(db);
+  const sql = await productionSchema();
+  // A late failure must also leave the existing membership application intact.
+  await assert.rejects(db.exec(sql.replace(/commit;\s*$/, 'select * from missing_release_table;\ncommit;')), /does not exist/);
+  await db.exec('rollback');
+  assert.deepEqual(await membershipSnapshot(db), before);
+  assert.equal((await db.query("select to_regclass('public.gala_orders') as name")).rows[0].name, null);
+  await db.exec(sql);
+  assert.deepEqual(await membershipSnapshot(db), before);
+  // Gala remains functional beside membership, including a complete settlement.
+  await db.exec('update gala_operating_state set sales_open=true; set role service_role');
+  const q = priceRequest(input());
+  const order = (await db.query('select gala_customer_reserve($1,$2,$3,$4,$5,$6,$7) as value',
+    [alice,q.details.requestId,q.hash,JSON.stringify(q.details),q.amount,q.description,q.tier])).rows[0].value;
+  await db.query('select gala_bind_checkout($1,$2)', [order.id,'cs_live_sharedfixture']);
+  await db.query('select gala_apply_payment($1,$2,$3,$4,$5)',
+    [order.id,'cs_live_sharedfixture','paid','pi_sharedfixture','evt_sharedfixture']);
+  assert.equal(ledgerReport((await db.query('select gala_ledger_snapshot() as value')).rows[0].value,
+    new Date().toISOString(),'live').paidAmount,212000);
+  for (const statement of ['select * from gala_qb_connection','select * from gala_staff_sessions',
+    'update gala_operating_state set sales_open=false',"update gala_environment set name='wrong'",
+    `select gala_qb_lock('${randomUUID()}'::uuid)`]) await assert.rejects(db.exec(statement), /permission denied/);
+  await db.exec('reset role; update gala_operating_state set sales_open=false');
+  assert.deepEqual(await membershipSnapshot(db), before);
+  for (const role of ['anon','authenticated']) {
+    assert.deepEqual((await db.query(`select relname from pg_class where relnamespace='public'::regnamespace
+      and left(relname,5)='gala_' and relkind='r'
+      and (has_table_privilege($1,oid,'SELECT') or has_table_privilege($1,oid,'INSERT')
+        or has_table_privilege($1,oid,'UPDATE') or has_table_privilege($1,oid,'DELETE'))`, [role])).rows, []);
+    assert.deepEqual((await db.query(`select proname from pg_proc where pronamespace='public'::regnamespace
+      and left(proname,5)='gala_' and has_function_privilege($1,oid,'EXECUTE')`, [role])).rows, []);
+    await db.exec(`set role ${role}`);
+    assert.deepEqual((await db.query('select * from students')).rows, []);
+    assert.deepEqual((await db.query('select * from qb_tokens')).rows, []);
+    assert.equal((await db.query("select membership_price('dues_returning') as value")).rows[0].value, '325');
+    await db.exec('reset role');
+  }
+  await db.exec('set role service_role');
+  assert.equal((await db.query('select guardian_1_email from students where id=$1', [studentId])).rows[0].guardian_1_email, 'guardian@example.com');
+  await db.query('update students set late_fee_applied=true,late_fee_amount=100 where id=$1', [studentId]);
+  assert.equal((await db.query('select late_fee_amount from students where id=$1', [studentId])).rows[0].late_fee_amount, 100);
+  await db.exec("update settings set value='350' where key='dues_returning'");
+  assert.equal((await db.query("select value from settings where key='dues_returning'")).rows[0].value, '350');
+  assert.equal((await db.query('select count(*)::int as n from belles_beaux_interests')).rows[0].n, 1);
+  assert.equal((await db.query('select access_token from qb_tokens')).rows[0].access_token, 'fictional_sealed_access');
+  await assert.rejects(db.exec('update gala_operating_state set sales_open=true'), /permission denied/);
+  assert.equal((await db.query("select count(*)::int as n from gala_orders where status='paid'")).rows[0].n, 1);
 });
 
 test('an installation failure rolls back the complete schema instead of publishing partial permissions', async t => {

@@ -11,6 +11,7 @@
 - Online card payments through Stripe are settled scope, not an open question. The existing website Contact section is the approved buyer-help destination. OSG handles correction requests when contacted; anyone with the shared password may use the existing admin tools. Do not require a named correction approver or propose more payment methods without a new request.
 - Current Gala venue wording: La Hacienda. Current policy: all sales final, no refunds. Both may be revised only following a new user decision.
 - Keep attached conversation screenshots and local credentials out of Git.
+- October 20 database decision: install Gala's separate `public.gala_*` objects in the existing production membership database; keep development/test separate. Preserve Dues records, schema, grants and shared default privileges. Adapting/testing the installer locally is authorized; applying it to production or launching still requires explicit authorization.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

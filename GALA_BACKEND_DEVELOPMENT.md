@@ -1,5 +1,15 @@
 # Gala backend development
 
+## October 20: shared production database preparation (local only)
+
+The user chooses the existing production membership database for Gala, superseding the earlier dedicated-project plan. `scripts/gala-production-schema.mts` now removes only the explicitly matched development empty-database guard and replaces it with a production guard against existing `public.gala_*` relations, functions and types. The generated SQL remains one transaction. Final privacy revocations target Gala objects only, with quoted relation names and complete function signatures; membership grants and shared default privileges are preserved. Development installation and test isolation remain unchanged.
+
+`tests/helpers/membership-database.mjs` creates disposable fixtures from all nine committed membership migrations, with fictional students, guardian details, pricing, interest records and token placeholders. Permissive default grants exercise the shared-project risk. Tests compare membership data/schema/policies/grants/functions/defaults/sequence state before and after both successful installation and forced rollback, reject partial/prior Gala installs, and verify Gala payment settlement and private access alongside Dues.
+
+The existing live-route rehearsal now points both configurations at one fictional database URL and executes Dues roster reads, pricing updates and paid-status changes against the installed local database through a narrow PostgREST stand-in. Real middleware/session/route code is exercised; no hosted requests or real records are used. The separate membership OAuth tests remain unchanged.
+
+Validation: **177 Gala tests**, **3 OAuth tests**, build, **82 built-app Preview/production HTTP checks**, SQL reproducibility and the final focused schema checks pass. The current installer/runbook and live configuration instructions are in `supabase/gala-production/README.md` and `GALA_LIVE_ACCESS.md`. Actual hosted schema/backup inspection and application are still separate authorized release actions. Production gate false; no provider settings, credentials, deployment or hosted database changed.
+
 ## October 20: live scheduled-recovery wiring (not hosted)
 
 `scheduledRecoveryEnabled` admits the approved board Preview or future gated live mode. Authorization requires POST and the environment-specific random bearer secret; reuse of admin/session/test credentials is rejected. The real route continues through account pinning, matching database marker, durable claims and verified settlement. Local route tests use a disposable gate-enabled bundle, fictional Stripe and a strict database transport; the committed release gate stays false. The development foreground worker is unchanged. Hosted schedule/secret/monitoring setup remains pending; see `GALA_LIVE_ACCESS.md`.
