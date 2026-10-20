@@ -1,5 +1,13 @@
 # Gala 2027: decisions, payment research, and implementation handoff
 
+### October 20: authorized live services staged; sales remain closed
+
+The user subsequently authorized the production database installation and live-service configuration while expressly withholding sales activation. Gala is now installed in the existing Odessa Symphony Guild membership project (`uhfxkdzhpyzuwkvmners`). Actual before/after membership records, columns, schema and grants match; 120 students remain readable. The new cron extension adds only its own schema defaults to the broader fingerprint. Gala is empty, has three approved unlimited tiers, and both sales and invitations remain closed.
+
+All eight `GALA_LIVE_*` settings are configured in Vercel Production only, including `GALA_LIVE_ENABLED=false`. The user supplied a restricted live key created with Stripe's One-time payments template; OSG account identity and enabled payments/payouts are verified. Stripe's payout schedule is manual. The key response did not expose the bank destination, so that is not claimed verified. The live webhook is created but disabled. A once-per-minute recovery job is staged inactive; its independent secret was generated inside Supabase Vault and copied privately to Vercel. No key values are committed.
+
+No production application deployment, main merge, actual charge or payout occurred. The current public Gala API still returns 404. Final hosted webhook delivery and recovery heartbeat verification require deployment of the release candidate; then explicit user approval is required to open submissions. Detailed evidence and the finite release sequence are in `supabase/gala-production/STAGED_SETUP.md`. Thirteen focused database/access tests and SQL reproducibility pass. Earlier dated “not applied” notes describe prior milestones.
+
 ### October 20: shared production database installer adapted and rehearsed locally
 
 The user chooses the existing production membership database for Gala, with separate `public.gala_*` tables/functions, while keeping development/test data separate. This supersedes older dedicated/empty-project instructions below. No production application, deployment or launch is authorized.

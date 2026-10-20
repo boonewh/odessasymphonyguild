@@ -1,5 +1,9 @@
 # Gala backend development
 
+## October 20: production services staged under explicit setup authorization
+
+The production installer is now applied to the existing membership database, and the eight production-only Gala settings, disabled Stripe webhook and inactive recovery schedule are staged. Sales and invitation flags remain closed; no application release or activation occurred. Hosted read-only checks preserve membership records and permissions and deny browser access to Gala. Thirteen focused database/access tests and SQL reproducibility pass. See `supabase/gala-production/STAGED_SETUP.md` for identifiers, private evidence filenames, remaining hosted delivery checks and release order. Earlier local-only notes below describe prior work.
+
 ## October 20: shared production database preparation (local only)
 
 The user chooses the existing production membership database for Gala, superseding the earlier dedicated-project plan. `scripts/gala-production-schema.mts` now removes only the explicitly matched development empty-database guard and replaces it with a production guard against existing `public.gala_*` relations, functions and types. The generated SQL remains one transaction. Final privacy revocations target Gala objects only, with quoted relation names and complete function signatures; membership grants and shared default privileges are preserved. Development installation and test isolation remain unchanged.

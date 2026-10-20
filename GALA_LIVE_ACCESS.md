@@ -1,5 +1,7 @@
 # Live access wiring — prepared, not released
 
+**October 20 setup update:** the user authorized production database installation and service configuration while keeping sales closed. Those services are now staged: the shared production database, eight Vercel Production settings, disabled live Stripe webhook and inactive recovery job. The code release gate and `GALA_LIVE_ENABLED` remain false; the existing public deployment is unchanged. See `supabase/gala-production/STAGED_SETUP.md`. Hosted route, delivery and heartbeat acceptance remain pending deployment; dated local-only statements below are historical.
+
 October 19, 2026. The feature branch connects the live buyer session, shared admin entrance and existing Dues workflow. `lib/gala/live-release.ts` deliberately has `LIVE_RELEASE_APPROVED = false`. No environment flag can open it. No production deployment, provider setting, hosted migration, password or membership record changed.
 
 ## Connected behavior

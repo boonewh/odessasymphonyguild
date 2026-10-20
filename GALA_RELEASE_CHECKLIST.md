@@ -1,5 +1,17 @@
 # Gala sales: release preparation — production remains closed
 
+## October 20: authorized hosted setup completed with services inactive
+
+- [x] Apply the reviewed installer to the existing production membership database after actual schema and backup inspection. Verify unchanged membership records/schema/grants, 120 readable students, empty Gala data, approved unlimited inventory and closed sales/invitations.
+- [x] Configure eight production-only Gala variables in Vercel. Verify `GALA_LIVE_ENABLED=false`; preserve Preview sandbox configuration.
+- [x] Verify OSG's live Stripe account, enabled payments/payouts and manual payout schedule. Stage the four-event live webhook disabled. Bank destination was not returned by the restricted key; do not claim it was verified.
+- [x] Generate an independent recovery credential inside production Vault, copy it privately to Vercel, and stage one inactive once-per-minute recovery job. Verify zero runs and denied browser access to Vault.
+- [x] Run 13 focused database/access tests and SQL reproducibility. Verify the current public homepage remains 200 and the unreleased Gala API remains 404.
+- [ ] Release candidate deployment and hosted acceptance: retain closed submission flags, verify actual Dues/admin access, live webhook handling and a successful recovery heartbeat, and record the release commit.
+- [ ] Obtain explicit sales activation approval; open the intended submission flags and verify public buyer access. No real payment/payout was created during setup.
+
+See `supabase/gala-production/STAGED_SETUP.md` for actual evidence and activation order. The user authorized live database/service setup; no main merge, production application deployment or sales activation was performed. Earlier “not applied” statements below are historical.
+
 ## October 20: share the existing production membership database
 
 - [x] User selects the existing production membership database; retain a separate development/test database. This supersedes earlier dedicated-project instructions.

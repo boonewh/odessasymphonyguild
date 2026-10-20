@@ -1,6 +1,6 @@
 # Gala production database preparation
 
-**Prepared locally only. Not applied to Supabase. Sales are not authorized to launch.**
+**October 20: applied to the authorized existing production membership project. Sales and invitations remain closed. Do not rerun the one-time installer.** See [staged setup and remaining release checks](STAGED_SETUP.md).
 
 **October 20 decision:** use the existing production membership database for Gala, with separate `public.gala_*` objects. Keep the Gala development database separate. This supersedes the earlier dedicated-project plan.
 
@@ -21,6 +21,8 @@ The committed result starts with:
 - Gala accounting writers and connection access disabled. Empty compatibility tables/functions remain to avoid forking the tested ledger schema; no QuickBooks connection or sending is configured. Membership services are not included or changed.
 
 `production-safeguards.sql` is an input fragment, **not** a standalone migration. Do not apply it separately or run the development SQL in a live project.
+
+Operator tools: `membership-baseline.sql` captures record/schema fingerprints without returning personal records or tokens; `verify-closed.sql` rejects a nonempty, open or incorrectly permissioned fresh installation. `stage-recovery.sql` stages an inactive schedule and generates its credential inside Vault without a literal secret in SQL. It is separate from the initial installer. These checks do not replace hosted application acceptance.
 
 ## Reproduce and rehearse locally
 

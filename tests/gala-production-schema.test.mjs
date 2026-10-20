@@ -44,6 +44,12 @@ test('production installer is reproducible, empty, unlimited, private and closed
     assert.equal(tier.paid, 0); assert.equal(tier.held, 0);
   }
   assert.equal(ledgerReport(await rpc('gala_ledger_snapshot')).paidAmount, 0);
+  const acceptance = await readFile(new URL('../supabase/gala-production/verify-closed.sql', import.meta.url), 'utf8');
+  const verified = (await db.exec(acceptance)).find(result => result.rows[0]?.closed_installation_verification)?.rows[0];
+  assert.equal(verified.closed_installation_verification, 'passed');
+  await db.exec('update gala_operating_state set sales_open=true');
+  await assert.rejects(db.exec(acceptance), /must remain closed/);
+  await db.exec('rollback; update gala_operating_state set sales_open=false');
 });
 
 test('installer allows unrelated objects and refuses repeated installation without overwriting data', async t => {
@@ -78,6 +84,10 @@ test('partial Gala tables, views, sequences, functions and types are rejected be
 test('shared install preserves membership data, schema and permissions; Dues reads and writes still work', async t => {
   const db = await membershipDatabase(); t.after(() => db.close());
   const before = await membershipSnapshot(db);
+  const baselineSql = await readFile(new URL('../supabase/gala-production/membership-baseline.sql', import.meta.url), 'utf8');
+  const baseline = async () => (await db.exec(baselineSql)).find(result => result.rows[0]?.installation_baseline)?.rows[0].installation_baseline;
+  const operatorBefore = await baseline();
+  assert.deepEqual(operatorBefore.gala_objects, []);
   const sql = await productionSchema();
   // A late failure must also leave the existing membership application intact.
   await assert.rejects(db.exec(sql.replace(/commit;\s*$/, 'select * from missing_release_table;\ncommit;')), /does not exist/);
@@ -86,6 +96,11 @@ test('shared install preserves membership data, schema and permissions; Dues rea
   assert.equal((await db.query("select to_regclass('public.gala_orders') as name")).rows[0].name, null);
   await db.exec(sql);
   assert.deepEqual(await membershipSnapshot(db), before);
+  const operatorAfter = await baseline();
+  assert.deepEqual(operatorAfter.membership_records, operatorBefore.membership_records);
+  assert.equal(operatorAfter.membership_schema_fingerprint, operatorBefore.membership_schema_fingerprint);
+  assert.deepEqual(operatorAfter.membership_columns, operatorBefore.membership_columns);
+  assert(operatorAfter.gala_objects.length > 0);
   // Gala remains functional beside membership, including a complete settlement.
   await db.exec('update gala_operating_state set sales_open=true; set role service_role');
   const q = priceRequest(input());

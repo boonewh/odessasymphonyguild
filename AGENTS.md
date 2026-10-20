@@ -12,6 +12,7 @@
 - Current Gala venue wording: La Hacienda. Current policy: all sales final, no refunds. Both may be revised only following a new user decision.
 - Keep attached conversation screenshots and local credentials out of Git.
 - October 20 database decision: install Gala's separate `public.gala_*` objects in the existing production membership database; keep development/test separate. Preserve Dues records, schema, grants and shared default privileges. Adapting/testing the installer locally is authorized; applying it to production or launching still requires explicit authorization.
+- October 20 subsequent authorization: the user explicitly authorized applying the production installer and configuring live services, with sales closed until separately activated. The shared production installation, eight production-only Vercel Gala variables, disabled live webhook and inactive recovery schedule are now staged and verified; see `supabase/gala-production/STAGED_SETUP.md`. No application release, main merge or sales activation was performed. Do not rerun the one-time installer or mistake staged services for verified end-to-end production delivery.
 
 <!-- BEGIN:nextjs-agent-rules -->
 
