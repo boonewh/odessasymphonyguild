@@ -1,4 +1,4 @@
-// Prepared primitives only. Live sessions require a future authorized route/config.
+// Mounted behind the closed release gate. Buyers never use the admin password.
 import { cookieValue, customerIdentity, createCustomerSession, sameOrigin, LIVE_CUSTOMER_COOKIE, CUSTOMER_SECONDS } from "./access";
 
 export const liveCustomerCookieOptions = Object.freeze({

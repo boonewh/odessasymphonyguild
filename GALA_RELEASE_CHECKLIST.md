@@ -1,5 +1,13 @@
 # Gala sales: launch is blocked
 
+## October 19: access wiring completed locally
+
+- [x] Connect code-free private buyer sessions to customer pages and checkout/invitation ownership; admin access cannot create ownerless purchases.
+- [x] Connect the shared password to Gala and the existing Dues roster, editing, interest and pricing routes, with one admin navigation/sign-out. Retain membership data/services and separate Preview sample Dues.
+- [x] Verify actual handlers/middleware with fictional provider responses: expiry/rotation, throttling/storage failure, CSRF, legacy-cookie rejection, buyer/admin isolation, Dues reads and Preview denial. Full suite: 171 passed; build and 82 built-app hosting checks pass.
+- [x] Keep production disabled in code, with separate future live credential names. No hosted configuration, migration or publication. Configuration/acceptance details: `GALA_LIVE_ACCESS.md`.
+- [ ] Finish live wording/deadlines and the remaining release configuration/acceptance sequence below. Automatic live recovery is not yet configured; the current scheduler authorizer remains board-only. Actual hosted Dues/live setup still requires release acceptance.
+
 User instruction, September 28, 2026: keep this feature away from live until ready and tested. The October 19 board decision explicitly permits unlimited table sales; finite limits remain optional. A generic request to push or publish does not waive this requirement.
 
 ## Current production preparation sequence — October 19

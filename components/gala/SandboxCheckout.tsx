@@ -6,20 +6,22 @@ import { finishPaidCart, checkoutReference, CHECKOUT_REFERENCE_KEY } from "@/lib
 import { checkoutUrl, FLYER_ATTEMPT_KEY, readAttempt } from "@/lib/gala/checkout-attempt";
 import { money } from "@/lib/gala/model";
 import styles from "./gala-sales.module.css";
+import { useLiveGala } from "./GalaRuntime";
 
 export function SandboxAccess({ children, invitations = false }: { children: ReactNode; invitations?: boolean }) {
+  const live = useLiveGala();
   const [state, setState] = useState("loading"), [token, setToken] = useState(""), [error, setError] = useState("");
   useEffect(() => { void fetch("/api/gala/session", { cache: "no-store" }).then(async r => {
     if (r.ok) { setState("ready"); return; }
     const result = await r.json();
-    if (result.accessMode === "individual") {
+    if (result.accessMode === "individual" || result.accessMode === "live") {
       const session = await fetch("/api/gala/session", { method: "POST" });
       if (!session.ok) throw new Error("Customer access unavailable.");
       setState("ready"); return;
     }
     setState("locked");
   })
-    .catch(() => { setState("locked"); setError("The test site could not be reached. Try again."); }); }, []);
+    .catch(() => { setState("locked"); setError("The site could not be reached. Try again."); }); }, []);
   async function unlock(event: FormEvent) {
     event.preventDefault(); setState("unlocking"); setError("");
     try {
@@ -29,7 +31,8 @@ export function SandboxAccess({ children, invitations = false }: { children: Rea
     } catch (e) { setError((e as Error).message); setState("locked"); }
   }
   if (state === "ready") return children;
-  if (state === "loading") return <p role="status">Checking test access…</p>;
+  if (state === "loading") return <p role="status">{live ? "Preparing your session…" : "Checking test access…"}</p>;
+  if (live) return <div className={styles.summary}><p role="alert">{error || "Your session could not be prepared. Please reload to try again."}</p><button type="button" className={styles.primary} onClick={() => window.location.reload()}>Try again</button></div>;
   return <form onSubmit={unlock} className={styles.summary}><h2>Sign in to the test site</h2>
     <p>{invitations?"Use fictional names and mailing addresses. No invitations or emails are sent.":"Use fictional buyer details and Stripe test cards. No real payments are taken."}</p>
     <p>Use the access code provided by the test organizer.</p>
@@ -40,6 +43,7 @@ export function SandboxAccess({ children, invitations = false }: { children: Rea
 
 type Summary = { id: string; status: "paid" | "expired" | "reserved" | "awaiting_payment"; kind: "tables" | "gifts" | "cart"; amount: number; description: string; lines?: { name: string; amount: number }[] };
 export function SandboxOrderStatus({ id, retry, startAnother, returnToWebsite = false }: { id: string; retry?: () => Promise<void>; startAnother?: () => void; returnToWebsite?: boolean }) {
+  const live = useLiveGala();
   const [order, setOrder] = useState<Summary | null>(null), [error, setError] = useState(""), [busy, setBusy] = useState(false);
   const lock = useRef(false);
   const refresh = useCallback(async () => {
@@ -83,8 +87,8 @@ export function SandboxOrderStatus({ id, retry, startAnother, returnToWebsite = 
   }
   const closed = order?.status === "paid" || order?.status === "expired";
   return <section className={styles.summary} aria-label="Checkout status">
-    <h2>{order?.status === "paid" ? "Test payment confirmed" : order?.status === "expired" ? "Checkout closed without payment" : "Your checkout is not yet confirmed"}</h2>
-    <p role="status">{order?.status === "paid" ? "Your test payment is confirmed. You can now find this order in Gala admin."
+    <h2>{order?.status === "paid" ? live ? "Payment confirmed" : "Test payment confirmed" : order?.status === "expired" ? "Checkout closed without payment" : "Your checkout is not yet confirmed"}</h2>
+    <p role="status">{order?.status === "paid" ? live ? "Thank you. Your payment is confirmed. Please keep your order reference." : "Your test payment is confirmed. You can now find this order in Gala admin."
       : order?.status === "expired" ? "Stripe confirmed this checkout expired unpaid. Any table held for it has been released."
         : "We are checking your payment. Please keep this order and use Check payment status below instead of starting another purchase. Any tables stay reserved until the result is confirmed."}</p>
     <p className={styles.fine}>Order reference: <span style={{ overflowWrap: "anywhere" }}>{id}</span></p>
@@ -107,7 +111,7 @@ export function SandboxOrderStatus({ id, retry, startAnother, returnToWebsite = 
       }}>Return to your cart</Link>}
         {returnToWebsite && <Link className={styles.primary} href="/">Return to website</Link>}
       </div>)}
-    <p className={styles.fine}>Test only. No real money is charged. <Link href="/gala/preview/admin">View in Gala admin</Link></p>
+    {!live && <p className={styles.fine}>Test only. No real money is charged. <Link href="/gala/preview/admin">View in Gala admin</Link></p>}
   </section>;
 }
 

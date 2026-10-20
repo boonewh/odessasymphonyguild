@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Header from "@/components/Header";
+import Header from "@/components/admin/DuesHeader";
 import Footer from "@/components/Footer";
 import StudentForm from "@/components/admin/StudentForm";
 import { AdminStudentSchema } from "@/lib/validation/student";

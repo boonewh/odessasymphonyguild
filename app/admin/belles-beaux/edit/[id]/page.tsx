@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import Header from "@/components/Header";
+import Header from "@/components/admin/DuesHeader";
 import Footer from "@/components/Footer";
 import StudentForm, { emptyGuardian } from "@/components/admin/StudentForm";
 import { AdminStudentSchema, GUARDIAN_RELATIONSHIPS } from "@/lib/validation/student";

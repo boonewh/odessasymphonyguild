@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { clientReviewAllowed, clientReviewRequest } from "./lib/gala/client-review";
 import { boardReviewAllowed, boardReviewRequest, BOARD_ORIGIN } from "./lib/gala/board-review";
 import { sharedAdminTestEnabled } from "./lib/admin/test-access";
+import { liveSiteEnabled } from "./lib/gala/live-release";
+import { liveAdminConfig } from "./lib/admin/live-config";
+import { authorizeLiveAdmin } from "./lib/admin/live-session";
+import { readLiveConfig } from "./lib/gala/backend/live-config";
 
-/**
- * Middleware — protects /admin/* routes with an httpOnly session cookie.
- * Uses Web Crypto API (required for Next.js Edge runtime).
- * The cookie value is HMAC-SHA256(ADMIN_PASSWORD) so it cannot be forged
- * without knowing the password, and the password is never sent to the browser.
- */
+// Preserve the existing Dues entrance until the approved shared-admin release.
+// Once released, all Dues pages/APIs use the expiring shared session below.
 
 async function expectedToken(): Promise<string> {
   const secret = process.env.ADMIN_PASSWORD ?? "";
@@ -63,6 +63,34 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
+  const admin = pathname === "/admin" || pathname.startsWith("/admin/") || pathname.startsWith("/api/admin/");
+  const gala = pathname.startsWith("/gala/") || pathname.startsWith("/api/gala/");
+  if (liveSiteEnabled(process.env) && (admin || gala)) {
+    let live: ReturnType<typeof readLiveConfig>;
+    try { live = readLiveConfig(process.env); }
+    catch { return new NextResponse("Temporarily unavailable", { status: 503 }); }
+    if (request.headers.get("host") !== new URL(live.origin).host
+        || !(request.nextUrl.protocol === "https:" || request.headers.get("x-forwarded-proto") === "https"))
+      return new NextResponse(null, { status: 404 });
+    if (admin) {
+      if (pathname === "/api/admin/test-session") return new NextResponse(null, { status: 404 });
+      let adminConfig: ReturnType<typeof liveAdminConfig>;
+      try { adminConfig = liveAdminConfig(); }
+      catch { return new NextResponse("Temporarily unavailable", { status: 503 }); }
+      try {
+        if (!["/admin/login", "/api/admin/session", "/api/admin/login", "/api/admin/logout"].includes(pathname))
+          authorizeLiveAdmin(request, adminConfig);
+        const response = NextResponse.next();
+        response.headers.set("Cache-Control", "no-store");
+        response.headers.set("X-Robots-Tag", "noindex, nofollow");
+        return response;
+      } catch {
+        return pathname.startsWith("/api/") ? NextResponse.json({ error: "Admin sign-in required." }, { status: 401 })
+          : NextResponse.redirect(new URL("/admin/login", request.url));
+      }
+    }
+  }
+  if (pathname === "/api/admin/session") return new NextResponse(null, { status: 404 });
   // Allow the login page and login API through without a session check
   // New test-only pages authenticate on the server; never open legacy dues APIs.
   if (sharedAdminTestEnabled(process.env) && ["/admin", "/admin/dues", "/admin/gala", "/api/admin/test-session"].includes(pathname)) {
@@ -93,5 +121,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
+  runtime: "nodejs",
   matcher: ["/:path*"],
 };

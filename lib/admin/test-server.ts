@@ -2,6 +2,9 @@ import "server-only";
 import { readBackendConfig } from "../gala/backend/config";
 import { sharedAdminTestEnabled } from "./test-access";
 import { adminCookie, validAdminSession } from "./test-session";
+import { liveSiteEnabled } from "../gala/live-release";
+import { liveAdminConfig } from "./live-config";
+import { authorizeLiveAdmin } from "./live-session";
 
 export function sharedAdminConfig() {
   if (!sharedAdminTestEnabled(process.env)) throw new Error("Test administration is unavailable.");
@@ -9,6 +12,7 @@ export function sharedAdminConfig() {
   return { ...config, password: process.env.GALA_BOARD_ACCESS_CODE || config.accessCode };
 }
 export function authorizeSharedAdmin(request: Request) {
+  if (liveSiteEnabled(process.env)) return authorizeLiveAdmin(request, liveAdminConfig());
   const config = sharedAdminConfig();
   if (!validAdminSession(adminCookie(request), config.token, config.password)) throw new Error("Admin sign-in required.");
   if (!["GET", "HEAD"].includes(request.method) && request.headers.get("origin") !== config.origin)

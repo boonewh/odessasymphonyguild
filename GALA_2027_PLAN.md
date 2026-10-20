@@ -4,6 +4,14 @@ Last updated: October 19, 2026 (America/Chicago).
 
 ## Resume here
 
+### October 19: live page access and actual Dues integration wired locally
+
+Connected private buyer sessions to customer pages and API ownership; live buyers need no shared code. Connected the shared password entrance to Gala and the existing Dues roster/add/edit/interest/pricing workflow, preserving membership services and records. Shared navigation replaces duplicate Dues headers/sign-out controls. Old Dues login/logout delegate to the expiring shared session after release; test/buyer/legacy cookies cannot unlock live administration.
+
+The code release gate remains hard-closed. Production and the hosted board Preview are unchanged; Preview still has sample Dues and blocks real membership endpoints. Live configuration uses separate credential names and validates environment/account identity. See `GALA_LIVE_ACCESS.md` for configuration and acceptance details. This supersedes the previous note that live routing/Dues integration had not yet been wired, not the release requirements.
+
+Validation: 171 Gala tests passed, including offline real-handler/middleware and Dues-roster integration with fictional transport. Build and 82 built-app hosting checks passed; desktop and 390px component rehearsal checked navigation and code-free buyer entry. Remaining work stays within the existing release sequence: full live wording/deadlines, hosted database/provider/recovery configuration, final acceptance and explicit launch approval. No production activation or hosted database application.
+
 ### October 19: production database package and access foundations prepared locally
 
 Prepared `supabase/gala-production/001_initial.sql` and its offline generator/runbook. The installer is one transaction, refuses existing public relations, starts with an empty ledger and board-approved unlimited inventory, and leaves sales/invitation submissions closed. Live payment IDs are required. Customer ownership is required at commit and cannot be reassigned; closing new sales preserves settlement/recovery of already-issued orders. Application permissions cannot reopen sales, change the environment marker, enroll named staff or reconnect retired Gala accounting. No hosted migration or configuration changed.

@@ -1,4 +1,4 @@
-// Prepared primitives only. No route/configuration enables live administration yet.
+// Mounted behind the closed release gate; distinct from buyer and test sessions.
 import { createAdminSession, validAdminSession } from "./test-session";
 import { ADMIN_SECONDS } from "./test-access";
 import { cookieValue, sameOrigin } from "../gala/backend/access";

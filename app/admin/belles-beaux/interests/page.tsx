@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import Header from "@/components/Header";
+import Header from "@/components/admin/DuesHeader";
 import Footer from "@/components/Footer";
 import { BELLES_BEAUX_CONFIG } from "@/lib/belles-beaux/config";
 

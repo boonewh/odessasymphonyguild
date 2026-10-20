@@ -3,12 +3,13 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { clearShoppingDetails } from "@/lib/gala/cart-storage";
 import styles from "./SharedAdmin.module.css";
-export default function SharedAdminNav({ current }: { current: "home" | "dues" | "gala" }) {
+export default function SharedAdminNav({ current, live = false }: { current: "home" | "dues" | "gala"; live?: boolean }) {
+  const endpoint = live ? "/api/admin/session" : "/api/admin/test-session";
   const [busy, setBusy] = useState(false), [error, setError] = useState("");
   useEffect(() => {
     let active = true;
     const check = async () => {
-      try { const r = await fetch("/api/admin/test-session", { cache: "no-store" });
+      try { const r = await fetch(endpoint, { cache: "no-store" });
         if (active && r.status === 401) window.location.replace("/admin/login");
       } catch { /* Data requests still enforce authorization. */ }
     };
@@ -16,13 +17,13 @@ export default function SharedAdminNav({ current }: { current: "home" | "dues" |
     void check();
     window.addEventListener("pageshow", check); window.addEventListener("focus", check); document.addEventListener("visibilitychange", visible);
     return () => { active = false; window.removeEventListener("pageshow", check); window.removeEventListener("focus", check); document.removeEventListener("visibilitychange", visible); };
-  }, []);
+  }, [endpoint]);
   async function logout() {
     setBusy(true); setError("");
     try {
-      const r = await fetch("/api/admin/test-session", { method: "DELETE" });
+      const r = await fetch(endpoint, { method: "DELETE" });
       if (!r.ok) throw new Error("Could not sign out. Please try again.");
-      try { clearShoppingDetails(sessionStorage); } catch { /* Cookie sign-out already succeeded. */ }
+      try { if (!live) clearShoppingDetails(sessionStorage); } catch { /* Cookie sign-out already succeeded. */ }
       window.location.replace("/admin/login");
     } catch (e) { setError((e as Error).message); setBusy(false); }
   }

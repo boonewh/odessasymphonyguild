@@ -1,8 +1,9 @@
 "use client";
+import { useSharedDues } from "@/components/admin/DuesHeader";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Header from "@/components/Header";
+import Header from "@/components/admin/DuesHeader";
 import Footer from "@/components/Footer";
 import { BELLES_BEAUX_CONFIG } from "@/lib/belles-beaux/config";
 
@@ -17,6 +18,7 @@ const FIELDS = [
 
 export default function AdminPricing() {
   const router = useRouter();
+  const sharedDues = useSharedDues();
   const [values, setValues]   = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving]   = useState<string | null>(null);
@@ -61,7 +63,7 @@ export default function AdminPricing() {
       <Header />
 
       <section className="bg-gradient-to-br from-[#1a1a2e] to-[#2d3748] py-12 text-white">
-        <div className="max-w-3xl mx-auto px-6 flex items-end justify-between">
+        <div className="max-w-3xl mx-auto px-6 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="text-3xl font-light tracking-wide mb-1">Dues & Pricing</h1>
             <p className="text-[#d4af37] text-sm tracking-wider">
@@ -75,12 +77,12 @@ export default function AdminPricing() {
             >
               ← Roster
             </button>
-            <button
+            {!sharedDues && <button
               onClick={handleLogout}
               className="text-xs text-white/50 hover:text-white transition-colors"
             >
               Sign Out
-            </button>
+            </button>}
           </div>
         </div>
       </section>

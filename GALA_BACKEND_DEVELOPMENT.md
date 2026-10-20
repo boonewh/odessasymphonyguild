@@ -1,5 +1,13 @@
 # Gala backend development
 
+## October 19: live request wiring and shared Dues integration
+
+`GALA_LIVE_ACCESS.md` records the connected route behavior, separate live configuration names, and release acceptance requirements. `/api/gala/session` now mounts the live buyer helper; live checkout/invitation writes cannot bypass buyer ownership through an admin cookie. Existing-order investigation accepts the shared admin. `/api/admin/session` mounts throttled, password-bound live login/logout; middleware covers the existing Dues pages and APIs. `/admin/dues` enters the original roster; its nested pages/pricing retain membership operations and receive shared navigation. Existing Dues login/logout become shared-handler aliases only after release.
+
+All this remains behind `LIVE_RELEASE_APPROVED = false`; environment variables cannot activate production. No password, provider, hosted data or deployment changed. Preview keeps sample Dues and its strict membership denylist. Live configuration failures do not block unrelated public membership pages. Live buyer cookie/cart and admin logout are independent. The new test bundle substitutes the gate only within its offline process and intercepts all provider transport.
+
+171 Gala tests passed; subsequent 16 focused access checks, final build and 82 built-app hosting checks also pass. Browser rehearsal uses actual components with fictional API responses, not real membership records. Evidence is ignored under `.codex-remote-attachments/live-wiring-*`, `live-routing-tests.log`, and `live-dues-integration.png`. Full live wording/export/error cleanup and production webhook/recovery/hosted acceptance remain release work. In particular the scheduled recovery authorizer is still board-only; do not activate this branch before completing release configuration.
+
 This is a test-only backend on `codex/gala-2027-planning`. Local development and the protected functional Vercel board Preview work. Production stays blocked. The customer forms create Stripe sandbox checkouts; admin reads the development database. Invitation requests persist separately without payment or accounting entries.
 
 ## October 19: production schema and live session foundations

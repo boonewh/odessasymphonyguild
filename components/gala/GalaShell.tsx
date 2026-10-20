@@ -6,6 +6,8 @@ import { EVENT } from "@/lib/gala/model";
 import styles from "./gala-sales.module.css";
 import { boardReviewAllowed } from "@/lib/gala/board-review";
 import { CartLink } from "./GalaCart";
+import { liveSiteEnabled } from "@/lib/gala/live-release";
+import { GalaRuntime } from "./GalaRuntime";
 
 const links = [["tables", "Tables & tickets"], ["gifts", "Celebration gifts"], ["invitations", "Request invitations"], ["preview/admin", "Gala admin"]];
 export default function GalaShell({ current, title, intro, children, clientReview = false, sandbox = false }: {
@@ -14,12 +16,13 @@ export default function GalaShell({ current, title, intro, children, clientRevie
   const compact = current === "preview/admin" || current === "cart";
   const isGift = current === "gifts";
   const boardReview = boardReviewAllowed(process.env);
-  return <div className={styles.page}>
+  const live = liveSiteEnabled(process.env);
+  return <GalaRuntime live={live}><div className={styles.page}>
     {clientReview || boardReview ? <header className={styles.reviewHeader}><Image src="/images/osg-logo.png" alt="Odessa Symphony Guild" width={64} height={64} /><span>Odessa Symphony Guild</span></header> : <Header theme="gala" />}
-    <aside className={styles.previewNotice} aria-label="Development preview">
+    {!live && <aside className={styles.previewNotice} aria-label="Development preview">
       {clientReview ? <><strong>Design preview · Sales are not open.</strong> Explore the designs and pricing. Forms cannot be submitted in this preview.</> : sandbox && current === "invitations" ? <><strong>TEST SITE · Invitation practice.</strong> Use fictional names and addresses. You can review saved requests in Gala admin. Nothing is mailed or emailed.</> : sandbox ? <><strong>TEST SITE · No real payments.</strong> Use fictional details and a test card. Your orders appear in Gala admin and do not affect live records.</> : <><strong>Local preview · Sales are closed.</strong> Use fictional details only. Orders stay in this browser. No payments, emails, or QuickBooks entries are created.</>}
       {sandbox&&current!=="invitations"&&<details><summary>Test card details</summary><p>Card: <strong>4242 4242 4242 4242</strong> · Expiration: <strong>12/34</strong> · Security code: <strong>123</strong>. Never enter a real card.</p></details>}
-    </aside>
+    </aside>}
     <nav className={styles.nav} aria-label="Gala pages">
       {links.filter(([path]) => !clientReview || path !== "preview/admin").map(([path, label]) => <Link key={path} href={`/gala/${path}`} aria-current={current === path ? "page" : undefined}>{label}</Link>)}
       {sandbox && <CartLink summary current={current === "cart"} />}
@@ -68,5 +71,5 @@ export default function GalaShell({ current, title, intro, children, clientRevie
     </div>
     <div className={styles.stripes} aria-hidden="true" />
     {clientReview || boardReview ? <footer className={styles.reviewFooter}>Odessa Symphony Guild · Gala 2027 {boardReview ? "test site" : "client review"}</footer> : <Footer theme="gala" />}
-  </div>;
+  </div></GalaRuntime>;
 }

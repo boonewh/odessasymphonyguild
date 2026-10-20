@@ -19,7 +19,7 @@ const adminTabs = [
   {id:"gifts",label:"Gifts"}, {id:"invitations",label:"Invitations"}, {id:"accounting",label:"Sales ledger"},
 ] as const;
 type AdminTab = typeof adminTabs[number]["id"];
-export default function PaymentLab({ mode = "testing", individual = false, sharedAdmin = false }: { mode?: "testing" | "admin"; individual?: boolean; sharedAdmin?: boolean }) {
+export default function PaymentLab({ mode = "testing", individual = false, sharedAdmin = false, live = false }: { mode?: "testing" | "admin"; individual?: boolean; sharedAdmin?: boolean; live?: boolean }) {
   const [email,setEmail]=useState("");
   const [accounting,setAccounting]=useState(!individual);
   const [data,setData]=useState<Dashboard|null>(null); const [locked,setLocked]=useState(false);
@@ -44,7 +44,7 @@ export default function PaymentLab({ mode = "testing", individual = false, share
   const refresh=useCallback(async()=>{
     const response=await fetch("/api/gala/orders",{cache:"no-store"});
     if(response.status===401){setLocked(true);setData(null);if(sharedAdmin)window.location.replace("/admin/login?next=%2Fadmin%2Fgala");return;}
-    if(!response.ok) throw new Error("Cannot load test orders. Try refreshing; if this continues, contact the test organizer.");
+    if(!response.ok) throw new Error("Cannot load orders. Try refreshing; if this continues, contact the site administrator.");
     setData(await response.json());setLocked(false);
     if(individual){const access=await fetch("/api/gala/staff-session",{cache:"no-store"});setAccounting(access.ok && (await access.json()).accounting===true);}
   },[individual,sharedAdmin]);
@@ -79,19 +79,19 @@ export default function PaymentLab({ mode = "testing", individual = false, share
   function reset(){sessionStorage.removeItem(attemptKey);setAttempt(null);setAgreed(false);setNotice("");setError("");}
   async function logout(){setBusy(true);try{const response=await fetch(individual?"/api/gala/staff-session":"/api/gala/session",{method:"DELETE"});if(!response.ok)throw new Error("Sign-out not confirmed. Try again.");clearShoppingDetails(sessionStorage);cartChanged();setData(null);setLocked(true);setAccounting(!individual);}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
   return <main className={styles.lab}>
-    <span className={styles.badge}>TEST SITE · NO REAL PAYMENTS</span>
+    {!live && <span className={styles.badge}>TEST SITE · NO REAL PAYMENTS</span>}
     <h1>{mode==="admin"?"Gala administration":"Payment testing tools"}</h1>
-    <p className={styles.note}>Practice with fictional names and contact details. Test orders are separate from live records. Only paid purchases count as confirmed sales. Unpaid checkouts still expire.</p>
-    <nav className={styles.nav} aria-label="Gala test pages"><Link href="/gala/tables">Tables & tickets</Link><Link href="/gala/gifts">Celebration gifts</Link><Link href="/gala/invitations">Request invitations</Link><Link href="/gala/preview/admin">Gala admin</Link><CartLink /></nav>
-    <details className={styles.testHelp}><summary>How to test the Gala website</summary>
+    <p className={styles.note}>{live ? "Only paid purchases count as confirmed sales. Unpaid checkouts expire." : "Practice with fictional names and contact details. Test orders are separate from live records. Only paid purchases count as confirmed sales. Unpaid checkouts still expire."}</p>
+    <nav className={styles.nav} aria-label="Gala pages"><Link href="/gala/tables">Tables & tickets</Link><Link href="/gala/gifts">Celebration gifts</Link><Link href="/gala/invitations">Request invitations</Link><Link href="/gala/preview/admin">Gala admin</Link><CartLink /></nav>
+    {!live && <details className={styles.testHelp}><summary>How to test the Gala website</summary>
       <ol><li>Choose Tables &amp; tickets, Celebration gifts or Request invitations above. Enter fictional details you will recognize later.</li>
         <li>For purchases, use test card <strong>4242 4242 4242 4242</strong>, expiration <strong>12/34</strong> and security code <strong>123</strong>. Never enter a real card.</li>
         <li>Return to Gala admin to find your order, assign a table, prepare gifts or update invitation mailing status. Tables, tickets and gifts can share one cart and payment. Keep shopping in the same browser tab.</li></ol>
       <p>No physical invitations, gifts or customer emails are sent by this test.</p>
-    </details>
+    </details>}
     {error&&<p role="alert" className={styles.error}>{error}</p>}{notice&&<p role="status" className={styles.success}>{notice}</p>}
     {!sharedAdmin&&!locked&&data&&<button disabled={busy} onClick={()=>void logout()}>Sign out</button>}
-    {locked?<form onSubmit={login} className={styles.panel}><h2>{individual?"Gala staff sign-in":"Sign in to the test site"}</h2><p className={styles.note}>{individual?"Use the staff account provided for this test.":"Use the access code provided by the test organizer."} You stay signed in for up to eight hours.</p>{individual&&<label>Email<input type="email" autoComplete="username" value={email} onChange={e=>setEmail(e.target.value)} required/></label>}<label>{individual?"Password":"Test access code"}<input type="password" autoComplete={individual?"current-password":"off"} value={token} onChange={e=>setToken(e.target.value)} required/></label><div className={styles.tools}><button disabled={busy}>Sign in</button></div></form>:!data?<p role="status">Loading test orders…</p>:<>
+    {locked?sharedAdmin?<p role="status">Returning to admin sign-in…</p>:<form onSubmit={login} className={styles.panel}><h2>{individual?"Gala staff sign-in":"Sign in to the test site"}</h2><p className={styles.note}>{individual?"Use the staff account provided for this test.":"Use the access code provided by the test organizer."} You stay signed in for up to eight hours.</p>{individual&&<label>Email<input type="email" autoComplete="username" value={email} onChange={e=>setEmail(e.target.value)} required/></label>}<label>{individual?"Password":"Test access code"}<input type="password" autoComplete={individual?"current-password":"off"} value={token} onChange={e=>setToken(e.target.value)} required/></label><div className={styles.tools}><button disabled={busy}>Sign in</button></div></form>:!data?<p role="status">Loading orders…</p>:<>
       {mode==="admin"&&<>
         <div className={styles.adminTabs} role="tablist" aria-label="Gala admin sections">
           {availableTabs.map(item=><button key={item.id} type="button" role="tab" id={`gala-tab-${item.id}`} aria-controls={`gala-panel-${item.id}`}
@@ -105,7 +105,7 @@ export default function PaymentLab({ mode = "testing", individual = false, share
       {/* Keep panels mounted so switching tabs preserves filters and unsaved edits. */}
       <div role={mode==="admin"?"tabpanel":undefined} id="gala-panel-orders" aria-labelledby={mode==="admin"?"gala-tab-orders":undefined}
         tabIndex={mode==="admin"?0:undefined} hidden={mode==="admin"&&activeTab!=="orders"}>
-      <section className={styles.inventory} aria-label="Test table availability">{data.inventory.map(t=><div className={styles.stock} key={t.tier}><strong>{t.tier}</strong><span>{t.capacity === null ? "Unlimited" : t.available}</span>{t.capacity !== null && <> available of {t.capacity}</>}<p>{t.held} awaiting payment · {t.paid} paid</p>{t.over_limit && <p role="status">Paid and pending tables exceed this limit. New purchases are paused; existing orders are kept.</p>}</div>)}</section>
+      <section className={styles.inventory} aria-label="Table availability">{data.inventory.map(t=><div className={styles.stock} key={t.tier}><strong>{t.tier}</strong><span>{t.capacity === null ? "Unlimited" : t.available}</span>{t.capacity !== null && <> available of {t.capacity}</>}<p>{t.held} awaiting payment · {t.paid} paid</p>{t.over_limit && <p role="status">Paid and pending tables exceed this limit. New purchases are paused; existing orders are kept.</p>}</div>)}</section>
       {individual&&mode==="testing"&&<p>Use the <Link href="/gala/tables">customer table form</Link> or <Link href="/gala/gifts">gift form</Link> to test a customer checkout.</p>}
       {mode==="testing"&&!individual&&<section className={styles.panel}><h2>Test Stripe-hosted checkout</h2>{attempt?<>
         <p>Current test order: <code>{attempt.requestId}</code></p><p>Status: <strong>{current?.status.replaceAll("_"," ")||"Not yet recorded / retry available"}</strong></p>
@@ -118,7 +118,7 @@ export default function PaymentLab({ mode = "testing", individual = false, share
         <label className={`${styles.wide} ${styles.check}`}><input type="checkbox" checked={agreed} onChange={e=>setAgreed(e.target.checked)} required/>I acknowledge: all sales are final, no refunds.</label>
         <button className={styles.wide} disabled={busy}>Open Stripe test checkout · {money(amount)}</button>
       </form>}</section>}
-      <section className={styles.panel}><h2>Test orders</h2><div className={styles.tools}>
+      <section className={styles.panel}><h2>{live ? "Orders" : "Test orders"}</h2><div className={styles.tools}>
         <label>Show<select value={filter} onChange={e=>setFilter(e.target.value)}><option value="paid">Paid orders</option><option value="pending">Awaiting payment</option><option value="expired">Closed without payment</option><option value="all">All orders</option></select></label>
         <button disabled={busy} onClick={()=>void refresh().catch(e=>setError(e.message))}>Refresh orders</button><button disabled={busy} onClick={()=>void action("/api/gala/reconcile")}>Check payment updates</button>
       </div><p className={styles.note}>Latest 100 orders. Only paid orders are ready for table assignment or gift preparation. {accounting?(mode==="admin"?"The Sales ledger tab includes every order, item totals and the total paid sales.":"The sales ledger below includes every order and the total paid sales."):"Accounting is handled by staff with accounting access."}</p>

@@ -1,13 +1,16 @@
 import { boardReviewAllowed, BOARD_ORIGIN } from "../board-review";
 import { paymentEnvironment } from "./payment-mode";
+import { liveSiteEnabled } from "../live-release";
+import { readLiveConfig } from "./live-config";
 // OSG's isolated sandbox, verified in Stripe on October 19, 2026.
 export const DEVELOPMENT_STRIPE_ACCOUNT = paymentEnvironment("sandbox").account;
 export const DEVELOPMENT_SUPABASE_URL = "https://rhjwjfyjjdsfahlegqvd.supabase.co";
 export function backendEnabled(env: NodeJS.ProcessEnv) {
-  return boardReviewAllowed(env) || (env.NODE_ENV === "development" && !env.VERCEL_ENV && !env.VERCEL
+  return liveSiteEnabled(env) || boardReviewAllowed(env) || (env.NODE_ENV === "development" && !env.VERCEL_ENV && !env.VERCEL
     && env.GALA_BACKEND_ENABLED === "true" && env.GALA_CLIENT_REVIEW !== "true" && env.GALA_BOARD_REVIEW !== "true");
 }
 export function readBackendConfig(env: NodeJS.ProcessEnv) {
+  if (liveSiteEnabled(env)) return readLiveConfig(env);
   if (!backendEnabled(env)) throw new Error("Gala backend is restricted to explicitly enabled test environments.");
   const hosted = boardReviewAllowed(env);
   const accessMode = env.GALA_ACCESS_MODE || "development";
@@ -31,7 +34,7 @@ export function readBackendConfig(env: NodeJS.ProcessEnv) {
   if (!webhookSecret.startsWith("whsec_") || !/^[a-f0-9]{64}$/.test(token))
     throw new Error("Webhook signing secret and local development token are required.");
   if (!hosted && !/^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)) throw new Error("A loopback return URL is required.");
-  // Live support in the payment library is preparatory only. No environment
-  // variable can enable it through this test-only configuration reader.
+  // Existing test configuration stays unchanged. Live configuration above is
+  // reachable only after the separately reviewed release gate is opened.
   return { key, url, dbKey, webhookSecret, token, origin, accessMode, hosted, accessCode, paymentMode: "sandbox" as const };
 }

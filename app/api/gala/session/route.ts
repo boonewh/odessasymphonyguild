@@ -5,11 +5,14 @@ import { authorizeCustomer } from "@/lib/gala/backend/request-access";
 import { CUSTOMER_COOKIE, CUSTOMER_SECONDS, cookieValue, createCustomerSession, customerIdentity, sameOrigin } from "@/lib/gala/backend/access";
 import { readLoginBody, LoginBodyTooLarge } from "@/lib/gala/backend/staff-login";
 import { SHARED_ADMIN_COOKIE } from "@/lib/admin/test-access";
+import { LIVE_CUSTOMER_COOKIE } from "@/lib/gala/backend/access";
+import { liveCustomerSession, liveCustomerCookieOptions } from "@/lib/gala/backend/live-customer";
+import { liveSiteEnabled } from "@/lib/gala/live-release";
 export const runtime = "nodejs";
 export async function GET(request: Request) {
   if (!backendEnabled(process.env)) return new Response(null, { status: 404 });
   try { authorizeCustomer(request); }
-  catch { return Response.json({ accessMode: process.env.GALA_ACCESS_MODE || "development" }, { status: 401, headers: { "Cache-Control": "no-store" } }); }
+  catch { return Response.json({ accessMode: liveSiteEnabled(process.env) ? "live" : process.env.GALA_ACCESS_MODE || "development" }, { status: 401, headers: { "Cache-Control": "no-store" } }); }
   return Response.json({ authenticated: true }, { headers: { "Cache-Control": "no-store" } });
 }
 export async function POST(request: Request) {
@@ -17,6 +20,12 @@ export async function POST(request: Request) {
   try {
     const config = readBackendConfig(process.env);
     if (request.headers.get("origin") !== config.origin) return new Response(null, { status: 403 });
+    if (config.paymentMode === "live") {
+      const value = liveCustomerSession(request, { key: config.token, origin: config.origin });
+      const response = NextResponse.json({ authenticated: true }, { headers: { "Cache-Control": "no-store" } });
+      response.cookies.set(LIVE_CUSTOMER_COOKIE, value, liveCustomerCookieOptions);
+      return response;
+    }
     if (config.accessMode === "individual") {
       sameOrigin(request, config.origin);
       let value = cookieValue(request, CUSTOMER_COOKIE);
@@ -41,6 +50,10 @@ export async function DELETE(request: Request) {
     const config = readBackendConfig(process.env);
     sameOrigin(request, config.origin);
     const response = NextResponse.json({ signedOut: true }, { headers: { "Cache-Control": "no-store" } });
+    if (config.paymentMode === "live") {
+      response.cookies.set(LIVE_CUSTOMER_COOKIE, "", { ...liveCustomerCookieOptions, maxAge: 0 });
+      return response;
+    }
     for (const name of [DEVELOPMENT_COOKIE, CUSTOMER_COOKIE, SHARED_ADMIN_COOKIE]) response.cookies.set(name, "", {
       httpOnly: true, sameSite: "lax", secure: config.hosted, path: "/", maxAge: 0,
     });

@@ -56,7 +56,7 @@ await withServer({},async()=>{
   }
   for(const path of ['/admin','/admin/dues','/admin/gala','/gala/preview/admin'])await status(path,307);
   await status('/admin/login',200);
-  for(const path of ['/admin/belles-beaux','/api/admin/students','/api/quickbooks/webhook','/belles-beaux/join','/gala/preview/testing'])await status(path,404);
+  for(const path of ['/api/admin/session','/admin/belles-beaux','/api/admin/students','/api/quickbooks/webhook','/belles-beaux/join','/gala/preview/testing'])await status(path,404);
   for(const path of ['/api/gala/orders','/api/gala/order','/api/gala/assignments','/api/gala/gifts','/api/gala/invitations','/api/gala/recovery','/api/gala/ledger','/api/gala/ledger?format=csv','/api/gala/ledger?format=preview'])await status(path,401);
   await status('/api/gala/ledger',404,{method:'POST'});
   await status('/api/gala/quickbooks/sync',404,{method:'POST'});
@@ -90,7 +90,7 @@ await withServer({},async()=>{
   await status('/gala/tables',404,{headers:{host:'unapproved.vercel.app'}});
 });
 await withServer({VERCEL_ENV:'production'},async()=>{
-  for(const path of ['/admin','/admin/dues','/admin/gala','/api/admin/test-session'])await status(path,404);
+  for(const path of ['/admin','/admin/dues','/admin/gala','/api/admin/test-session','/api/admin/session'])await status(path,404);
   const legacy=await status('/admin/login',200);assert.match(await legacy.text(),/Belles/);
   await status('/api/gala/quickbooks/final-total',404);
   await status('/api/gala/quickbooks/final-total',404,{method:'POST'});

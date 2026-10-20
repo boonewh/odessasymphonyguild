@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { liveSiteEnabled } from "@/lib/gala/live-release";
+import { POST as sharedLogin } from "../session/route";
 
 async function sessionToken(): Promise<string> {
   const secret = process.env.ADMIN_PASSWORD ?? "";
@@ -21,6 +23,7 @@ async function sessionToken(): Promise<string> {
 }
 
 export async function POST(request: NextRequest) {
+  if (liveSiteEnabled(process.env)) return sharedLogin(request);
   const { password } = await request.json();
 
   if (!password || password !== process.env.ADMIN_PASSWORD) {
