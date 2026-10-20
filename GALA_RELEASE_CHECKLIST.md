@@ -1,4 +1,12 @@
-# Gala sales: launch is blocked
+# Gala sales: release preparation — production remains closed
+
+## October 20: proceed without further operating answers
+
+- [x] User accepts January 29, 2027 as the gift-order date.
+- [x] User explicitly defers the remaining operating questions and says none are blockers. Keep existing limits, online card checkout, extra-seat flow and Contact link. Do not turn those questions into new launch gates; the current details are in `GALA_2027_PLAN.md` → **Deferred operating follow-ups**.
+- [x] Prepare gated live scheduled-recovery authorization with an independent secret, preserving account/database verification and payment-safe retry behavior. 175 Gala tests, build and 82 built-app access checks pass. Hosted installation remains pending.
+- [ ] Complete production database/provider/scheduler configuration and final technical acceptance, then obtain explicit approval for the concrete production release. The earlier keep-off-production instruction remains in effect.
+
 
 ## October 19: access wiring completed locally
 
@@ -6,7 +14,7 @@
 - [x] Connect the shared password to Gala and the existing Dues roster, editing, interest and pricing routes, with one admin navigation/sign-out. Retain membership data/services and separate Preview sample Dues.
 - [x] Verify actual handlers/middleware with fictional provider responses: expiry/rotation, throttling/storage failure, CSRF, legacy-cookie rejection, buyer/admin isolation, Dues reads and Preview denial. Full suite: 171 passed; build and 82 built-app hosting checks pass.
 - [x] Keep production disabled in code, with separate future live credential names. No hosted configuration, migration or publication. Configuration/acceptance details: `GALA_LIVE_ACCESS.md`.
-- [ ] Finish live wording/deadlines and the remaining release configuration/acceptance sequence below. Automatic live recovery is not yet configured; the current scheduler authorizer remains board-only. Actual hosted Dues/live setup still requires release acceptance.
+- [ ] Live wording is complete. Finish the remaining release configuration/acceptance sequence below. Live scheduled recovery is now wired locally but not configured in hosting. Actual hosted Dues/live setup still requires release acceptance.
 
 User instruction, September 28, 2026: keep this feature away from live until ready and tested. The October 19 board decision explicitly permits unlimited table sales; finite limits remain optional. A generic request to push or publish does not waive this requirement.
 
@@ -21,10 +29,10 @@ The user accepted the completed walkthrough and asked to begin preparation. This
 
 1. **Production data and payment setup.** Prepare a clean isolated Gala database, rehearse schema/permissions and live session guards, and verify zero test orders/contacts/accounting tokens. Current development SQL is not a production installation script: it pins the development marker and test Checkout sessions. Bind the future live configuration to the correct database, OSG live account and approved HTTPS domain. Prepare webhook/recovery configuration and monitoring/rollback instructions. Verify Stripe payout destination/manual schedule read-only before any requested changes. Keep new-checkout shutdown independent from processing already-issued payments.
 2. **Buyer and administrator access.** Remove the buyer test-code requirement on live pages while preserving private order ownership and protected customer writes. Integrate the single shared admin entrance with actual Dues and Gala, preserving membership records and existing membership services; the sample Dues page is not the production integration. Recheck session expiry/rotation, login throttling, CSRF and unauthorized access. Will remains the password manager; no individual volunteer accounts required.
-3. **Live wording and operating rules.** Complete the wording review below, customer return/receipt/support flow, server-enforced gift/invitation deadlines and approved purchase limits. Carry forward unlimited tables, unpaid expiration, no-tax instruction, La Hacienda, all sales final and manual bookkeeping. Confirm remaining dates/limits rather than inventing values. Finish the dependency review and any necessary fixes; record unresolved risk explicitly.
+3. **Live wording and operating rules.** The wording review is complete. Retain current operating behavior while the user defers the remaining questions; January 29, 2027 is the accepted gift date, and exact automatic cutoffs are not yet implemented. Carry forward unlimited tables, unpaid expiration, no-tax instruction, La Hacienda, all sales final and manual bookkeeping. Do not invent new dates/limits or require deferred answers as launch gates. Finish the dependency review and any necessary fixes; record unresolved risk explicitly.
 4. **Release acceptance and explicit launch approval.** Rehearse the final build with sandbox payments, desktop/mobile buyer/admin flows and failure/recovery checks. Verify live configuration without creating artificial real-money test charges; define handling/monitoring of the first genuine purchase. Record the release commit, migration evidence, configuration, production/live-versus-test isolation and rollback steps. Present the concrete release for the user's explicit approval before merge/deploy/activation.
 
-Authoritative questions, existing limits and reasons are in `GALA_2027_PLAN.md` → **Remaining OSG decisions**. Remaining business confirmations: exact gift cutoff (flyer says January 29; year and Central-time cutoff need confirmation), invitation mailing cutoff, existing per-checkout limits/extra-seat rules and card-only policy, exceptional correction/support contact and contact-data retention. The user already chose to retain unpaid expiration; the implemented duration is 35 minutes. These are final settings/operating rules, not additional feature requests.
+Operating follow-ups are deferred and are **not launch blockers**, per the October 20 user instruction. The accepted gift date is January 29, 2027; the existing unpaid-checkout duration remains 35 minutes. Preserve the detailed follow-ups in the plan without requesting answers again unless the user returns to them.
 
 ## Live wording review — October 19 (local only)
 
@@ -33,7 +41,7 @@ Authoritative questions, existing limits and reasons are in `GALA_2027_PLAN.md` 
 
 Validation: **173 Gala tests**, production build and **82 built-app Preview/production HTTP checks** pass. An isolated browser rehearsal with fictional responses checked live cart wording, paid/unverified returns, invitation receipt and test-mode confirmation, and the shared admin mailing panel. Export tests cover mode labels, unchanged data, escaped addresses, duplicate/mailed exclusions and print safeguards. No real payment or hosted write was made.
 
-The copy changes are mode-aware; production is still disabled. Gift/invitation deadline enforcement and confirmation of the public support contact remain separate acceptance work. Do not remove test labels from the board Preview.
+The copy changes are mode-aware; production is still disabled. Exact automated cutoff behavior and support-contact changes are deferred operating follow-ups, not acceptance gates. Do not remove test labels from the board Preview.
 
 ## October 19: current scope — unlimited tables, manual bookkeeping
 

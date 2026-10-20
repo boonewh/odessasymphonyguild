@@ -1,8 +1,7 @@
 import Stripe from "stripe";
-import { boardReviewAllowed } from "@/lib/gala/board-review";
 import { readBackendConfig } from "@/lib/gala/backend/config";
 import { verifyStripeAccount } from "@/lib/gala/backend/payment-mode";
-import { authorizeScheduledRecovery } from "@/lib/gala/backend/scheduled-recovery";
+import { authorizeScheduledRecovery, scheduledRecoveryEnabled } from "@/lib/gala/backend/scheduled-recovery";
 import { SupabaseOrderStore } from "@/lib/gala/backend/store";
 import { SupabaseRecoveryStore } from "@/lib/gala/backend/recovery-store";
 import { recoveryPass } from "@/lib/gala/backend/recovery";
@@ -10,7 +9,7 @@ import { recoveryPass } from "@/lib/gala/backend/recovery";
 export const runtime = "nodejs";
 export const maxDuration = 300;
 export async function POST(request: Request) {
-  if (!boardReviewAllowed(process.env)) return new Response(null, { status: 404 });
+  if (!scheduledRecoveryEnabled(process.env)) return new Response(null, { status: 404 });
   const headers = { "Cache-Control": "no-store" };
   if (!authorizeScheduledRecovery(request, process.env)) return new Response(null, { status: 401, headers });
   try {

@@ -1,12 +1,22 @@
 # Gala 2027: decisions, payment research, and implementation handoff
 
+### October 20: operating questions deferred; continue release preparation
+
+The user accepts the January 29 gift date for Gala 2027 and explicitly says **none of the remaining operating questions are blockers**. Do not require answers tonight or reintroduce them as launch gates. Continue with the implemented order limits, card checkout, extra-seat workflow, existing public Contact link and retained ledger/data unless a later instruction changes them. This records current behavior, not a newly invented retention period or additional permission to alter orders.
+
+January 29, 2027 is now the accepted gift date. No exact time, invitation cutoff or automatic cutoff policy was supplied; do not claim these are enforced. Those operational refinements are deferred, not prerequisites to continued release preparation. Earlier language demanding board answers before release is superseded by this instruction. Production remains unchanged under the user's prior keep-off-production instruction; technical setup/acceptance and explicit activation approval still apply.
+
+Validation: **175 Gala tests**, the production build and **82 built-app Preview/production HTTP checks** pass. The isolated live route rehearsal covers closed-gate denial, separate scheduler credentials, wrong account/database, provider outage, verified payment, unpaid expiration, cross-mode rejection and failed-save retries. No live services were contacted.
+
+Completed technical preparation: wire the existing scheduled payment-recovery endpoint for gated live mode, with an independent live scheduler secret and the same account/database/payment checks as the rest of the live flow. No hosted scheduler or credentials have been changed.
+
 ### October 19: live wording pass (local only)
 
 Functional buyer forms, cart, invitation confirmation, payment returns, admin help/errors, CSV environment labels/filenames and printed mailing labels now distinguish future live mode from the test site. Live invitation confirmation explicitly confirms receipt of the request, not mailing; payment help preserves the order reference and points to the existing website Contact section. No receipt email is promised. Test card instructions, fictional-data warnings and development export/label marks remain in sandbox mode. Shared Gala admin now provides the same runtime mode to its child panels.
 
 Validation: **173 Gala tests**, production build and **82 built-app Preview/production HTTP checks** pass. An isolated browser rehearsal with fictional responses checked live cart wording, paid/unverified returns, invitation receipt and test-mode confirmation, and the shared admin mailing panel. Export tests cover mode labels, unchanged data, escaped addresses, duplicate/mailed exclusions and print safeguards. No real payment or hosted write was made.
 
-The hard-coded live release gate remains false. This wording pass does not enforce the still-unconfirmed deadlines, enable sales, apply a migration, configure a provider or publish a deployment. The current OSG questions are consolidated in **Remaining OSG decisions** below; older dated accounting/access notes are historical.
+The hard-coded live release gate remains false. This wording pass does not enforce the still-unconfirmed deadlines, enable sales, apply a migration, configure a provider or publish a deployment. The current OSG questions are consolidated in **Deferred operating follow-ups** below; older dated accounting/access notes are historical.
 
 
 Last updated: October 19, 2026 (America/Chicago).
@@ -364,7 +374,7 @@ Initial proposal: sell table tiers and quantities without an interactive seating
 - Cookie bags: $10 per bag, containing two chocolate chip cookies.
 - Collect quantities, recipient student's name and grade, purchaser's name, and phone number. A confirmation email is proposed for the online flow.
 - Allow gifts for multiple students in one order, with one payment and clear recipient-level fulfillment details.
-- Flyer deadline: January 29; 2027 is inferred from the event, but the exact year/time cutoff should be confirmed before automation.
+- Flyer deadline: January 29. The user accepted this date for Gala 2027 on October 20; an exact automated cutoff time is deferred and is not a launch blocker.
 - Flyer states no orders after the deadline and no roses/cookies sold at the Ball.
 - Generate paid-order production and distribution lists for organizers.
 
@@ -475,15 +485,15 @@ These are engineering requirements. Several now have development implementations
 - All sales channels, including any staff-entered sales, must use the same inventory controls.
 - Keep a useful audit trail without logging card data, credentials, or unnecessary personal information.
 
-## Remaining OSG decisions — current as of October 19
+## Deferred operating follow-ups — October 20 (not launch blockers)
 
-This list replaces the old open-decisions table. These are final operating settings, not a new feature backlog. The production launch sequence is in `GALA_RELEASE_CHECKLIST.md`.
+The user explicitly deferred these questions and says they are not blockers. This list preserves the details for later; it must not be used to demand answers before moving forward. The production launch sequence is in `GALA_RELEASE_CHECKLIST.md`.
 
 | Question to OSG | Already answered / current behavior | Why an answer is needed |
 |---|---|---|
-| **What are the exact gift and invitation deadlines?** Confirm January 29, **2027** for gifts, its cutoff time in Central time, and the last date/time for invitation requests. | Gift flyer says January 29, no late gift orders and no gift sales at the Ball. The year/time and invitation cutoff are not confirmed. | Implement server-side cutoffs, including how an already-open unpaid checkout is treated at the gift deadline. Do not invent a time or say a cutoff is enforced before it is. |
-| **Are the current order limits and extra-seat workflow acceptable?** | Unlimited table sales across the event is settled. Each checkout allows up to **10 table/ticket selections** (one table per selection; up to **10 couples-ticket or student-date-ticket units per ticket selection**), plus **20 gift-recipient entries**, each with up to **50 roses and 50 cookie bags**. A couples-ticket unit admits two people. Each invitation request allows **20 addresses**. Each table has eight seats with up to two extra seats, purchased with that table; there is no separate later extra-seat purchase. | These are existing implementation bounds, not approved event capacity. Confirm them or specify changes before release. |
-| **Is online card payment sufficient for launch?** | Stripe is selected and activated. The website uses card checkout; no check, cash or bank-transfer ordering workflow is built. | Confirm the intended online sales policy. This does not require adding another payment method if cards are sufficient. |
+| **What are the exact gift and invitation deadlines?** January 29, **2027** for gifts is accepted. Exact Central-time cutoff and the last date/time for invitation requests can be clarified later. | Gift flyer says January 29, no late gift orders and no gift sales at the Ball. January 29, 2027 was accepted October 20; time and invitation cutoff remain deferred. | Implement server-side cutoffs, including how an already-open unpaid checkout is treated at the gift deadline. Do not invent a time or say a cutoff is enforced before it is. |
+| **Are the current order limits and extra-seat workflow acceptable?** | Unlimited table sales across the event is settled. Each checkout allows up to **10 table/ticket selections** (one table per selection; up to **10 couples-ticket or student-date-ticket units per ticket selection**), plus **20 gift-recipient entries**, each with up to **50 roses and 50 cookie bags**. A couples-ticket unit admits two people. Each invitation request allows **20 addresses**. Each table has eight seats with up to two extra seats, purchased with that table; there is no separate later extra-seat purchase. | These are existing implementation bounds, not approved event capacity. Keep the current implementation; OSG can request changes later. |
+| **Is online card payment sufficient for launch?** | Stripe is selected and activated. The website uses card checkout; no check, cash or bank-transfer ordering workflow is built. | Keep card checkout as implemented. This does not require adding another payment method if cards are sufficient. |
 | **Who should buyers contact for help, and who approves exceptional corrections?** | All sales are final/no refunds is settled. Live help currently points to the existing website Contact section. Address corrections have an audit reason; paid buyer/gift changes do not have a general self-service correction flow. | Confirm the existing contact is appropriate or provide the public contact to display, and identify the person who authorizes mistaken names, gift recipients or other paid-order corrections. No named admin accounts are needed. |
 | **When should unused buyer and invitation contact details be removed or anonymized?** | Keep the item ledger and financial records. No retention period for abandoned-checkout contact details or invitation addresses has been agreed. | Set a documented cleanup policy without deleting financial history or promising automatic deletion that is not implemented. |
 
@@ -491,7 +501,7 @@ Useful operational follow-ups, **not additional checkout feature blockers**: eve
 
 **Settled; do not ask again:** La Hacienda; February 27, 2027; existing flyer prices; unlimited Platinum/Gold/Silver tables with optional future caps; retained 35-minute unpaid-checkout expiration; shared cart; no tax per Britni; all sales final/no refunds; manual Stripe payout and QuickBooks entry by Britni; item ledger/CSV exports; shared Dues/Gala password managed by Will through 2027. No Gala QuickBooks connection, Stripe Clearing account, finite table quantities or individual volunteer accounts are required.
 
-**Our remaining engineering/setup work, not questions for OSG:** implement approved deadlines/limit changes; finish production database/configuration, live Stripe webhook and scheduled recovery, dependency review and final acceptance/rollback evidence. Verify payout bank/manual schedule with authorized access; do not change those settings without instruction. Keep live activation disabled until the concrete release is approved.
+**Our remaining engineering/setup work, not questions for OSG:** finish production database/configuration, live Stripe webhook and scheduled recovery, dependency review and final acceptance/rollback evidence. Verify payout bank/manual schedule with authorized access; do not change those settings without instruction. Keep live activation disabled until the concrete release is approved.
 
 ## Test plan and release gates
 

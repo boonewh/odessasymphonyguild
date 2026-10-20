@@ -1,12 +1,20 @@
 # Gala backend development
 
+## October 20: live scheduled-recovery wiring (not hosted)
+
+`scheduledRecoveryEnabled` admits the approved board Preview or future gated live mode. Authorization requires POST and the environment-specific random bearer secret; reuse of admin/session/test credentials is rejected. The real route continues through account pinning, matching database marker, durable claims and verified settlement. Local route tests use a disposable gate-enabled bundle, fictional Stripe and a strict database transport; the committed release gate stays false. The development foreground worker is unchanged. Hosted schedule/secret/monitoring setup remains pending; see `GALA_LIVE_ACCESS.md`.
+
+Validation: **175 Gala tests**, the production build and **82 built-app Preview/production HTTP checks** pass. The isolated live route rehearsal covers closed-gate denial, separate scheduler credentials, wrong account/database, provider outage, verified payment, unpaid expiration, cross-mode rejection and failed-save retries. No live services were contacted.
+
+User decision: January 29, 2027 is accepted for gifts, and remaining operating questions are deferred/non-blocking. Do not treat them as required OSG answers before continuing technical release work.
+
 ## October 19: live wording and export presentation
 
 Local-only preparation: live customer forms/payment returns use real-order wording, test instructions remain in sandbox, and the shared Gala admin supplies `GalaRuntime` to its fulfillment panels. API errors give actionable customer/admin guidance without development migration numbers. CSV builders and mailing-label HTML accept an explicit live presentation flag supplied from verified backend configuration; omitted flags retain development labeling for existing callers/tests. Live labels omit the fictional-address watermark while preserving address escaping, fit checks, duplicate safeguards and truthful mailing instructions. No payment, storage, inventory or authorization rules change. The production release gate remains false; nothing is deployed or migrated by this pass.
 
 Validation: **173 Gala tests**, production build and **82 built-app Preview/production HTTP checks** pass. An isolated browser rehearsal with fictional responses checked live cart wording, paid/unverified returns, invitation receipt and test-mode confirmation, and the shared admin mailing panel. Export tests cover mode labels, unchanged data, escaped addresses, duplicate/mailed exclusions and print safeguards. No real payment or hosted write was made.
 
-Current unresolved OSG decisions are centralized in `GALA_2027_PLAN.md` under **Remaining OSG decisions**. Superseded QuickBooks/capacity/account-access questions are not release work.
+Current unresolved OSG decisions are centralized in `GALA_2027_PLAN.md` under **Deferred operating follow-ups**. Superseded QuickBooks/capacity/account-access questions are not release work.
 
 ## October 19: live request wiring and shared Dues integration
 
