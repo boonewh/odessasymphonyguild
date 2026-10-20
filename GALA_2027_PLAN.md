@@ -1,5 +1,13 @@
 # Gala 2027: decisions, payment research, and implementation handoff
 
+### October 20: deployed and verified; awaiting sales activation only
+
+The user explicitly authorized production deployment and notification/recovery verification with sales closed. Commit `db3ff7d` is deployed to `https://www.odessasymphonyguild.org` from the Gala branch, without merging main. Both routing gates are now enabled; both database submission flags remain **false**. Preview sandbox settings/deployment remain unchanged.
+
+Validation passed: **177 Gala tests, 3 OAuth tests, build, 82 built-app isolation checks and 44 actual production HTTP checks**. Shared admin/Dues works with all 120 records and unchanged existing data/schema/grants. Closed checkout/invitation attempts created no records. Actual Stripe delivery of a harmless existing account-update event returned 200; the webhook is enabled with only the four payment events restored. Three independent scheduled recovery calls returned 200 and advanced the heartbeat. No real payment, refund or payout was created.
+
+Deployment and evidence: `supabase/gala-production/STAGED_SETUP.md`. The requested deployment/verification is complete. The next action is **explicit user sales activation**, then opening the approved submission flags and monitoring the first genuine purchase. Earlier “staged/inactive/not deployed” notes describe preceding milestones, not unfinished tasks.
+
 ### October 20: authorized live services staged; sales remain closed
 
 The user subsequently authorized the production database installation and live-service configuration while expressly withholding sales activation. Gala is now installed in the existing Odessa Symphony Guild membership project (`uhfxkdzhpyzuwkvmners`). Actual before/after membership records, columns, schema and grants match; 120 students remain readable. The new cron extension adds only its own schema defaults to the broader fingerprint. Gala is empty, has three approved unlimited tiers, and both sales and invitations remain closed.

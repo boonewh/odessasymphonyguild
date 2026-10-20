@@ -1,5 +1,16 @@
 # Gala sales: release preparation — production remains closed
 
+## October 20: production deployed and verified; submissions still closed
+
+- [x] User explicitly authorizes deployment and payment-notification/recovery verification while keeping sales closed.
+- [x] Deploy commit `db3ff7d` from the Gala branch to the canonical live domain, enabling production routes while retaining both closed database submission flags. No main merge or Preview changes.
+- [x] Pass 177 Gala tests, 3 OAuth tests, build, 82 built-app isolation checks and 44 hosted HTTP checks. Verify actual shared admin/Dues access and all 120 records, plus unchanged membership fingerprints and empty Gala business tables.
+- [x] Verify webhook signatures/mode rejection and refusal to settle an unverified claimed payment. Resend a harmless existing Stripe account-update event; observe actual Stripe delivery HTTP 200; restore the four payment-only subscriptions.
+- [x] Enable and observe three automatic recovery calls with HTTP 200 and advancing heartbeat. Keep webhook/recovery processing active while sales are closed.
+- [ ] **Await explicit activation approval**, then open the intended database submission flags and monitor the first genuine purchase.
+
+This is the current remaining scope. Detailed release evidence and operational boundaries are in `supabase/gala-production/STAGED_SETUP.md`; older unchecked preparation items below are historical.
+
 ## October 20: authorized hosted setup completed with services inactive
 
 - [x] Apply the reviewed installer to the existing production membership database after actual schema and backup inspection. Verify unchanged membership records/schema/grants, 120 readable students, empty Gala data, approved unlimited inventory and closed sales/invitations.

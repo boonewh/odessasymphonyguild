@@ -1,4 +1,6 @@
-# Live access wiring — prepared, not released
+# Live access wiring — deployed with submissions closed
+
+**October 20 deployment update:** the user explicitly authorized deployment and hosted verification. Commit `db3ff7d` is deployed to the canonical production domain. `LIVE_RELEASE_APPROVED` and `GALA_LIVE_ENABLED` are true; database `sales_open` and `invitations_open` remain false. Shared admin/Dues access, code-free private buyer sessions, closed submissions, actual Stripe delivery and automatic recovery are verified. See `supabase/gala-production/STAGED_SETUP.md`. Explicit activation approval is still required. Older staged/local-only notes below describe prior milestones.
 
 **October 20 setup update:** the user authorized production database installation and service configuration while keeping sales closed. Those services are now staged: the shared production database, eight Vercel Production settings, disabled live Stripe webhook and inactive recovery job. The code release gate and `GALA_LIVE_ENABLED` remain false; the existing public deployment is unchanged. See `supabase/gala-production/STAGED_SETUP.md`. Hosted route, delivery and heartbeat acceptance remain pending deployment; dated local-only statements below are historical.
 

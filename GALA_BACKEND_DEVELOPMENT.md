@@ -1,5 +1,9 @@
 # Gala backend development
 
+## October 20: authorized closed-sales deployment accepted
+
+Production commit `db3ff7d` is deployed, with live routes enabled and sales/invitation flags still closed. 177 Gala tests, 3 OAuth tests, build, 82 built-app isolation checks and 44 hosted HTTP checks pass. Actual Stripe delivery returned 200; three automatic recovery calls returned 200 and advanced the heartbeat. Dues retains all 120 records and unchanged existing schema/grants. Gala business tables remain empty. No real payment/payout or Preview change occurred. See `supabase/gala-production/STAGED_SETUP.md`. Deployment acceptance is complete; wait for explicit activation.
+
 ## October 20: production services staged under explicit setup authorization
 
 The production installer is now applied to the existing membership database, and the eight production-only Gala settings, disabled Stripe webhook and inactive recovery schedule are staged. Sales and invitation flags remain closed; no application release or activation occurred. Hosted read-only checks preserve membership records and permissions and deny browser access to Gala. Thirteen focused database/access tests and SQL reproducibility pass. See `supabase/gala-production/STAGED_SETUP.md` for identifiers, private evidence filenames, remaining hosted delivery checks and release order. Earlier local-only notes below describe prior work.
