@@ -1,6 +1,7 @@
 import "server-only";
 import Stripe from "stripe";
-import { readBackendConfig, DEVELOPMENT_STRIPE_ACCOUNT } from "./config";
+import { readBackendConfig } from "./config";
+import { verifyStripeAccount } from "./payment-mode";
 import { SupabaseOrderStore } from "./store";
 import { authorizeLocalRequest } from "./auth";
 
@@ -11,7 +12,7 @@ export async function backend() {
   const config = readBackendConfig(process.env);
   const stripe = new Stripe(config.key, { maxNetworkRetries: 2, timeout: 20_000 });
   const account = await stripe.accounts.retrieveCurrent();
-  if (account.id !== DEVELOPMENT_STRIPE_ACCOUNT) throw new Error("Unexpected Stripe sandbox account.");
+  verifyStripeAccount(account.id, config.paymentMode);
   const store = new SupabaseOrderStore(config.url, config.dbKey);
   await store.verifyEnvironment();
   return { config, stripe, store };

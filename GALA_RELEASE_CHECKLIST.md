@@ -2,6 +2,20 @@
 
 User instruction, September 28, 2026: keep this feature away from live until ready and tested. The October 19 board decision explicitly permits unlimited table sales; finite limits remain optional. A generic request to push or publish does not waive this requirement.
 
+## Current production preparation sequence — October 19
+
+The user accepted the completed walkthrough and asked to begin preparation. This section is the current work list. Older dated milestones below are evidence; superseded accounting, finite-table and individual-admin requirements are not new tasks. Preparation is authorized; production launch is not.
+
+- [x] **Walkthrough acceptance:** user reports the walkthrough is complete. Cart selection, spacing, verification transition, ledger cleanup and paid/unpaid return navigation have been reviewed on the test site.
+- [x] **First payment preparation pass:** explicit sandbox/live account and payment identity throughout checkout, webhook verification and recovery; unchanged sandbox retry payload; configuration remains sandbox-only and production remains closed. 157 Gala tests, build and 80 built-app hosting checks pass. Live behavior exercised offline only.
+
+1. **Production data and payment setup.** Prepare a clean isolated Gala database, rehearse schema/permissions and live session guards, and verify zero test orders/contacts/accounting tokens. Current development SQL is not a production installation script: it pins the development marker and test Checkout sessions. Bind the future live configuration to the correct database, OSG live account and approved HTTPS domain. Prepare webhook/recovery configuration and monitoring/rollback instructions. Verify Stripe payout destination/manual schedule read-only before any requested changes. Keep new-checkout shutdown independent from processing already-issued payments.
+2. **Buyer and administrator access.** Remove the buyer test-code requirement on live pages while preserving private order ownership and protected customer writes. Integrate the single shared admin entrance with actual Dues and Gala, preserving membership records and existing membership services; the sample Dues page is not the production integration. Recheck session expiry/rotation, login throttling, CSRF and unauthorized access. Will remains the password manager; no individual volunteer accounts required.
+3. **Live wording and operating rules.** Complete the wording review below, customer return/receipt/support flow, server-enforced gift/invitation deadlines and approved purchase limits. Carry forward unlimited tables, unpaid expiration, no-tax instruction, La Hacienda, all sales final and manual bookkeeping. Confirm remaining dates/limits rather than inventing values. Finish the dependency review and any necessary fixes; record unresolved risk explicitly.
+4. **Release acceptance and explicit launch approval.** Rehearse the final build with sandbox payments, desktop/mobile buyer/admin flows and failure/recovery checks. Verify live configuration without creating artificial real-money test charges; define handling/monitoring of the first genuine purchase. Record the release commit, migration evidence, configuration, production/live-versus-test isolation and rollback steps. Present the concrete release for the user's explicit approval before merge/deploy/activation.
+
+Remaining business confirmations, to collect when needed: exact gift cutoff (flyer says January 29; year and Central-time cutoff need confirmation), invitation mailing cutoff, existing per-checkout limits/extra-seat rules and card-only policy, exceptional correction/support contact and contact-data retention. The user already chose to retain unpaid expiration; the implemented duration is 35 minutes. These are final settings/operating rules, not additional feature requests.
+
 ## Required launch wording review — user reminder, October 19
 
 - [ ] Review every live buyer and admin flow for test/development language: navigation, access prompts, product pages, cart, checkout buttons, loading states, payment returns, confirmations, errors, invitation requests, admin actions and exports. Replace test-only wording with accurate live wording, remove test-card instructions and fictional-data prompts from live pages, and verify both successful and failed payment paths.
@@ -85,7 +99,7 @@ Development completion and launch approval are separate milestones. **Both engin
 - [x] Recovery verification: real natural expiration and actual process interruption/restart against hosted development, with protected holds and no duplicate accounting.
 - [x] Branch review: one session-rotation defect fixed and regression-tested; unrelated membership OAuth changes preserved separately on `codex/membership-oauth-hardening`, with their unapplied migration removed from the current Gala checkout.
 - [x] Final validation: **100 Gala tests, 3 retained OAuth security tests, build, 33 production-mode HTTP checks and 18 development HTTP checks passed**. Development processes restarted. Reviewed work saved locally in Git; nothing pushed or deployed.
-- [ ] User completes the full development walkthrough and reports any blocking defects. This is acceptance of the MVP, not authorization to expand features or launch.
+- [x] October 19: user completes and accepts the walkthrough after the cart/admin polish. Production preparation is authorized separately; launch remains unauthorized.
 
 The older combined launch gates below remain separate: OSG decisions, approved inventory and production setup/acceptance are not engineering work queued before this walkthrough. The seven membership state tests moved with their implementation; the lower security-suite count is a scope separation, not lost Gala coverage.
 

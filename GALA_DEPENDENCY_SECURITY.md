@@ -1,4 +1,12 @@
-# Dependency security review — October 4, 2026
+# Dependency security review
+
+## October 19: production preparation audit refresh
+
+Read-only `npm audit --json` against the current lockfile reports **13 affected package entries: 8 high, 5 moderate, 0 critical**. This supersedes the older count below; it is a dependency report, not a count of independently exploitable application flaws. No package was changed during this payment-preparation pass. The private report is `.codex-remote-attachments/live-preparation-audit.json`.
+
+Reported chains include the existing braces/Tailwind/ESLint tooling and Intuit decoder chains, plus source-map-js and selector-parser/postcss-nested entries. The audit advertises compatible fixes for some entries, but also suggests a Tailwind major migration and an ESLint-config downgrade; do not run a forced bulk fix. Review actual dependency paths and runtime exposure, apply appropriate fixes, and re-run build/security checks as part of the existing production security gate. Keep the membership Intuit dependency while its separate integration remains in use. This audit does not clear that gate.
+
+## October 4 review
 
 Development branch: `codex/gala-2027-planning`. No merge, deployment, live OAuth authorization, charge or accounting write was performed. This is a dependency review, not a complete application security audit.
 

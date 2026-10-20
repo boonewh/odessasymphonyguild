@@ -4,6 +4,14 @@ Last updated: October 19, 2026 (America/Chicago).
 
 ## Resume here
 
+### October 19: user walkthrough accepted; production preparation started
+
+The user has completed and accepted the walkthrough, including the latest cart, ledger and checkout-return polish, and authorized starting live-site preparation. This closes the development walkthrough milestone. It does **not** authorize merging to main, opening live sales, applying production SQL or changing live credentials/provider settings.
+
+First preparation pass: payment validation now takes an explicit server-selected sandbox/live identity, with separate OSG account pins and application metadata. Checkout creation/resume, payment verification, webhook parsing, expiration and scheduled recovery carry the same identity. The existing backend configuration always selects sandbox, still rejects live keys and still denies production. Existing sandbox checkout payloads remain unchanged for safe retries. Offline live-mode fixtures cover payment/expiration and cross-environment rejection; they are not real live transactions or proof of a production database setup. **157 Gala tests, build and 80 built-app Preview/production checks pass.**
+
+Use the four-part production sequence at the top of `GALA_RELEASE_CHECKLIST.md` as the current remaining scope. Next engineering step: prepare and rehearse a clean production database with explicit live database/session identity, then integrate private buyer sessions and the approved shared admin with actual Dues. Do not copy the test ledger, sample roster, development account marker or sandbox scheduler into production. No need to reopen unlimited inventory, individual admin accounts, Patron or QuickBooks decisions.
+
 ### October 19: simplify the Sales ledger footer
 
 Removed the obsolete accounting/final-total review section from the bottom of Sales ledger, including QuickBooks history and the technical JSON review-copy control. Paid sales totals, item details, filters and both CSV downloads remain. This is a presentation cleanup only; historical accounting data and the existing protected reporting endpoints are retained.

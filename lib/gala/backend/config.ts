@@ -1,6 +1,7 @@
 import { boardReviewAllowed, BOARD_ORIGIN } from "../board-review";
+import { paymentEnvironment } from "./payment-mode";
 // OSG's isolated sandbox, verified in Stripe on October 19, 2026.
-export const DEVELOPMENT_STRIPE_ACCOUNT = "acct_1UPo5p46WzPrgtpT";
+export const DEVELOPMENT_STRIPE_ACCOUNT = paymentEnvironment("sandbox").account;
 export const DEVELOPMENT_SUPABASE_URL = "https://rhjwjfyjjdsfahlegqvd.supabase.co";
 export function backendEnabled(env: NodeJS.ProcessEnv) {
   return boardReviewAllowed(env) || (env.NODE_ENV === "development" && !env.VERCEL_ENV && !env.VERCEL
@@ -30,5 +31,7 @@ export function readBackendConfig(env: NodeJS.ProcessEnv) {
   if (!webhookSecret.startsWith("whsec_") || !/^[a-f0-9]{64}$/.test(token))
     throw new Error("Webhook signing secret and local development token are required.");
   if (!hosted && !/^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)) throw new Error("A loopback return URL is required.");
-  return { key, url, dbKey, webhookSecret, token, origin, accessMode, hosted, accessCode };
+  // Live support in the payment library is preparatory only. No environment
+  // variable can enable it through this test-only configuration reader.
+  return { key, url, dbKey, webhookSecret, token, origin, accessMode, hosted, accessCode, paymentMode: "sandbox" as const };
 }

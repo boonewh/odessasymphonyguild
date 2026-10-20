@@ -23,18 +23,18 @@ async function handle(request: Request, mutate: boolean) {
     let url: string | null = null;
     if (mutate && !order.stripe_session_id && order.status === "reserved") {
       const { stripe } = await backend();
-      url = (await startCheckout(store, stripe, order.details, config.origin)).url;
+      url = (await startCheckout(store, stripe, order.details, config.origin, Date.now(), config.paymentMode)).url;
       order = await store.get(orderId);
     }
     // Closed orders already have a verified terminal state. Preserve their receipts
     // after a sandbox change without querying the new account for an old session.
     if (mutate && order.stripe_session_id && (order.status === "reserved" || order.status === "awaiting_payment")) {
       const { stripe } = await backend();
-      await reconcileSession(store, stripe, order.stripe_session_id, `flyer-check-${order.id}`);
+      await reconcileSession(store, stripe, order.stripe_session_id, `flyer-check-${order.id}`, config.paymentMode);
       order = await store.get(orderId);
       if (order.status === "awaiting_payment" || order.status === "reserved") {
         const session = await stripe.checkout.sessions.retrieve(order.stripe_session_id!);
-        verifySession(order, session);
+        verifySession(order, session, config.paymentMode);
         if (session.status === "open") url = session.url;
       }
     }

@@ -13,14 +13,14 @@ export async function POST(request: Request) {
     const raw = await request.text();
     if (raw.length > 1024) return new Response(null, { status: 413 });
     const { orderId } = z.object({ orderId: z.uuid() }).parse(JSON.parse(raw));
-    const { store, stripe } = await backend();
+    const { store, stripe, config } = await backend();
     store.customerHash = customerHash;
     const order = await store.get(orderId);
     if (!order.stripe_session_id) throw new Error("Checkout needs investigation.");
     const session = await stripe.checkout.sessions.retrieve(order.stripe_session_id);
-    verifySession(order, session);
+    verifySession(order, session, config.paymentMode);
     if (session.status === "open") await stripe.checkout.sessions.expire(session.id, {}, { idempotencyKey: `gala-expire-${orderId}` });
-    const state = await reconcileSession(store, stripe, session.id, `manual-expire-${session.id}`);
+    const state = await reconcileSession(store, stripe, session.id, `manual-expire-${session.id}`, config.paymentMode);
     return Response.json({ state });
   } catch { return Response.json({ error: "Expiration not verified. The reservation remains protected; refresh and reconcile." }, { status: 409 }); }
 }

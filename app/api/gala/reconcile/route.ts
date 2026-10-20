@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   try { await authorizeStaff(request); }
   catch { return new Response(null, { status: 403 }); }
   try {
-    const { store, stripe } = await backend();
-    return Response.json(await reconcilePending(store, stripe), { headers: { "Cache-Control": "no-store" } });
+    const { store, stripe, config } = await backend();
+    return Response.json(await reconcilePending(store, stripe, Date.now(), config.paymentMode), { headers: { "Cache-Control": "no-store" } });
   } catch { return Response.json({ error: "Reconciliation unavailable." }, { status: 503 }); }
 }

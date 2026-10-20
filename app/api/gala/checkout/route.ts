@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     if (body.length > 32000) return new Response(null, { status: 413 });
     const { store, stripe, config } = await backend();
     store.customerHash = customerHash;
-    const result = await startCheckout(store, stripe, JSON.parse(body), config.origin);
+    const result = await startCheckout(store, stripe, JSON.parse(body), config.origin, Date.now(), config.paymentMode);
     return Response.json(result, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     if (error instanceof GalaSalesClosed) return Response.json({ code: "SALES_CLOSED", error: "Gala sales have closed. No new payment was started." }, { status: 409 });

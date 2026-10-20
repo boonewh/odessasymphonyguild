@@ -2,6 +2,16 @@
 
 This is a test-only backend on `codex/gala-2027-planning`. Local development and the protected functional Vercel board Preview work. Production stays blocked. The customer forms create Stripe sandbox checkouts; admin reads the development database. Invitation requests persist separately without payment or accounting entries.
 
+## October 19: first production preparation pass — payment identity
+
+User accepted the walkthrough and authorized production preparation, not launch. `backend/payment-mode.ts` defines immutable identities for OSG sandbox and live accounts. Library callers explicitly choose the expected mode; provider payloads and buyer inputs cannot select it. The live application metadata is `osg-gala-2027`; existing sandbox metadata remains `osg-gala-development`. Checkout Session, PaymentIntent and signed webhook `livemode` fields must exactly match the selected identity, including rejecting missing values. Amount, currency, order, payment and session references remain independently checked. Recovery and manual expiration carry the same expected mode. Uncertain/processing payments remain pending.
+
+All application payment callers now carry `config.paymentMode`; the configuration reader still returns only `sandbox`, rejects live keys and production, and pins the development database. No production activation flag or route has been added. Existing local scripts retain sandbox defaults. No credentials, Stripe settings, hosted database, production migration or live payment changed. The production database still needs separate preparation: existing schema checks enforce the development environment and test session IDs, so do not apply it unchanged to live.
+
+Validation: six new offline fixture tests plus the existing suite, **157 Gala tests passed**; build and **80 built-app Preview/production HTTP checks passed**. Checks cover identical sandbox payload/retry behavior, live identity propagation through create/resume/payment/expiration/recovery, cross-mode session/payment/signature rejection, wrong account denial and continued production closure. These fixtures make no Stripe requests; they do not establish live integration acceptance or production schema correctness. Logs are ignored under `.codex-remote-attachments/live-preparation-*` and `payment-mode-tests.log`.
+
+Reference: Stripe's [Checkout Session object](https://docs.stripe.com/api/checkout/sessions/object) and [Event object](https://docs.stripe.com/api/events/object) define the mode fields used by verification. Follow the current production sequence in `GALA_RELEASE_CHECKLIST.md`; preserve the accepted test site while preparing the remaining release work.
+
 ## October 19: shared admin entrance
 
 User authorizes a test-only shared password entrance for Dues/Gala, with Patron reserved for later. Will owns password management through 2027; individual staff accounts/ledger permissions are no longer the selected launch policy. `/admin` provides the landing page; `/admin/gala` retains the existing five Gala tabs; the old `/gala/preview/admin` redirects there. `/admin/dues` contains a labeled, read-only fictional sample roster, with no membership API calls. Existing production dues login and records are unchanged. Do not describe the sample roster as a completed migration of live dues management.

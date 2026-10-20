@@ -1,6 +1,7 @@
 import Stripe from "stripe";
 import { boardReviewAllowed } from "@/lib/gala/board-review";
-import { readBackendConfig, DEVELOPMENT_STRIPE_ACCOUNT } from "@/lib/gala/backend/config";
+import { readBackendConfig } from "@/lib/gala/backend/config";
+import { verifyStripeAccount } from "@/lib/gala/backend/payment-mode";
 import { authorizeScheduledRecovery } from "@/lib/gala/backend/scheduled-recovery";
 import { SupabaseOrderStore } from "@/lib/gala/backend/store";
 import { SupabaseRecoveryStore } from "@/lib/gala/backend/recovery-store";
@@ -15,13 +16,13 @@ export async function POST(request: Request) {
   try {
     const config = readBackendConfig(process.env);
     const stripe = new Stripe(config.key, { maxNetworkRetries: 0, timeout: 10_000 });
-    if ((await stripe.accounts.retrieveCurrent()).id !== DEVELOPMENT_STRIPE_ACCOUNT) throw new Error("Wrong test account.");
+    verifyStripeAccount((await stripe.accounts.retrieveCurrent()).id, config.paymentMode);
     const store = new SupabaseOrderStore(config.url, config.dbKey);
     await store.verifyEnvironment();
     const queue = new SupabaseRecoveryStore(config.url, config.dbKey);
     // Shared database leases make overlapping scheduler calls safe. A terminated
     // invocation leaves its lease/hold intact for the next scheduled pass.
-    return Response.json(await recoveryPass(queue, store, stripe, 5, 90_000), { headers });
+    return Response.json(await recoveryPass(queue, store, stripe, 5, 90_000, config.paymentMode), { headers });
   } catch {
     return Response.json({ error: "Payment check failed; reservations remain protected." }, { status: 503, headers });
   }
