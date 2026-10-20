@@ -4,6 +4,10 @@ Last updated: October 19, 2026 (America/Chicago).
 
 ## Resume here
 
+### October 19: checkout transition warning fixed
+
+Saving the checkout reference mounted the order-status reader before checkout creation finished, causing a temporary verification error. The cart now shows a neutral Opening secure checkout state throughout creation and navigation to Stripe. Actual failures still expose the saved order and recovery controls; browser back/forward-cache restoration clears the redirect state. No payment-verification or duplicate-prevention rules are relaxed. Build and 12 cart/checkout tests pass. An isolated browser fixture verified a delayed request makes no premature order reads, failure exposes recovery, and a successful response does not mount the status reader during navigation. Fixture testing created no database orders or payments. Keep publishing limited to the board Preview.
+
 ### October 19: cart placement cleanup
 
 Removed the large cart summary between the catalog introduction and products. The existing top navigation now shows a compact cart count and total; links wrap on phones so the cart stays visible. The same-tab reminder remains beside Add to cart and on the cart page. Checkout recovery and storage behavior are unchanged. Build and desktop/390px browser checks pass; publish only to the board Preview.

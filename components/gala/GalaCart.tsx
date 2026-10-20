@@ -58,6 +58,14 @@ export default function GalaCart() {
   const state = useCart();
   const [agreed, setAgreed] = useState(false), [busy, setBusy] = useState(false);
   const lock = useRef(false);
+  useEffect(() => {
+    // Back from Stripe may restore this page with its redirect state intact.
+    const restored = (event: PageTransitionEvent) => {
+      if (event.persisted) { lock.current = false; setBusy(false); }
+    };
+    window.addEventListener("pageshow", restored);
+    return () => window.removeEventListener("pageshow", restored);
+  }, []);
   async function submit(event: FormEvent) {
     event.preventDefault(); if (lock.current || state.reference || !state.ready) return;
     lock.current = true; setBusy(true); state.setError("");
@@ -76,8 +84,11 @@ export default function GalaCart() {
         throw new Error(result.error || "Checkout could not be confirmed. Resume the same checkout below.");
       }
       window.location.assign(checkoutUrl(result.url));
-    } catch(e) { state.setError(message(e)); state.refresh(); }
-    finally { lock.current = false; setBusy(false); }
+    } catch(e) {
+      state.setError(message(e)); state.refresh(); lock.current = false; setBusy(false);
+    }
+    // Keep the loading screen until navigation completes. Mounting the status
+    // reader while checkout is being created can report a nonexistent order.
   }
   function reset() {
     try { sessionStorage.removeItem(FLYER_ATTEMPT_KEY); sessionStorage.removeItem(CHECKOUT_REFERENCE_KEY); setAgreed(false); state.setError(""); cartChanged(); }
@@ -87,7 +98,10 @@ export default function GalaCart() {
   return <>
     <p className={styles.cartReminder}>{SAME_TAB_NOTICE}</p>
     {state.error && <p role="alert" className={styles.error}>{state.error}</p>}
-    {!state.ready ? <p>Loading your cart…</p> : state.reference ? <SandboxOrderStatus key={state.reference} id={state.reference} startAnother={reset} />
+    {busy ? <section className={styles.summary} aria-label="Opening checkout" aria-busy="true">
+      <h2>Opening secure checkout…</h2>
+      <p role="status">Please wait while we prepare your order and take you to Stripe.</p>
+    </section> : !state.ready ? <p>Loading your cart…</p> : state.reference ? <SandboxOrderStatus key={state.reference} id={state.reference} startAnother={reset} />
       : cart.purchases.length + cart.gifts.length === 0 ? <section className={styles.summary}><h2>Your cart is empty</h2><p>Add a table, tickets, or gifts to get started.</p><ContinueShopping /></section>
       : <form onSubmit={submit}><fieldset disabled={busy} className={styles.formSection}>
         <legend className="sr-only">Review your cart and checkout</legend>
