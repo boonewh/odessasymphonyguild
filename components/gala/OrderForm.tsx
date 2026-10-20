@@ -118,7 +118,6 @@ export function OrderFormContent({ kind, store, clientReview = false, checkout, 
     <fieldset disabled={!!saved || busy} className={styles.formSection}>
       <legend className="sr-only">{kind === "tables" ? "Choose your tables and tickets" : kind === "gifts" ? "Choose your celebration gifts" : "Invitation details"}</legend>
       {kind === "tables" && <>
-        {multiple && <p className={styles.selectionHint}>Choose any combination of tables and tickets, then add your selections to the cart together.</p>}
         <h2 className={styles.flyerSectionTitle}>Table options</h2>
         <div className={styles.tiers}>{TABLES.map((tier) => <article className={styles.tier} key={tier.id}>
           <div><p className={styles.tierOrnament} aria-hidden="true">❦</p><h3>{tier.name}</h3><p className={styles.price}>{money(tier.price)}</p>
