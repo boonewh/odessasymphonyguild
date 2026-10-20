@@ -4,6 +4,10 @@ Last updated: October 19, 2026 (America/Chicago).
 
 ## Resume here
 
+### October 19: cart placement cleanup
+
+Removed the large cart summary between the catalog introduction and products. The existing top navigation now shows a compact cart count and total; links wrap on phones so the cart stays visible. The same-tab reminder remains beside Add to cart and on the cart page. Checkout recovery and storage behavior are unchanged. Build and desktop/390px browser checks pass; publish only to the board Preview.
+
 ### October 19: shared administration decision and test implementation
 
 The user chooses one shared admin password and an OSG Administration landing page for Dues, Gala and a future Patron section. No individual admin names/emails or separate ledger permission are required by this policy. Will manages the password through 2027. All shared administrators may use the Gala ledger; change history must not claim a named volunteer identity. Patron implementation is separate and must not block Gala.

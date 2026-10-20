@@ -29,9 +29,11 @@ function useCart() {
   }
   return { cart, reference, ready, error, setError, update, refresh };
 }
-export function CartLink() {
+export function CartLink({ summary = false, current = false }: { summary?: boolean; current?: boolean }) {
   const { cart, reference, ready } = useCart();
-  return <Link href="/gala/cart">{reference ? "Your checkout" : `Cart${ready ? ` (${cart.purchases.length + cart.gifts.length})` : ""}`}</Link>;
+  return <Link href="/gala/cart" className={summary ? styles.cartNavLink : undefined} aria-current={current ? "page" : undefined}>
+    {reference ? "Your checkout" : <>Cart{ready && ` (${cart.purchases.length + cart.gifts.length})`}{summary && ready && ` · ${money(cartTotal(cart))}`}</>}
+  </Link>;
 }
 function ContinueShopping() {
   return <div className={styles.actions}><Link href="/gala/tables">Add tables or tickets</Link><Link href="/gala/gifts">Add celebration gifts</Link></div>;
@@ -49,10 +51,7 @@ export function CartCatalog({ kind }: { kind: "tables" | "gifts" }) {
     {state.error && <p role="alert" className={styles.error}>{state.error}</p>}
     {!state.ready ? <p>Loading your cart…</p> : state.reference ? <section className={styles.summary}>
       <h2>You have a checkout to finish</h2><p>Check its result before adding more items so you do not pay twice.</p><Link href="/gala/cart">View your checkout</Link>
-    </section> : <>
-      <div className={styles.cartBar}><CartLink /><span>{money(cartTotal(state.cart))}</span><p>{SAME_TAB_NOTICE}</p></div>
-      <OrderFormContent kind={kind} addToCart={add} />
-    </>}
+    </section> : <OrderFormContent kind={kind} addToCart={add} />}
   </>;
 }
 export default function GalaCart() {

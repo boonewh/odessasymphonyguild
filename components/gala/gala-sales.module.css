@@ -8,9 +8,10 @@
 .container { max-width:1240px; margin:auto; padding:0 28px 88px; }
 .previewNotice { padding:14px 28px; background:#fff0ce; color:#634514; font-size:14px; line-height:1.6; text-align:center; }
 .previewNotice strong { margin-right:8px; }
-.nav { display:flex; gap:8px; justify-content:center; padding:12px 20px; overflow-x:auto; background:var(--paper); }
+.nav { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; padding:12px 20px; background:var(--paper); }
 .nav a { padding:10px 14px; white-space:nowrap; font-size:14px; border-bottom:2px solid transparent; }
 .nav a:hover,.nav a[aria-current] { border-bottom-color:var(--teal); background:#e4efea; }
+.nav .cartNavLink { border:1px solid #b7ccca; border-radius:8px; background:#eaf2ef; font-weight:700; }
 .stripes { height:16px; background:repeating-linear-gradient(90deg,#171918 0 24px,var(--paper) 24px 48px); }
 .hero { text-align:center; padding:64px 0 48px; }
 .eyebrow { color:var(--teal); font-size:15px; }
@@ -197,9 +198,6 @@
   .envelopeArt { margin-bottom:-12px; }
   .flyerSignoff { padding:10px 24px 32px; font-size:13px; }
 }
-.cartBar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; background:#eaf2ef; border:1px solid #b7ccca; border-radius:12px; padding:20px; margin-block:20px; }
-.cartBar > a { font-size:20px; font-weight:700; }
-.cartBar p { flex-basis:100%; margin:0; font-size:15px; line-height:1.5; }
 .cartReminder { padding:20px; border-left:3px solid #b88b36; background:#f5f1e6; line-height:1.6; }
 .cartItem { border-bottom:1px solid #c7d8d5; padding:24px 0; display:grid; gap:16px; }
 .cartItem h3,.cartItem p { margin:0 0 8px; overflow-wrap:anywhere; }

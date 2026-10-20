@@ -22,7 +22,7 @@ export default function GalaShell({ current, title, intro, children, clientRevie
     </aside>
     <nav className={styles.nav} aria-label="Gala pages">
       {links.filter(([path]) => !clientReview || path !== "preview/admin").map(([path, label]) => <Link key={path} href={`/gala/${path}`} aria-current={current === path ? "page" : undefined}>{label}</Link>)}
-      {sandbox && <CartLink />}
+      {sandbox && <CartLink summary current={current === "cart"} />}
     </nav>
     <div className={compact ? "" : styles.flyerStage}>
       <main className={compact ? styles.container : styles.invitationPaper} data-page={current}>
