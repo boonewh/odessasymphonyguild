@@ -1,5 +1,7 @@
 # Gala live setup and closed-sales deployment — October 20, 2026
 
+**Latest small follow-up:** commit `1381bc8` changes the shared footer's Admin link to `/admin`. Deployed as `dpl_EaK1QpeVo19n6GQ6V14ojqLjvRGS` (`odessasymphonyguild-kkmzndl0z-boonewhs-projects.vercel.app`). Production build passed; the live homepage, Gala and Belles & Beaux footers and protected admin entrance were checked. Both submission flags remain false. The initial full release evidence follows.
+
 The user authorized installing the database and configuring live services, then explicitly authorized deployment and verification with sales closed. Application commit **`db3ff7d`** is deployed at **https://www.odessasymphonyguild.org**. No main merge or sales activation occurred.
 
 Deployment: `dpl_2BJeyCdFEx67L22YqBBPqFaVXfme`, URL `https://odessasymphonyguild-3xynhxx6y-boonewhs-projects.vercel.app`. The upload was a Git archive of the tested commit, excluding local credentials and evidence. Production routing is enabled; database sales and invitation flags are still false.
