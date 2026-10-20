@@ -56,9 +56,9 @@
 .fine { font-size:13px; line-height:1.7; color:#54645f; margin-top:18px; }
 .agreement { display:flex; align-items:flex-start; gap:12px; line-height:1.6; margin:24px 0; font-size:14px; }
 .primary,.secondary { display:inline-flex; justify-content:center; align-items:center; gap:8px; border-radius:3px; min-height:48px; padding:12px 16px; font-size:14px; cursor:pointer; }
-.primary { background:var(--teal); color:white; border:1px solid var(--teal); }
+.primary { background:var(--teal, #256b69); color:white; border:1px solid var(--teal, #256b69); }
 .primary:hover { background:#194e4c; }
-.secondary { border:1px solid #256b6980; background:transparent; color:var(--teal); min-height:38px; padding:8px 12px; }
+.secondary { border:1px solid #256b6980; background:transparent; color:var(--teal, #256b69); min-height:38px; padding:8px 12px; }
 .secondary:hover { background:#e0ede7; }
 .primary:disabled,.secondary:disabled { opacity:.5; cursor:not-allowed; }
 .error { color:#932a24; background:#ffebe5; padding:14px; margin:20px 0; line-height:1.6; }
