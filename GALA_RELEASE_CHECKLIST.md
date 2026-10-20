@@ -3,6 +3,7 @@
 ## October 20: proceed without further operating answers
 
 - [x] User accepts January 29, 2027 as the gift-order date.
+- [x] Card payments through Stripe are settled scope. The user confirms the existing Contact section and correction handling when contacted, with equal access to available admin tools for shared-password holders. No separate approver or additional payment-method decision is required.
 - [x] User explicitly defers the remaining operating questions and says none are blockers. Keep existing limits, online card checkout, extra-seat flow and Contact link. Do not turn those questions into new launch gates; the current details are in `GALA_2027_PLAN.md` → **Deferred operating follow-ups**.
 - [x] Prepare gated live scheduled-recovery authorization with an independent secret, preserving account/database verification and payment-safe retry behavior. 175 Gala tests, build and 82 built-app access checks pass. Hosted installation remains pending.
 - [ ] Complete production database/provider/scheduler configuration and final technical acceptance, then obtain explicit approval for the concrete production release. The earlier keep-off-production instruction remains in effect.

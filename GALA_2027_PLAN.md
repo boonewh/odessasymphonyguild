@@ -1,5 +1,13 @@
 # Gala 2027: decisions, payment research, and implementation handoff
 
+### October 20: card payments and support questions closed
+
+Online card payments through Stripe are the established purpose and scope of this project, not an unanswered launch question. Do not ask whether another payment method is required or propose one without a new user request.
+
+The user confirms the existing website Contact section is the correct buyer-help destination. OSG will handle corrections when someone contacts them; no separately named approver or formal approval workflow is required. Anyone with the shared admin password has the same available admin tools. This permission does not imply a general editor exists for every field of a paid order; retain current functionality and audit safeguards without turning that limitation into another policy question.
+
+The user is asking about the other follow-ups. They remain non-blocking under the earlier instruction. Nothing in this clarification authorizes production deployment.
+
 ### October 20: operating questions deferred; continue release preparation
 
 The user accepts the January 29 gift date for Gala 2027 and explicitly says **none of the remaining operating questions are blockers**. Do not require answers tonight or reintroduce them as launch gates. Continue with the implemented order limits, card checkout, extra-seat workflow, existing public Contact link and retained ledger/data unless a later instruction changes them. This records current behavior, not a newly invented retention period or additional permission to alter orders.
@@ -489,17 +497,15 @@ These are engineering requirements. Several now have development implementations
 
 The user explicitly deferred these questions and says they are not blockers. This list preserves the details for later; it must not be used to demand answers before moving forward. The production launch sequence is in `GALA_RELEASE_CHECKLIST.md`.
 
-| Question to OSG | Already answered / current behavior | Why an answer is needed |
+| Deferred follow-up | Already answered / current behavior | Purpose of a later decision |
 |---|---|---|
 | **What are the exact gift and invitation deadlines?** January 29, **2027** for gifts is accepted. Exact Central-time cutoff and the last date/time for invitation requests can be clarified later. | Gift flyer says January 29, no late gift orders and no gift sales at the Ball. January 29, 2027 was accepted October 20; time and invitation cutoff remain deferred. | Implement server-side cutoffs, including how an already-open unpaid checkout is treated at the gift deadline. Do not invent a time or say a cutoff is enforced before it is. |
 | **Are the current order limits and extra-seat workflow acceptable?** | Unlimited table sales across the event is settled. Each checkout allows up to **10 table/ticket selections** (one table per selection; up to **10 couples-ticket or student-date-ticket units per ticket selection**), plus **20 gift-recipient entries**, each with up to **50 roses and 50 cookie bags**. A couples-ticket unit admits two people. Each invitation request allows **20 addresses**. Each table has eight seats with up to two extra seats, purchased with that table; there is no separate later extra-seat purchase. | These are existing implementation bounds, not approved event capacity. Keep the current implementation; OSG can request changes later. |
-| **Is online card payment sufficient for launch?** | Stripe is selected and activated. The website uses card checkout; no check, cash or bank-transfer ordering workflow is built. | Keep card checkout as implemented. This does not require adding another payment method if cards are sufficient. |
-| **Who should buyers contact for help, and who approves exceptional corrections?** | All sales are final/no refunds is settled. Live help currently points to the existing website Contact section. Address corrections have an audit reason; paid buyer/gift changes do not have a general self-service correction flow. | Confirm the existing contact is appropriate or provide the public contact to display, and identify the person who authorizes mistaken names, gift recipients or other paid-order corrections. No named admin accounts are needed. |
 | **When should unused buyer and invitation contact details be removed or anonymized?** | Keep the item ledger and financial records. No retention period for abandoned-checkout contact details or invitation addresses has been agreed. | Set a documented cleanup policy without deleting financial history or promising automatic deletion that is not implemented. |
 
 Useful operational follow-ups, **not additional checkout feature blockers**: event start time for publication, and the actual mailing-label stock/physical alignment check before printing. The user chooses launch timing and gives explicit final release approval after technical acceptance.
 
-**Settled; do not ask again:** La Hacienda; February 27, 2027; existing flyer prices; unlimited Platinum/Gold/Silver tables with optional future caps; retained 35-minute unpaid-checkout expiration; shared cart; no tax per Britni; all sales final/no refunds; manual Stripe payout and QuickBooks entry by Britni; item ledger/CSV exports; shared Dues/Gala password managed by Will through 2027. No Gala QuickBooks connection, Stripe Clearing account, finite table quantities or individual volunteer accounts are required.
+**Settled; do not ask again:** online card payments through Stripe; the existing website Contact section for buyer help; corrections handled when contacted, with the same available tools for everyone holding the shared admin password and no separate approver requirement; La Hacienda; February 27, 2027; existing flyer prices; unlimited Platinum/Gold/Silver tables with optional future caps; retained 35-minute unpaid-checkout expiration; shared cart; no tax per Britni; all sales final/no refunds; manual Stripe payout and QuickBooks entry by Britni; item ledger/CSV exports; shared Dues/Gala password managed by Will through 2027. No Gala QuickBooks connection, Stripe Clearing account, finite table quantities or individual volunteer accounts are required.
 
 **Our remaining engineering/setup work, not questions for OSG:** finish production database/configuration, live Stripe webhook and scheduled recovery, dependency review and final acceptance/rollback evidence. Verify payout bank/manual schedule with authorized access; do not change those settings without instruction. Keep live activation disabled until the concrete release is approved.
 

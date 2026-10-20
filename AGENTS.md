@@ -8,6 +8,7 @@
 - Admin access policy: the user chooses one shared password for Dues and Gala, with a landing page and a future Patron section. Will manages the password through 2027. Do not require individual volunteer accounts or separate ledger permissions without a new decision. Keep test rosters isolated from live membership records; production rollout still requires authorization.
 - No Gala sales launch until meaningful payment/inventory tests pass and launch is explicitly authorized. Do not treat a request to push a feature branch as authorization to merge or deploy it to production.
 - October 20: the user accepts January 29, 2027 for gift orders and explicitly says the remaining operating questions are not launch blockers. Keep current behavior while those follow-ups are deferred; do not require new OSG answers to continue. Technical payment/access checks and explicit production release authorization still apply.
+- Online card payments through Stripe are settled scope, not an open question. The existing website Contact section is the approved buyer-help destination. OSG handles correction requests when contacted; anyone with the shared password may use the existing admin tools. Do not require a named correction approver or propose more payment methods without a new request.
 - Current Gala venue wording: La Hacienda. Current policy: all sales final, no refunds. Both may be revised only following a new user decision.
 - Keep attached conversation screenshots and local credentials out of Git.
 
