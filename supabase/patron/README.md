@@ -13,8 +13,8 @@ Only names are returned for public rendering. The 2025 list is historical and
 remains separate from current registrations.
 
 The admin roster hides online signups with `card_expired` dues status by default.
-Select **Include expired unpaid signups** to bring them into the list, search,
-and Needs review filter. Counts reflect the selected view, and the control shows
+Select **Include expired unpaid signups** to bring them into the list and search.
+They remain excluded from Needs review. Counts reflect the selected view, and the control shows
 how many expired entries are available. This does not delete records or alter
 payment/publication state. Paid card, recorded check and pending card entries
 remain in the default view.
@@ -35,6 +35,24 @@ An online signup is not proof of payment. No
 QuickBooks entry or application email is sent.
 
 ## Patron card payments — live October 20, 2026
+
+Paid-only approval: application `55b557d` is live as
+`dpl_DM5k3JHkSzGvDnZTZecohGomEBfa`, with immutable host
+`odessasymphonyguild-ccviru8zp-boonewhs-projects.vercel.app`, aliased to the
+canonical domain. Migration `004_paid_approval.sql` is installed in production;
+**do not rerun it**. Keep its trigger and validated constraint on rollback.
+Twenty-two Patron tests, TypeScript checking and the production build pass.
+Twenty-nine hosted checks verified pending and expired approval rejection,
+actual unpaid checkout expiration and Stripe notification delivery, private
+admin access, all 120 Dues records, closed Gala submissions and hidden navigation.
+The exact fictional checkout and private patron were removed after verification;
+the existing user's pending signup remains. No card was charged. Membership data
+and existing membership/Gala schema/grants match the pre-migration baseline.
+Final database checks found no unpaid approvals and three recent recovery calls
+returned HTTP 200. Local browser checks confirmed disabled pending review,
+received-check recording followed by separate review, and continued paid-name
+review. No main merge or environment change was performed. Private evidence
+uses `patron-paid-approval-*` in `.codex-remote-attachments/live-setup/`.
 
 Expired-signup view: application `ef032b0` is live as
 `dpl_G78DwV6CkbPvT29gTdxjh9BnpQBp`, with immutable host
@@ -105,8 +123,9 @@ Private evidence uses `patron-payment-*` / `patron-payments-*` under
 roster. It preserves approval: a successful payment updates only payment status,
 never the displayed name, contact corrections, or publication. The admin shows
 card pending/paid/expired and recorded checks separately from name approval.
-For online signups paying by check, review the entry and select **We have received
-this patron’s $100 check payment**. A pending or paid card checkout cannot be
+For unpaid/expired online signups paying by check, use **Record check** and select
+**We have received this patron’s $100 check payment**, then review the name
+separately. A pending or paid card checkout cannot be
 overwritten with a check. Manual check entries are recorded as checks on entry.
 
 The integration reuses the existing Gala Stripe credentials, pinned account,
