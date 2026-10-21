@@ -39,6 +39,8 @@ export async function getLocalPatronDatabase() {
     if (!approval.rows.length) await db.exec(await readFile(path.join(process.cwd(), "supabase/patron/002_approval.sql"), "utf8"));
     const payments = await db.query<{ name: string | null }>("select to_regclass('public.patron_payments') as name");
     if (!payments.rows[0].name) await db.exec(await readFile(path.join(process.cwd(), "supabase/patron/003_payments.sql"), "utf8"));
+    const paidApproval = await db.query("select 1 from pg_constraint where conrelid='public.patron_members'::regclass and conname='patron_approval_requires_payment'");
+    if (!paidApproval.rows.length) await db.exec(await readFile(path.join(process.cwd(), "supabase/patron/004_paid_approval.sql"), "utf8"));
     return db;
   })().catch(error => { globalDatabase.patronLocalDatabase = undefined; throw error; });
   return globalDatabase.patronLocalDatabase;

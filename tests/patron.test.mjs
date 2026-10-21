@@ -21,7 +21,7 @@ for (const key of ['VERCEL','VERCEL_ENV','GALA_BOARD_REVIEW','GALA_CLIENT_REVIEW
 const cookie = `osg_test_admin_session=${createAdminSession(key,key)}`;
 const initialSql = await readFile('supabase/patron/001_patrons.sql','utf8');
 const approvalSql = await readFile('supabase/patron/002_approval.sql','utf8');
-const sql = initialSql + '\n' + approvalSql + '\n' + await readFile('supabase/patron/003_payments.sql','utf8');
+const sql = initialSql + '\n' + approvalSql + '\n' + await readFile('supabase/patron/003_payments.sql','utf8') + '\n' + await readFile('supabase/patron/004_paid_approval.sql','utf8');
 const signup = (extra = {}) => ({ requestId:randomUUID(), name:'Fictional Online Patron', email:'online@example.com', phone:'4325550100', consent:true, company:'', ...extra });
 const check = (extra = {}) => ({ requestId:randomUUID(), name:'Fictional Check Patron', email:'', phone:'', published:true, ...extra });
 function request(method, body, admin = false, from = origin) {
@@ -55,6 +55,8 @@ test('online and check entries share a persistent roster; public projection excl
   assert.equal((await handlers.edit(request('PATCH',{...edited,published:false},true))).status,200);
   assert.deepEqual(await store.names(PATRON_PERIOD),['Fictional Check Patron']);
   assert.equal((await store.list(PATRON_PERIOD)).find(p=>p.id===online.id).approved_at,null);
+  assert.equal((await handlers.edit(request('PATCH',edited,true))).status,409);
+  assert.equal((await handlers.edit(request('PATCH',{...edited,published:false,checkReceived:true},true))).status,200);
   assert.equal((await handlers.edit(request('PATCH',edited,true))).status,200);
   assert.ok((await store.list(PATRON_PERIOD)).find(p=>p.id===online.id).approved_at);
   assert((await store.names(PATRON_PERIOD)).includes('Corrected Patron Name'));
@@ -96,6 +98,8 @@ test('database forces online inserts pending even from older code; only private 
   await assert.rejects(db.query('update patron_members set published=true'),/permission denied/);
   await db.exec('reset role');
   await db.exec('set role service_role');
+  await assert.rejects(store.edit(edit,PATRON_PERIOD),/patron_payment_required/);
+  await store.edit({...edit,published:false,checkReceived:true},PATRON_PERIOD);
   await store.edit(edit,PATRON_PERIOD);
   const approval=(await store.list(PATRON_PERIOD))[0].approved_at;
   assert.ok(approval);assert.deepEqual(await store.names(PATRON_PERIOD),[input.name]);

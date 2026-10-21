@@ -3,7 +3,9 @@
 The public form at `/patron` and the shared-password admin at `/admin/patron`
 use one current-year roster. Online signups require a name, email, and explicit
 permission to display the name. Phone is optional. Check entries require only a
-name. Online signups wait in **Needs review**; administrators can **Save
+name and represent a received check. Unpaid online signups show **Awaiting
+payment** and cannot be reviewed or published. Only `card_paid` or `check_recorded`
+entries enter **Needs review**; administrators can **Save
 corrections** without publishing, then **Approve and publish** the corrected name.
 Approved names can be hidden or restored. Manually entered check patrons can
 be published by the administrator entering them.
@@ -16,6 +18,13 @@ and Needs review filter. Counts reflect the selected view, and the control shows
 how many expired entries are available. This does not delete records or alter
 payment/publication state. Paid card, recorded check and pending card entries
 remain in the default view.
+
+Migration `004_paid_approval.sql` enforces payment before approval in the database,
+including requests from stale admin pages. It withdraws any earlier unpaid
+publication/approval while preserving contacts, payments and paid/check approvals.
+Pending card rows have no review action. Unpaid/expired rows can only record a
+received check, then become available for a separate review. Verified payment
+alone never publishes a name. Keep the constraint and trigger on rollback.
 
 The public website offers **$100 one-time Patron dues through Stripe only**.
 Invitations provide check-payment instructions; the private admin still records

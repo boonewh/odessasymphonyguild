@@ -19,6 +19,7 @@ function failure(error: unknown) {
   if (message.includes("patron_request_conflict") || message.includes("patron_contact_period"))
     return json({ error: "This entry conflicts with an existing patron. Refresh the roster before trying again." }, 409);
   if (message.includes("patron_payment_conflict")) return json({ error: "A card payment is pending or already paid. Check it before recording a check payment." }, 409);
+  if (message.includes("patron_payment_required") || message.includes("patron_approval_requires_payment")) return json({ error: "Payment must be received before this name can be approved. Refresh the roster to see the latest payment status." }, 409);
   return json({ error: "We couldn’t save or load the patron information. Please try again." }, 503);
 }
 

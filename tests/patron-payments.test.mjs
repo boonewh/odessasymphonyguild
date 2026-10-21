@@ -11,6 +11,7 @@ import {patronCheckoutOpen,patronPaymentsEnabled} from '../lib/patron/payment-co
 import {PATRON_PERIOD} from '../lib/patron/model.ts';
 const origin='http://localhost:3000', accessToken='c'.repeat(64), ownerHash=createHash('sha256').update(accessToken).digest('hex');
 const schema=(await Promise.all(['001_patrons','002_approval','003_payments'].map(n=>readFile(`supabase/patron/${n}.sql`,'utf8')))).join('\n');
+const paidApprovalSql=await readFile('supabase/patron/004_paid_approval.sql','utf8');
 const input=(extra={})=>({requestId:randomUUID(),name:'Fictional Card Patron',email:'card@example.com',phone:'4325550100',consent:true,company:'',accessToken,...extra});
 const reserved=(extra={})=>({...input(),period:PATRON_PERIOD,ownerHash,clientHash:'b'.repeat(64),mode:'sandbox',origin,...extra});
 const request=(body,from=origin)=>new Request(origin+'/api/patron/checkout',{method:'POST',headers:{origin:from,'content-type':'application/json'},body:JSON.stringify(body)});
@@ -34,7 +35,7 @@ function fakeStripe(){
 async function setup(t){
  const db=new PGlite();t.after(()=>db.close());
  await db.exec('create role anon;create role authenticated;create role service_role bypassrls;grant usage on schema public to anon,authenticated,service_role;');
- await db.exec(schema);
+ await db.exec(schema+'\n'+paidApprovalSql);
  const store=localPatronPayments(db),roster=localPatronStore(db),fake=fakeStripe();
  let enabled=true,open=true;
  const handlers=patronPaymentHandlers({enabled:()=>enabled,open:()=>open,config:()=>({origin,token:'d'.repeat(64),paymentMode:'sandbox'}),backend:async()=>({store,stripe:fake.stripe})});
@@ -72,6 +73,8 @@ test('autofilled legacy company fields and current forms both reach the same pri
 test('payment verification is idempotent, never approves names and cannot regress paid records',async t=>{
  const {store,roster,fake,handlers}=await setup(t);
  const result=await (await handlers.checkout(request(input()))).json();const p=await store.get(result.id);
+ const pending=(await roster.list(PATRON_PERIOD))[0];
+ await assert.rejects(roster.edit({id:pending.id,name:pending.name,email:pending.email,phone:pending.phone,published:true},PATRON_PERIOD),/patron_payment_required/);
  fake.pay(p.stripe_session_id);
  await Promise.all([reconcilePatronSession(store,fake.stripe,p.stripe_session_id,'sandbox'),reconcilePatronSession(store,fake.stripe,p.stripe_session_id,'sandbox')]);
  assert.equal((await store.get(p.id)).status,'paid');const member=(await roster.list(PATRON_PERIOD))[0];
@@ -112,6 +115,8 @@ test('only verified unpaid expiration allows a new payment; processing remains p
  await reconcilePatronSession(store,fake.stripe,session.id,'sandbox');assert.equal((await store.get(first.id)).status,'pending');
  fake.intents.get('pi_processing').status='canceled';await reconcilePatronSession(store,fake.stripe,session.id,'sandbox');
  assert.equal((await store.get(first.id)).status,'expired');assert.equal((await roster.list(PATRON_PERIOD))[0].dues_status,'card_expired');
+ const expired=(await roster.list(PATRON_PERIOD))[0];
+ await assert.rejects(roster.edit({id:expired.id,name:expired.name,email:expired.email,phone:expired.phone,published:true},PATRON_PERIOD),/patron_payment_required/);
  const next=await store.start(reserved());assert.notEqual(next.id,first.id);
  assert.equal((await roster.list(PATRON_PERIOD)).length,1);
  await reconcilePatronSession(store,fake.stripe,session.id,'sandbox');
@@ -153,10 +158,38 @@ test('private payment RPCs deny browser roles; check recording cannot overwrite 
  await db.exec('set role service_role');
  assert.equal(await roster.edit({id:member.id,name:member.name,email:member.email,phone:member.phone,published:false,checkReceived:true},PATRON_PERIOD),true);
  member=(await roster.list(PATRON_PERIOD))[0];assert.equal(member.dues_status,'check_recorded');assert.equal(member.published,false);
+ await roster.edit({id:member.id,name:member.name,email:member.email,phone:member.phone,published:true},PATRON_PERIOD);
+ assert.deepEqual(await roster.names(PATRON_PERIOD),[member.name]);
  await store.apply(p.id,'cs_test_expired','expired',null);
  assert.equal((await roster.list(PATRON_PERIOD))[0].dues_status,'check_recorded');
  await assert.rejects(store.start(reserved()),/conflict/);
 });
+test('paid-approval migration withdraws only unpaid approvals and prevents stale/direct publication',async t=>{
+ const db=new PGlite();t.after(()=>db.close());
+ await db.exec('create role anon;create role authenticated;create role service_role bypassrls;grant usage on schema public to service_role;');
+ await db.exec(schema);
+ const store=localPatronPayments(db),roster=localPatronStore(db);
+ const pending=await store.start(reserved());
+ const paid=await store.start(reserved({email:'paid@example.com',name:'Paid Patron'}));
+ await store.apply(paid.id,'cs_test_paid','paid','pi_paid');
+ const manual=reserved({email:'',name:'Check Patron',source:'check',published:true});await roster.add(manual);
+ await db.query('update patron_members set published=true where id in ($1,$2)',[pending.patron_id,paid.patron_id]);
+ const before=await roster.list(PATRON_PERIOD);
+ await db.exec(paidApprovalSql);
+ const after=await roster.list(PATRON_PERIOD);
+ for(const original of before){const changed=after.find(p=>p.id===original.id);for(const key of ['name','email','phone','dues_status','source'])assert.equal(changed[key],original[key]);
+  if(original.dues_status==='card_pending'){assert.equal(changed.published,false);assert.equal(changed.approved_at,null);}else{assert.equal(changed.published,true);assert.deepEqual(changed.approved_at,original.approved_at);}}
+ await db.exec('set role service_role');
+ await assert.rejects(db.query('update patron_members set published=true where id=$1',[pending.patron_id]),/patron_payment_required/);
+ await db.query('update patron_members set approved_at=now() where id=$1',[pending.patron_id]);
+ assert.equal((await roster.list(PATRON_PERIOD)).find(p=>p.id===pending.patron_id).approved_at,null);
+ // A lost/late payment update cannot accidentally approve the previous name.
+ await store.apply(pending.id,'cs_test_later','paid','pi_later');
+ const settled=(await roster.list(PATRON_PERIOD)).find(p=>p.id===pending.patron_id);assert.equal(settled.published,false);assert.equal(settled.approved_at,null);
+ await roster.edit({id:settled.id,name:settled.name,email:settled.email,phone:settled.phone,published:true},PATRON_PERIOD);
+ assert.ok((await roster.list(PATRON_PERIOD)).find(p=>p.id===settled.id).approved_at);
+});
+
 test('Patron card activation is independent of Gala and disabled on Preview/production by default',()=>{
  const live={NODE_ENV:'production',VERCEL_ENV:'production',GALA_LIVE_ENABLED:'true',PATRON_ENABLED:'true'};
  assert.equal(patronPaymentsEnabled(live),false);
