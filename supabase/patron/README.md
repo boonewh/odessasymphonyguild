@@ -10,12 +10,44 @@ be published by the administrator entering them.
 Only names are returned for public rendering. The 2025 list is historical and
 remains separate from current registrations.
 
-The deployed release currently provides contact registration. This branch adds
-optional **$100 one-time Patron dues through Stripe**; its payment migration and
-production activation have not been applied. An online signup is not proof of
-payment. No QuickBooks entry or application email is sent.
+The deployed release provides contact registration and optional **$100 one-time
+Patron dues through Stripe**. An online signup is not proof of payment. No
+QuickBooks entry or application email is sent.
 
-## Patron card payments — prepared, not live
+## Patron card payments — live October 20, 2026
+
+The user explicitly authorized the payment migration, production deployment and
+Patron card activation while keeping Gala closed and public Patron navigation
+hidden. Migration `003_payments.sql` is installed in the existing production
+database; **do not rerun it**. Production-only `PATRON_STRIPE_ENABLED=true` and
+`PATRON_CARD_PAYMENTS_OPEN=true` are enabled alongside `PATRON_ENABLED=true`.
+Application commit `31ff961` is deployed as
+`dpl_2Ma1wcac68DC3QF5jWqp9oWGVms1`, Ready and aliased to
+https://www.odessasymphonyguild.org. Its immutable host is
+`odessasymphonyguild-jnypa7qie-boonewhs-projects.vercel.app`. The upload used a clean
+Git archive; no main merge, Preview change, credential upload or local test-data
+copy was performed.
+
+Production acceptance passed 27 hosted HTTP checks, including the $100 USD live
+Checkout creation/retry, protected status, admin correction without publication,
+refusal to overwrite pending card payment with a check, shared admin/Dues access
+to all 120 students, rejected forged inputs and closed Gala submissions. The
+verification checkout was expired **unpaid** without entering a card. Actual
+Stripe `checkout.session.expired` delivery returned HTTP 200 and changed the
+private roster to card-expired without a buyer return or name approval. Stripe
+reported zero pending webhooks. Invalid signatures returned HTTP 400. Three
+automatic recovery calls returned HTTP 200 with Patron processing included.
+The payment table/functions deny browser roles and allow the service role.
+
+The exact fictional verification patron and expired payment row were removed
+after delivery. Final membership records and existing membership/Gala
+schema/grants match the pre-migration fingerprints; no verification patrons or
+payment rows remain. Both Gala submission flags are false. The live page was
+visually checked: card/check choices are present, review is required, and no
+PATRONS header link is shown. No live charge, refund or payout was made; successful
+charged-payment coverage is from the prior sandbox test, not a production charge.
+Private evidence uses `patron-payment-*` / `patron-payments-*` under
+`.codex-remote-attachments/live-setup/`.
 
 `003_payments.sql` adds a private payment ledger and dues status to the existing
 roster. It preserves approval: a successful payment updates only payment status,
@@ -32,7 +64,7 @@ Gala orders. No new Stripe key, webhook endpoint, or recurring subscription is
 needed. Gala sales and invitations remain closed. Public Patron navigation
 remains hidden; restore it only when requested, using PATRONS/Patrons.
 
-Production release procedure, after authorization:
+Production release procedure (completed above; retained for operational reference):
 
 1. Capture the existing membership/Gala data and schema/grant baseline. Apply
    **only `003_payments.sql` once** to the existing production database; 001 and
@@ -82,7 +114,8 @@ confirmed payment; admin displayed **$100 paid by card / Needs review**, with no
 public name. A second actual sandbox session was expired and confirmed unpaid.
 The admin recorded its later fictional check while keeping the name private.
 Private sandbox IDs/evidence are under `.codex-remote-attachments/live-setup/`.
-No live charge or production payment migration was performed.
+That sandbox rehearsal made no live charge or production migration; the later
+authorized production installation and acceptance are recorded above.
 
 Validation: 20 Patron tests and all 177 Gala regression tests pass, including
 access controls, duplicate/lost responses, verified settlement, approval
