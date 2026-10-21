@@ -10,8 +10,12 @@ be published by the administrator entering them.
 Only names are returned for public rendering. The 2025 list is historical and
 remains separate from current registrations.
 
-The deployed release provides contact registration and optional **$100 one-time
-Patron dues through Stripe**. An online signup is not proof of payment. No
+The public website offers **$100 one-time Patron dues through Stripe only**.
+Invitations provide check-payment instructions; the private admin still records
+checks. The old contact-only `/api/patron` submission returns HTTP 410 so a stale
+form cannot submit the retired check option. When card checkout is paused, the
+page shows an unavailable message instead of a contact-only signup form.
+An online signup is not proof of payment. No
 QuickBooks entry or application email is sent.
 
 ## Patron card payments — live October 20, 2026

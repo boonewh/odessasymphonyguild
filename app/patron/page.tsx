@@ -136,12 +136,12 @@ export default async function PatronPage() {
               <p className="mt-8 text-4xl tabular-nums">$100</p>
               <p className="mt-3 text-lg text-gray-600">Annual patron dues</p>
               <p className="mt-6 max-w-[48ch] text-pretty text-lg leading-8 text-gray-600">
-                {patronCheckoutOpen() ? "Pay securely by card through Stripe, or arrange your dues by check. For help, " : "To arrange your dues or contribute by check, "}<Link href="/#contact" className="underline decoration-[#806515] underline-offset-4">contact the Guild</Link>.
+                Pay securely by card through Stripe. For help, <Link href="/#contact" className="underline decoration-[#806515] underline-offset-4">contact the Guild</Link>.
               </p>
             </div>
             <div className="border-l-2 border-[#d4af37] pl-6 sm:pl-8">
               {enabled && !liveSiteEnabled(process.env) && <p className="mb-6 bg-[#faf8f3] p-4 text-base text-gray-700">Local preview: use fictional contact details. These signups do not appear on the live website.</p>}
-              {enabled ? <PatronSignup cardPayments={patronCheckoutOpen()} /> : <p className="text-lg leading-8 text-gray-600">Online patron signup is not open yet. Please contact the Guild to become a patron.</p>}
+              {patronCheckoutOpen() ? <PatronSignup /> : <p className="text-lg leading-8 text-gray-600">Online Patron payments are temporarily unavailable. Please try again later or contact the Guild for help.</p>}
             </div>
           </div>
         </section>
