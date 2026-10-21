@@ -14,6 +14,7 @@
 .button:disabled,.secondary:disabled { opacity:.6; cursor:wait; }
 .secondary { border:1px solid #1a1a2e44; border-radius:4px; padding:8px 12px; color:#1a1a2e; background:transparent; cursor:pointer; font:inherit; }
 .secondary:hover { background:#1a1a2e08; }
+.awaitingPayment:disabled { cursor:default; background:transparent; }
 .error { padding:14px; background:#fff1ec; color:#8c321c; line-height:1.6; }
 .success { padding:18px; background:#edf4ed; border-left:3px solid #3c6c46; color:#25492c; line-height:1.6; }
 .adminLayout { display:grid; gap:40px; align-items:start; }

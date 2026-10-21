@@ -117,7 +117,7 @@ export default function PatronAdmin() {
                 <td>{patron.name}<div className={styles.contact}>{patron.email || "No email"}<br />{patron.phone || "No phone"}</div></td>
                 <td>{duesLabel(patron)}<div className={styles.contact}>{patron.source === "check" ? "Manual entry" : "Online signup"}</div></td>
                 <td className={styles.status}>{!paymentReceived(patron) ? "Awaiting payment" : needsReview(patron) ? "Needs review" : patron.published ? "Shown" : "Hidden"}</td>
-                <td><button type="button" disabled={busy || (!paymentReceived(patron) && !canRecordCheck(patron))} className={styles.secondary} aria-label={`${!paymentReceived(patron) ? canRecordCheck(patron) ? "Record check for" : "Awaiting payment for" : needsReview(patron) ? "Review" : "Edit"} ${patron.name}`} onClick={() => choose(patron)}>{!paymentReceived(patron) ? canRecordCheck(patron) ? "Record check" : "Awaiting payment" : needsReview(patron) ? "Review" : "Edit"}</button></td>
+                <td><button type="button" disabled={busy || (!paymentReceived(patron) && !canRecordCheck(patron))} className={`${styles.secondary} ${!paymentReceived(patron) && !canRecordCheck(patron) ? styles.awaitingPayment : ""}`} aria-label={`${!paymentReceived(patron) ? canRecordCheck(patron) ? "Record check for" : "Awaiting payment for" : needsReview(patron) ? "Review" : "Edit"} ${patron.name}`} onClick={() => choose(patron)}>{!paymentReceived(patron) ? canRecordCheck(patron) ? "Record check" : "Awaiting payment" : needsReview(patron) ? "Review" : "Edit"}</button></td>
               </tr>)}</tbody>
             </table></div>}
         </>}
