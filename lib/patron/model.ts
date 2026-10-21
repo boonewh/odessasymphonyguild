@@ -14,7 +14,7 @@ export const checkPatronSchema = contactSchema.extend({ requestId: z.uuid(), pub
 export const editPatronSchema = contactSchema.extend({ id: z.uuid(), published: z.boolean() }).strict();
 export type PatronContact = z.infer<typeof contactSchema>;
 export type Patron = PatronContact & {
-  id: string; period: string; source: "online" | "check"; published: boolean; created_at: string;
+  id: string; period: string; source: "online" | "check"; published: boolean; approved_at: string | null; created_at: string;
 };
 export type PatronSubmission = PatronContact & {
   requestId: string; period: string; source: Patron["source"]; published: boolean; clientHash: string;

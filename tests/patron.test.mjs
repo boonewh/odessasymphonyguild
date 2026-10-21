@@ -19,7 +19,9 @@ Object.assign(process.env, { NODE_ENV:'development', GALA_BACKEND_ENABLED:'true'
   GALA_STRIPE_SECRET_KEY:'sk_test_fake', GALA_STRIPE_WEBHOOK_SECRET:'whsec_fake' });
 for (const key of ['VERCEL','VERCEL_ENV','GALA_BOARD_REVIEW','GALA_CLIENT_REVIEW','GALA_BOARD_ACCESS_CODE','GALA_ACCESS_MODE']) delete process.env[key];
 const cookie = `osg_test_admin_session=${createAdminSession(key,key)}`;
-const sql = await readFile('supabase/patron/001_patrons.sql','utf8');
+const initialSql = await readFile('supabase/patron/001_patrons.sql','utf8');
+const approvalSql = await readFile('supabase/patron/002_approval.sql','utf8');
+const sql = initialSql + '\n' + approvalSql;
 const signup = (extra = {}) => ({ requestId:randomUUID(), name:'Fictional Online Patron', email:'online@example.com', phone:'4325550100', consent:true, company:'', ...extra });
 const check = (extra = {}) => ({ requestId:randomUUID(), name:'Fictional Check Patron', email:'', phone:'', published:true, ...extra });
 function request(method, body, admin = false, from = origin) {
@@ -42,14 +44,19 @@ test('online and check entries share a persistent roster; public projection excl
   const { db, store, handlers } = await setup(t);
   assert.equal((await handlers.signup(request('POST',signup()))).status,200);
   assert.equal((await handlers.add(request('POST',check(),true))).status,200);
-  assert.deepEqual(await store.names(PATRON_PERIOD),['Fictional Check Patron','Fictional Online Patron']);
+  assert.deepEqual(await store.names(PATRON_PERIOD),['Fictional Check Patron']);
   // A new store instance reads saved data, not client state.
   const saved = await localPatronStore(db).list(PATRON_PERIOD);
   assert.equal(saved.length,2); assert.equal(saved.find(p => p.source === 'online').email,'online@example.com');
   assert.equal(saved.find(p => p.source === 'check').email,'');
   const online = saved.find(p => p.source === 'online');
+  assert.equal(online.published,false); assert.equal(online.approved_at,null);
   const edited = {id:online.id,name:'Corrected Patron Name',email:online.email,phone:online.phone,published:true};
+  assert.equal((await handlers.edit(request('PATCH',{...edited,published:false},true))).status,200);
+  assert.deepEqual(await store.names(PATRON_PERIOD),['Fictional Check Patron']);
+  assert.equal((await store.list(PATRON_PERIOD)).find(p=>p.id===online.id).approved_at,null);
   assert.equal((await handlers.edit(request('PATCH',edited,true))).status,200);
+  assert.ok((await store.list(PATRON_PERIOD)).find(p=>p.id===online.id).approved_at);
   assert((await store.names(PATRON_PERIOD)).includes('Corrected Patron Name'));
   assert.equal((await handlers.edit(request('PATCH',{...edited,published:false},true))).status,200);
   assert.deepEqual(await store.names(PATRON_PERIOD),['Fictional Check Patron']);
@@ -66,7 +73,7 @@ test('admin data and all mutations require the shared session; CSRF, closed mode
   }
   assert.equal((await handlers.signup(request('POST',signup(),false,'https://evil.example'))).status,403);
   assert.equal((await handlers.add(request('POST',check(),true,'https://evil.example'))).status,401);
-  for (const input of [signup({consent:false}),signup({email:'bad'}),signup({name:'<script>alert(1)</script>'}),signup({source:'check'}),signup({name:' '}),signup({phone:'not a phone'})])
+  for (const input of [signup({consent:false}),signup({email:'bad'}),signup({name:'<script>alert(1)</script>'}),signup({source:'check'}),signup({published:true}),signup({approved_at:new Date().toISOString()}),signup({name:' '}),signup({phone:'not a phone'})])
     assert.equal((await handlers.signup(request('POST',input))).status,400);
   assert.equal((await handlers.signup(new Request(origin,{method:'POST',headers:{origin},body:'not-json'}))).status,400);
   assert.equal((await handlers.signup(new Request(origin,{method:'POST',headers:{origin},body:'x'.repeat(2049)}))).status,413);
@@ -75,6 +82,51 @@ test('admin data and all mutations require the shared session; CSRF, closed mode
   disable();
   for (const [method,fn,body] of [['POST',handlers.signup,signup()],['GET',handlers.list,null],['POST',handlers.add,check()]])
     assert.equal((await fn(request(method,body,true))).status,404);
+});
+
+test('database forces online inserts pending even from older code; only private updates approve', async t => {
+  const {db,store,handlers}=await setup(t);
+  const input={...signup(),period:PATRON_PERIOD,source:'online',published:true,clientHash:'a'.repeat(64)};
+  await store.add(input);
+  assert.deepEqual(await store.names(PATRON_PERIOD),[]);
+  assert.equal((await store.list(PATRON_PERIOD))[0].approved_at,null);
+  const edit={id:input.requestId,name:input.name,email:input.email,phone:input.phone,published:true};
+  assert.equal((await handlers.edit(request('PATCH',edit))).status,401);
+  await db.exec('set role anon');
+  await assert.rejects(db.query('update patron_members set published=true'),/permission denied/);
+  await db.exec('reset role');
+  await db.exec('set role service_role');
+  await store.edit(edit,PATRON_PERIOD);
+  const approval=(await store.list(PATRON_PERIOD))[0].approved_at;
+  assert.ok(approval);assert.deepEqual(await store.names(PATRON_PERIOD),[input.name]);
+  await store.add({...input,published:false});
+  assert.deepEqual(await store.names(PATRON_PERIOD),[input.name]);
+  await store.edit({...edit,published:false},PATRON_PERIOD);
+  await store.add({...input,requestId:randomUUID()});
+  assert.deepEqual(await store.names(PATRON_PERIOD),[]);
+  assert.deepEqual((await store.list(PATRON_PERIOD))[0].approved_at,approval);
+  await db.query("insert into patron_members(id,period,name,email,source,published,approved_at) values($1,$2,'Direct insert','direct@example.com','online',true,now())",[randomUUID(),PATRON_PERIOD]);
+  assert.deepEqual(await store.names(PATRON_PERIOD),[]);
+});
+
+test('approval migration queues preexisting online names and preserves contacts and check recognition', async t => {
+  const db=new PGlite();t.after(()=>db.close());
+  await db.exec('create role anon; create role authenticated; create role service_role bypassrls;');
+  await db.exec(initialSql);
+  const store=localPatronStore(db);
+  await store.add({...signup(),period:PATRON_PERIOD,source:'online',published:true,clientHash:'b'.repeat(64)});
+  await store.add({...check(),period:PATRON_PERIOD,source:'check',clientHash:''});
+  const before=await store.list(PATRON_PERIOD);
+  await db.exec(approvalSql);
+  const after=await store.list(PATRON_PERIOD);
+  assert.equal(after.length,2);
+  for(const original of before) {
+    const migrated=after.find(p=>p.id===original.id);
+    for(const key of ['name','email','phone','period','source','created_at']) assert.deepEqual(migrated[key],original[key]);
+    assert.equal(migrated.published,original.source==='check');
+    assert.equal(Boolean(migrated.approved_at),original.source==='check');
+  }
+  assert.deepEqual(await store.names(PATRON_PERIOD),['Fictional Check Patron']);
 });
 
 test('retries and concurrent duplicates never overwrite contacts or republish hidden patrons', async t => {

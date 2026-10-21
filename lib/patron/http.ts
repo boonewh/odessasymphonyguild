@@ -44,7 +44,7 @@ export function patronHandlers(deps: Dependencies) {
         const address = config.local ? "local" : (request.headers.get("x-vercel-forwarded-for") || "unknown").split(",")[0].trim().slice(0, 128);
         const clientHash = createHmac("sha256", config.key).update(`patron:${address}`).digest("hex");
         const { name, email, phone, requestId } = input.data;
-        await (await deps.store()).add({ name, email, phone, requestId, period: PATRON_PERIOD, source: "online", published: true, clientHash });
+        await (await deps.store()).add({ name, email, phone, requestId, period: PATRON_PERIOD, source: "online", published: false, clientHash });
         return json({ ok: true });
       } catch (error) { return failure(error); }
     },

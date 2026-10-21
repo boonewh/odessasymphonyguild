@@ -3,7 +3,10 @@
 The public form at `/patron` and the shared-password admin at `/admin/patron`
 use one current-year roster. Online signups require a name, email, and explicit
 permission to display the name. Phone is optional. Check entries require only a
-name. Administrators can correct contact details and hide or restore a name.
+name. Online signups wait in **Needs review**; administrators can **Save
+corrections** without publishing, then **Approve and publish** the corrected name.
+Approved names can be hidden or restored. Manually entered check patrons can
+be published by the administrator entering them.
 Only names are returned for public rendering. The 2025 list is historical and
 remains separate from current registrations.
 
@@ -34,7 +37,10 @@ records and existing membership/Gala schema, grants and default privileges.
 is recorded below. Do not rerun either one-time installer, merge
 old main over the live release, or open Gala sales/invitation flags.
 
-1. Apply `001_patrons.sql` **once** to the approved production membership database.
+1. For a fresh database apply `001_patrons.sql`, then `002_approval.sql`, each
+   **once**. For an existing installation apply only `002_approval.sql` before
+   deploying the approval UI. It returns existing online entries to review,
+   preserves contacts/check entries, and records approvals with `approved_at`.
    It adds only `public.patron_*` objects and targeted grants. It does not change
    shared default privileges, Dues records, or Gala objects. Anonymous and
    authenticated Supabase clients have no table or function access.
@@ -48,11 +54,15 @@ old main over the live release, or open Gala sales/invitation flags.
    copy the local test roster to production.
 
 Server-side validation, a 2 KiB request limit, same-origin writes, a honeypot,
-and a durable five-signup/15-minute limit protect automatic publication. The
+and a durable five-signup/15-minute limit protect the signup inbox. The
 limiter stores a keyed hash, not an IP address, and removes buckets older than a
 day on subsequent submissions. It uses Vercel's supplied
 [`x-vercel-forwarded-for` header](https://vercel.com/docs/headers/request-headers#x-vercel-forwarded-for).
-Public names should still be checked by volunteers; names can be hidden in admin.
+Public requests cannot set publication status, approval timestamps or source.
+The database also forces every online insert to remain private, even if an older
+server sends `published=true`. Approval requires a later authenticated admin
+update. Browser database roles still have no direct access. Volunteers must
+review names before approving; names can also be hidden afterward.
 
 Retries use a request UUID. Matching name/email entries for the same year are
 kept without overwriting contact details or changing public visibility. Check
@@ -61,7 +71,7 @@ before adding one and hide a duplicate if necessary.
 
 ## Production acceptance — October 20, 2026
 
-Application commit `85704eb` on `codex/patron-page-design` is live at
+Initial application commit `85704eb` on `codex/patron-page-design` was deployed at
 https://www.odessasymphonyguild.org/patron. The shared-password Patron admin is
 https://www.odessasymphonyguild.org/admin/patron. Deployment
 `dpl_CGxKc61sxDHSj3d6UnbxZrF1wriN` is Ready and aliased to the canonical domain;
@@ -94,6 +104,7 @@ Private non-Git evidence is in `.codex-remote-attachments/live-setup/` under
 
 To pause Patron registration/admin, set `PATRON_ENABLED=false` in Production
 and redeploy the current compatible release; preserve the stored roster.
-To roll back this application release, the preceding compatible deployment is
-`dpl_EaK1QpeVo19n6GQ6V14ojqLjvRGS`; leave the additive Patron tables in place.
+After installing approval, preserve `002_approval.sql` and its trigger on any
+application rollback. Old UI versions lack the review list; prefer fixing forward
+or temporarily disabling Patron rather than restoring automatic publication.
 Never deploy old main as a rollback: it lacks live Gala webhook/recovery.

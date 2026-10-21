@@ -32,6 +32,8 @@ export async function getLocalPatronStore() {
       await db.exec("create role anon; create role authenticated; create role service_role bypassrls;");
       await db.exec(await readFile(path.join(process.cwd(), "supabase/patron/001_patrons.sql"), "utf8"));
     }
+    const approval = await db.query("select 1 from information_schema.columns where table_schema='public' and table_name='patron_members' and column_name='approved_at'");
+    if (!approval.rows.length) await db.exec(await readFile(path.join(process.cwd(), "supabase/patron/002_approval.sql"), "utf8"));
     return db;
   })().catch(error => { globalDatabase.patronLocalDatabase = undefined; throw error; });
   return localPatronStore(await globalDatabase.patronLocalDatabase);

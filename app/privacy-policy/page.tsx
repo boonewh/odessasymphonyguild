@@ -44,7 +44,7 @@ export default function PrivacyPolicy() {
               </ul>
               <p className="mt-3">
                 Patron signups collect your display name, email address, and optional phone number.
-                The Patron thank-you section displays your name with your permission; your email
+                The Patron thank-you section displays your name with your permission after Guild review and approval; your email
                 and phone number are available only to authorized Guild administrators.
                 Administrators may also enter patrons who contribute by check. Contact the Guild
                 to correct your information or remove your name from public recognition.

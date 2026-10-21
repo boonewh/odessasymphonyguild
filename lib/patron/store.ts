@@ -20,7 +20,7 @@ export function supabasePatronStore(url: string, key: string, transport: typeof 
     const result: Record<string, unknown>[] = [];
     for (let offset = 0; ; offset += 500) {
       let query = db.from("patron_members")
-        .select(publicOnly ? "name" : "id,period,name,email,phone,source,published,created_at")
+        .select(publicOnly ? "name" : "id,period,name,email,phone,source,published,approved_at,created_at")
         .eq("period", period).order("name").order("id").range(offset, offset + 499);
       if (publicOnly) query = query.eq("published", true);
       const { data, error } = await query;
