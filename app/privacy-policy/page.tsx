@@ -50,9 +50,10 @@ export default function PrivacyPolicy() {
                 to correct your information or remove your name from public recognition.
               </p>
               <p className="mt-3">
-                We do not collect or store credit card numbers or payment account information.
-                Payment is processed securely through QuickBooks Payments, subject to Intuit&apos;s
-                own privacy policy.
+                We do not store credit card numbers. Patron and Gala card payments are processed
+                by Stripe; we retain payment status, amount, and transaction references for Guild
+                administration. Membership invoices and payments may use QuickBooks Payments.
+                These providers process payment information under their own privacy policies.
               </p>
             </div>
 
@@ -76,8 +77,9 @@ export default function PrivacyPolicy() {
               </p>
               <ul className="list-disc pl-6 mt-3 space-y-1">
                 <li>
-                  <strong>Intuit / QuickBooks</strong> — for invoice generation and payment processing
+                  <strong>Intuit / QuickBooks</strong> — for membership invoice generation and payment processing
                 </li>
+                <li><strong>Stripe</strong> — for Patron and Gala card checkout and payment confirmation</li>
                 <li>
                   <strong>OSG board members and officers</strong> — for program administration
                 </li>

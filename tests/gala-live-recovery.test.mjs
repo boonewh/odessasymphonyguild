@@ -27,6 +27,6 @@ test('actual live recovery handler rejects test credentials and verifies payment
       b.onResolve({ filter: /^stripe$/ }, () => ({ path: resolve('tests/helpers/recovery-provider.mts') }));
     } }],
   });
-  const result = spawnSync(process.execPath, [outfile], { encoding: 'utf8', windowsHide: true });
+  const result = spawnSync(process.execPath, ['--conditions=react-server', outfile], { encoding: 'utf8', windowsHide: true });
   assert.equal(result.status, 0, result.stdout + result.stderr);
 });

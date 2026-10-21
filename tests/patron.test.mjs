@@ -21,7 +21,7 @@ for (const key of ['VERCEL','VERCEL_ENV','GALA_BOARD_REVIEW','GALA_CLIENT_REVIEW
 const cookie = `osg_test_admin_session=${createAdminSession(key,key)}`;
 const initialSql = await readFile('supabase/patron/001_patrons.sql','utf8');
 const approvalSql = await readFile('supabase/patron/002_approval.sql','utf8');
-const sql = initialSql + '\n' + approvalSql;
+const sql = initialSql + '\n' + approvalSql + '\n' + await readFile('supabase/patron/003_payments.sql','utf8');
 const signup = (extra = {}) => ({ requestId:randomUUID(), name:'Fictional Online Patron', email:'online@example.com', phone:'4325550100', consent:true, company:'', ...extra });
 const check = (extra = {}) => ({ requestId:randomUUID(), name:'Fictional Check Patron', email:'', phone:'', published:true, ...extra });
 function request(method, body, admin = false, from = origin) {

@@ -10,8 +10,88 @@ be published by the administrator entering them.
 Only names are returned for public rendering. The 2025 list is historical and
 remains separate from current registrations.
 
-This is contact registration, not a payment workflow. No card charge, invoice,
-QuickBooks entry, or email is sent. An online signup is not proof of payment.
+The deployed release currently provides contact registration. This branch adds
+optional **$100 one-time Patron dues through Stripe**; its payment migration and
+production activation have not been applied. An online signup is not proof of
+payment. No QuickBooks entry or application email is sent.
+
+## Patron card payments — prepared, not live
+
+`003_payments.sql` adds a private payment ledger and dues status to the existing
+roster. It preserves approval: a successful payment updates only payment status,
+never the displayed name, contact corrections, or publication. The admin shows
+card pending/paid/expired and recorded checks separately from name approval.
+For online signups paying by check, review the entry and select **We have received
+this patron’s $100 check payment**. A pending or paid card checkout cannot be
+overwritten with a check. Manual check entries are recorded as checks on entry.
+
+The integration reuses the existing Gala Stripe credentials, pinned account,
+four Checkout webhook events at `/api/gala/webhook`, and scheduled recovery at
+`/api/gala/recovery/run`. Patron metadata and ledger records are separate from
+Gala orders. No new Stripe key, webhook endpoint, or recurring subscription is
+needed. Gala sales and invitations remain closed. Public Patron navigation
+remains hidden; restore it only when requested, using PATRONS/Patrons.
+
+Production release procedure, after authorization:
+
+1. Capture the existing membership/Gala data and schema/grant baseline. Apply
+   **only `003_payments.sql` once** to the existing production database; 001 and
+   002 are already installed. Verify the baseline is unchanged. Do not copy
+   local fictional records to production.
+2. Keep existing live configuration and set Production-only
+   `PATRON_STRIPE_ENABLED=true` and `PATRON_CARD_PAYMENTS_OPEN=false`. Deploy this
+   compatible feature branch. The first flag enables webhook/status/recovery;
+   the second controls creation/resumption of hosted checkout through the site.
+3. Verify hosted admin, service-role RPCs, denied browser-role ledger access,
+   shared Dues/Gala access, invalid webhook signature rejection and scheduled
+   recovery. Keep both Gala submission flags false.
+4. Once live Patron card payments are authorized, set
+   `PATRON_CARD_PAYMENTS_OPEN=true` and redeploy. Verify the $100 USD checkout,
+   actual Stripe delivery and independent name approval. Any real-money test
+   payment requires the user's authorization; sandbox evidence is not a claim
+   of verified production payment delivery.
+
+To pause new card checkouts, set only `PATRON_CARD_PAYMENTS_OPEN=false` and
+redeploy. Keep `PATRON_ENABLED`, `PATRON_STRIPE_ENABLED`, and the shared Gala
+processing enabled so existing payments can settle. Already issued Stripe links
+may remain payable until they expire; the application pause does not revoke them.
+Preserve all payment tables/functions on rollback and deploy a compatible
+release. Never deploy old main.
+
+Checkout price, currency and year are pinned on the server. Retries reuse a
+stable Stripe idempotency key and immutable session parameters. Same-contact
+active attempts cannot create a second payment through a different request ID.
+The return page requires the random access token kept in the original browser
+tab; URLs expose no contacts or token. A verified Stripe session and PaymentIntent
+are required before recording paid status. Only verified unpaid expiration
+permits a new attempt. Replayed expiration events cannot replace a later payment
+or check status. Recovery checks pending attempts even when the buyer never
+returns, including searching for a session whose creation response was lost.
+
+If an attempt has no recoverable Stripe session, it remains pending for review
+rather than risk a second charge. Check the private `patron_payments` row by ID
+and search Stripe by `patron_payment_id` metadata. Do not manually reset it or
+tell the patron to pay again without resolving the original attempt. The shared
+recovery response reports `needs_review` or `retry_required` for unresolved rows;
+an unavailable Patron store reports `patronRecovery: retry_required` while Gala
+recovery still runs. Browser users should use the existing Contact section.
+
+Sandbox acceptance: a real hosted Stripe sandbox checkout charged the test card
+$100 and delivered `checkout.session.completed` with HTTP 200. The return page
+confirmed payment; admin displayed **$100 paid by card / Needs review**, with no
+public name. A second actual sandbox session was expired and confirmed unpaid.
+The admin recorded its later fictional check while keeping the name private.
+Private sandbox IDs/evidence are under `.codex-remote-attachments/live-setup/`.
+No live charge or production payment migration was performed.
+
+Validation: 20 Patron tests and all 177 Gala regression tests pass, including
+access controls, duplicate/lost responses, verified settlement, approval
+isolation, expiration replay and the hosted adapter contract. The production
+build and its TypeScript check pass. Desktop admin and mobile signup layouts
+were reviewed. Existing Next middleware/Edge and metadataBase warnings remain.
+
+Implementation references: [Stripe idempotency](https://docs.stripe.com/api/idempotent_requests)
+and [Checkout fulfillment](https://docs.stripe.com/checkout/fulfillment).
 
 ## Local development
 
@@ -26,6 +106,9 @@ QuickBooks entry, or email is sent. An online signup is not proof of payment.
   remains available with historical recognition and a contact link.
 - Use fictional names/contact details for local testing.
 - Run `npm run test:patron`, `npx tsc --noEmit`, and `npm run build`.
+- Card payments default on locally with the existing sandbox credentials. Run
+  `npm run gala:listen` to forward sandbox Checkout events. Local PGlite applies
+  the payment migration on first use; all test data remains local.
 
 ## Production rollout
 
@@ -130,8 +213,9 @@ No main merge or Preview configuration changes were made.
 Private non-Git evidence is in `.codex-remote-attachments/live-setup/` under
 `patron-*` and `deployment-patron-85704eb.json`. Keep it out of Git.
 
-To pause Patron registration/admin, set `PATRON_ENABLED=false` in Production
-and redeploy the current compatible release; preserve the stored roster.
+Before card payments are activated, Patron registration/admin can be paused with
+`PATRON_ENABLED=false` in Production and a compatible redeployment. After payment
+activation, use the card-only pause described above and preserve processing.
 After installing approval, preserve `002_approval.sql` and its trigger on any
 application rollback. Old UI versions lack the review list; prefer fixing forward
 or temporarily disabling Patron rather than restoring automatic publication.

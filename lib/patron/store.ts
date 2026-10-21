@@ -2,6 +2,7 @@ import "server-only";
 import { createClient } from "@supabase/supabase-js";
 import { databaseFetch } from "../gala/backend/database-fetch";
 import { patronConfig } from "./config";
+import { patronPaymentsEnabled } from "./payment-config";
 import type { Patron, PatronStore } from "./model";
 
 export async function getPatronStore(): Promise<PatronStore> {
@@ -20,7 +21,7 @@ export function supabasePatronStore(url: string, key: string, transport: typeof 
     const result: Record<string, unknown>[] = [];
     for (let offset = 0; ; offset += 500) {
       let query = db.from("patron_members")
-        .select(publicOnly ? "name" : "id,period,name,email,phone,source,published,approved_at,created_at")
+        .select(publicOnly ? "name" : `id,period,name,email,phone,source,published,approved_at,created_at${patronPaymentsEnabled() ? ",dues_status" : ""}`)
         .eq("period", period).order("name").order("id").range(offset, offset + 499);
       if (publicOnly) query = query.eq("published", true);
       const { data, error } = await query;
@@ -36,7 +37,12 @@ export function supabasePatronStore(url: string, key: string, transport: typeof 
       const { error } = await db.rpc("patron_add", { p_input: input });
       if (error) throw error;
     },
-    async edit({ id, ...input }, period) {
+    async edit({ id, checkReceived, ...input }, period) {
+      if (checkReceived) {
+        const { data, error } = await db.rpc("patron_record_check", { p_input: { id, ...input }, p_period: period });
+        if (error) throw error;
+        return Boolean(data);
+      }
       const { data, error } = await db.from("patron_members").update(input).eq("id", id).eq("period", period).select("id");
       if (error) throw error;
       return data.length === 1;

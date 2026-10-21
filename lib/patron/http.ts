@@ -18,6 +18,7 @@ function failure(error: unknown) {
     { status: 429, headers: { ...SECURE_HEADERS, "Retry-After": "900" } });
   if (message.includes("patron_request_conflict") || message.includes("patron_contact_period"))
     return json({ error: "This entry conflicts with an existing patron. Refresh the roster before trying again." }, 409);
+  if (message.includes("patron_payment_conflict")) return json({ error: "A card payment is pending or already paid. Check it before recording a check payment." }, 409);
   return json({ error: "We couldn’t save or load the patron information. Please try again." }, 503);
 }
 

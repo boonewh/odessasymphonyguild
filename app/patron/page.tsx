@@ -8,6 +8,7 @@ import PatronSignup from "@/components/patron/PatronSignup";
 import { patronEnabled } from "@/lib/patron/config";
 import { getPatronStore } from "@/lib/patron/store";
 import { PATRON_PERIOD } from "@/lib/patron/model";
+import { patronCheckoutOpen } from "@/lib/patron/payment-config";
 import { liveSiteEnabled } from "@/lib/gala/live-release";
 
 export const dynamic = "force-dynamic";
@@ -135,13 +136,12 @@ export default async function PatronPage() {
               <p className="mt-8 text-4xl tabular-nums">$100</p>
               <p className="mt-3 text-lg text-gray-600">Annual patron dues</p>
               <p className="mt-6 max-w-[48ch] text-pretty text-lg leading-8 text-gray-600">
-                This signup form does not collect payment. To arrange your dues
-                or contribute by check, <Link href="/#contact" className="underline decoration-[#806515] underline-offset-4">contact the Guild</Link>.
+                {patronCheckoutOpen() ? "Pay securely by card through Stripe, or arrange your dues by check. For help, " : "To arrange your dues or contribute by check, "}<Link href="/#contact" className="underline decoration-[#806515] underline-offset-4">contact the Guild</Link>.
               </p>
             </div>
             <div className="border-l-2 border-[#d4af37] pl-6 sm:pl-8">
               {enabled && !liveSiteEnabled(process.env) && <p className="mb-6 bg-[#faf8f3] p-4 text-base text-gray-700">Local preview: use fictional contact details. These signups do not appear on the live website.</p>}
-              {enabled ? <PatronSignup /> : <p className="text-lg leading-8 text-gray-600">Online patron signup is not open yet. Please contact the Guild to become a patron.</p>}
+              {enabled ? <PatronSignup cardPayments={patronCheckoutOpen()} /> : <p className="text-lg leading-8 text-gray-600">Online patron signup is not open yet. Please contact the Guild to become a patron.</p>}
             </div>
           </div>
         </section>

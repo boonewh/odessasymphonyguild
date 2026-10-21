@@ -11,10 +11,11 @@ export const signupSchema = contactSchema.extend({
   requestId: z.uuid(), consent: z.literal(true), company: z.string().max(200),
 }).strict();
 export const checkPatronSchema = contactSchema.extend({ requestId: z.uuid(), published: z.boolean() }).strict();
-export const editPatronSchema = contactSchema.extend({ id: z.uuid(), published: z.boolean() }).strict();
+export const editPatronSchema = contactSchema.extend({ id: z.uuid(), published: z.boolean(), checkReceived: z.boolean().optional() }).strict();
 export type PatronContact = z.infer<typeof contactSchema>;
 export type Patron = PatronContact & {
   id: string; period: string; source: "online" | "check"; published: boolean; approved_at: string | null; created_at: string;
+  dues_status?: "unpaid" | "card_pending" | "card_expired" | "card_paid" | "check_recorded";
 };
 export type PatronSubmission = PatronContact & {
   requestId: string; period: string; source: Patron["source"]; published: boolean; clientHash: string;

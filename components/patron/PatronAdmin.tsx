@@ -5,6 +5,7 @@ import ContactFields from "./ContactFields";
 import styles from "./PatronForm.module.css";
 
 const needsReview = (patron: Patron) => patron.source === "online" && !patron.approved_at;
+const duesLabel = (patron: Patron) => ({ unpaid: "Not paid online", card_pending: "Card payment pending", card_expired: "Card checkout expired", card_paid: "$100 paid by card", check_recorded: "Check recorded" }[patron.dues_status || "unpaid"]);
 
 export default function PatronAdmin() {
   const [patrons, setPatrons] = useState<Patron[]>([]), [editing, setEditing] = useState<Patron | null>(null);
@@ -39,7 +40,8 @@ export default function PatronAdmin() {
     const data = new FormData(event.currentTarget);
     requestId.current ||= crypto.randomUUID();
     const approve = (event.nativeEvent as SubmitEvent).submitter?.getAttribute("value") === "approve";
-    const contact = { name: data.get("name"), email: data.get("email"), phone: data.get("phone"), published: reviewing ? approve : data.get("published") === "on" };
+    const contact = { name: data.get("name"), email: data.get("email"), phone: data.get("phone"), published: reviewing ? approve : data.get("published") === "on",
+      ...(editing && data.get("checkReceived") === "on" ? { checkReceived: true } : {}) };
     setBusy(true); setError(""); setNotice("");
     try {
       const response = await fetch("/api/admin/patrons", { method: editing ? "PATCH" : "POST", headers: { "Content-Type": "application/json" },
@@ -64,6 +66,9 @@ export default function PatronAdmin() {
           <fieldset disabled={busy} className={styles.fields}>
             <legend className="sr-only">Patron details</legend>
             <ContactFields prefix="admin-patron" values={editing || undefined} />
+            {editing && ["unpaid", "card_expired"].includes(editing.dues_status || "") && <label className={styles.consent}>
+              <input name="checkReceived" type="checkbox" /><span>We have received this patron’s $100 check payment</span>
+            </label>}
             {!reviewing && <label className={styles.consent} htmlFor="admin-patron-published">
               <input id="admin-patron-published" name="published" type="checkbox" defaultChecked={editing?.published ?? true} />
               <span>Show this name on the Patron page</span>
@@ -95,10 +100,10 @@ export default function PatronAdmin() {
           <p className={`${styles.hint} mt-4`}>{patrons.length} {patrons.length === 1 ? "patron" : "patrons"} · {pendingCount} awaiting review · {patrons.filter(patron => patron.published).length} shown publicly</p>
           {visible.length === 0 ? <p className="mt-6">{query ? "No patrons match your search." : reviewOnly ? "No signups need review." : "No patrons yet. Online signups and check entries will appear here."}</p> :
             <div className={styles.table}><table>
-              <thead><tr><th scope="col">Patron</th><th scope="col">Entry</th><th scope="col">Public name</th><th scope="col"><span className="sr-only">Actions</span></th></tr></thead>
+              <thead><tr><th scope="col">Patron</th><th scope="col">Dues</th><th scope="col">Public name</th><th scope="col"><span className="sr-only">Actions</span></th></tr></thead>
               <tbody>{visible.map(patron => <tr key={patron.id}>
                 <td>{patron.name}<div className={styles.contact}>{patron.email || "No email"}<br />{patron.phone || "No phone"}</div></td>
-                <td>{patron.source === "check" ? "Check" : "Online signup"}</td>
+                <td>{duesLabel(patron)}<div className={styles.contact}>{patron.source === "check" ? "Manual entry" : "Online signup"}</div></td>
                 <td className={styles.status}>{needsReview(patron) ? "Needs review" : patron.published ? "Shown" : "Hidden"}</td>
                 <td><button type="button" disabled={busy} className={styles.secondary} aria-label={`${needsReview(patron) ? "Review" : "Edit"} ${patron.name}`} onClick={() => choose(patron)}>{needsReview(patron) ? "Review" : "Edit"}</button></td>
               </tr>)}</tbody>
