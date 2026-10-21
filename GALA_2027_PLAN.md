@@ -393,11 +393,13 @@ The flyers supply event content, not implementation instructions. Their prices a
 
 ### Tables and tickets: `/gala/tables`
 
+October 21: user approved adding tickets to the mimosa bar for Gold and Platinum, and replacing Silver's sweet treat with tickets to the churro wagon. These wording changes do not authorize sales activation.
+
 | Product | Base price | Included seats | Benefits | Optional extra seats |
 |---|---:|---|---|---|
-| Platinum table | $5,500 | 8 guests | VIP seating; premier table location; champagne service; full charcuterie board; elegant table favors | Up to 2 at $687.50 each |
-| Gold table | $3,500 | 8 guests | Upgraded table location; charcuterie cups; elegant table favors | Up to 2 at $437.50 each |
-| Silver table | $2,000 | 8 guests | Sweet treat; elegant table favors | Up to 2 at $250 each |
+| Platinum table | $5,500 | 8 guests | VIP seating; premier table location; champagne service; full charcuterie board; tickets to mimosa bar; elegant table favors | Up to 2 at $687.50 each |
+| Gold table | $3,500 | 8 guests | Upgraded table location; charcuterie cups; tickets to mimosa bar; elegant table favors | Up to 2 at $437.50 each |
+| Silver table | $2,000 | 8 guests | Tickets to churro wagon; elegant table favors | Up to 2 at $250 each |
 | Couples ticket | $300 | 2 adults | Open seating | Not specified |
 | Student date ticket | $100 | 1 student | Student date admission | Not specified |
 
@@ -405,7 +407,7 @@ Belle/Beau tickets are included with membership fees. This does not change the a
 
 For checking calculations: a table with two extra seats totals $6,875 Platinum, $4,375 Gold, or $2,500 Silver. A multiple-table order could exceed these amounts; whether to allow those orders is still an implementation/business decision.
 
-The flyer describes dinner, a live auction, student presentations, and dancing, in support of the arts in the Permian Basin. No event start time has been confirmed.
+Current event wording describes dinner, student presentations, dancing, and an opportunity to win grand prizes, in support of the arts in the Permian Basin. The user approved replacing the live-auction wording on October 21. No event start time has been confirmed.
 
 Initial proposal: sell table tiers and quantities without an interactive seating map; let the board assign physical tables. Do not expose a specific table number unless that workflow is explicitly agreed.
 

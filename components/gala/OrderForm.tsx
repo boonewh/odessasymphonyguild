@@ -14,7 +14,7 @@ import { SAME_TAB_NOTICE, type CartAddition } from "@/lib/gala/cart";
 type Kind = DemoOrder["kind"];
 export type PaidFormDetails = { kind: "tables"; contact: DemoOrder["contact"]; allSalesFinal: true; purchase: { product: Product; quantity: number; extraSeats: number } }
   | { kind: "gifts"; contact: DemoOrder["contact"]; allSalesFinal: true; gifts: Gift[] };
-const blankGift = (): Gift => ({ student: "", grade: "9", roses: 1, cookies: 0 });
+const blankGift = (): Gift => ({ student: "", grade: "9", roses: 0, cookies: 0 });
 const blankRecipient = (): Recipient => ({ name: "", address: "", address2: "", city: "", state: "TX", zip: "" });
 function Field({ label, name, value, onChange, type = "text", required = true, maxLength = 120, disabled = false }: {
   label: string; name: string; value: string; onChange: (value: string) => void;

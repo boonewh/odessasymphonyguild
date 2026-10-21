@@ -9,5 +9,5 @@ export const metadata = { title: "Tables & Tickets | Symphony Ball 2027", robots
 export default function TablesPage() {
   const clientReview = requireGalaPage();
   const sandbox = !clientReview && backendEnabled(process.env);
-  return <GalaShell clientReview={clientReview} sandbox={sandbox} current="tables" title="Table & ticket purchases" intro="Join us for an elegant dinner, a live auction, student presentations, and a lively dance—all in support of the arts in the Permian Basin.">{sandbox ? <SandboxCheckout kind="tables" /> : <OrderForm clientReview={clientReview} kind="tables" />}</GalaShell>;
+  return <GalaShell clientReview={clientReview} sandbox={sandbox} current="tables" title="Table & ticket purchases" intro="Join us for an elegant dinner, student presentations, a lively dance, and an opportunity to win grand prizes—all in support of the arts in the Permian Basin.">{sandbox ? <SandboxCheckout kind="tables" /> : <OrderForm clientReview={clientReview} kind="tables" />}</GalaShell>;
 }

@@ -23,13 +23,13 @@ export function previewAllowed(nodeEnv: string | undefined, vercelEnv?: string) 
 export const TABLES = [
   { id: "platinum", name: "Platinum table", price: 550000, extra: 68750,
     description: "The ultimate Gala experience",
-    benefits: ["VIP seating for 8 guests", "Premier table location", "Champagne service", "Full charcuterie board", "Elegant table favors"] },
+    benefits: ["VIP seating for 8 guests", "Premier table location", "Champagne service", "Full charcuterie board", "Tickets to mimosa bar", "Elegant table favors"] },
   { id: "gold", name: "Gold table", price: 350000, extra: 43750,
     description: "An elevated evening",
-    benefits: ["Seating for 8 guests", "Upgraded table location", "Charcuterie cups", "Elegant table favors"] },
+    benefits: ["Seating for 8 guests", "Upgraded table location", "Charcuterie cups", "Tickets to mimosa bar", "Elegant table favors"] },
   { id: "silver", name: "Silver table", price: 200000, extra: 25000,
     description: "A beautiful night out",
-    benefits: ["Seating for 8 guests", "Sweet treat", "Elegant table favors"] },
+    benefits: ["Seating for 8 guests", "Tickets to churro wagon", "Elegant table favors"] },
 ] as const;
 export type Tier = (typeof TABLES)[number]["id"];
 export type Product = Tier | "couples" | "student-date";
