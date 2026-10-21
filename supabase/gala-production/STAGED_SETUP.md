@@ -1,5 +1,21 @@
 # Gala live setup and closed-sales deployment — October 20, 2026
 
+## October 21: Gala buyer-page updates deployed
+
+User-authorized application release `aae0a69` on `codex/patron-page-design`
+is live as `dpl_9AdxC3sErvkNSGwhX1EvGNcAijMu` at the canonical domain.
+Roses start at zero for each new student; Gold and Platinum include tickets
+to the mimosa bar; Silver lists tickets to the churro wagon; the event
+introduction replaces the live auction with an opportunity to win grand prizes.
+The release includes the current Patron code and changes no environment settings,
+database schema, payment processing or credentials. Both Gala submission flags
+were verified false. Vercel build passed; published HTML and JavaScript confirm
+the new wording and gift default, and Gala, Patron and admin pages return 200.
+Focused model/cart/form checks passed before deployment. Browser interaction
+was unavailable, so hosted verification used HTTP and delivered assets.
+
+The release records below describe earlier deployments.
+
 **Current application release:** navigation follow-up `4234be9` from
 `codex/patron-page-design` is deployed as `dpl_GjSSNtZxdyHhrye5stmZEECViuf5`.
 It hides the public Patron navigation link until requested, with the plural
