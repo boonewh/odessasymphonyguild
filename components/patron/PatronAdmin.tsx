@@ -5,6 +5,7 @@ import ContactFields from "./ContactFields";
 import styles from "./PatronForm.module.css";
 
 const needsReview = (patron: Patron) => patron.source === "online" && !patron.approved_at;
+const expiredUnpaid = (patron: Patron) => patron.source === "online" && patron.dues_status === "card_expired";
 const duesLabel = (patron: Patron) => ({ unpaid: "Not paid online", card_pending: "Card payment pending", card_expired: "Card checkout expired", card_paid: "$100 paid by card", check_recorded: "Check recorded" }[patron.dues_status || "unpaid"]);
 
 export default function PatronAdmin() {
@@ -13,8 +14,11 @@ export default function PatronAdmin() {
   const [error, setError] = useState(""), [loadError, setLoadError] = useState(""), [notice, setNotice] = useState("");
   const [revision, setRevision] = useState(0);
   const [reviewOnly, setReviewOnly] = useState(false);
+  const [includeExpired, setIncludeExpired] = useState(false);
   const reviewing = editing !== null && needsReview(editing);
-  const pendingCount = patrons.filter(needsReview).length;
+  const expiredCount = patrons.filter(expiredUnpaid).length;
+  const roster = patrons.filter(patron => includeExpired || !expiredUnpaid(patron));
+  const pendingCount = roster.filter(needsReview).length;
   const requestId = useRef("");
   const editor = useRef<HTMLElement>(null);
   const load = useCallback(async (signal?: AbortSignal) => {
@@ -54,7 +58,7 @@ export default function PatronAdmin() {
     } catch (e) { setError(e instanceof Error ? e.message : "The patron could not be saved."); }
     finally { setBusy(false); }
   }
-  const visible = patrons.filter(patron => (!reviewOnly || needsReview(patron)) && `${patron.name} ${patron.email} ${patron.phone}`.toLowerCase().includes(query.toLowerCase()))
+  const visible = roster.filter(patron => (!reviewOnly || needsReview(patron)) && `${patron.name} ${patron.email} ${patron.phone}`.toLowerCase().includes(query.toLowerCase()))
     .sort((a, b) => Number(needsReview(b)) - Number(needsReview(a)));
   return <>
     {notice && <p className={`${styles.success} mb-6`} role="status">{notice}</p>}
@@ -91,14 +95,19 @@ export default function PatronAdmin() {
           <input type="checkbox" checked={reviewOnly} onChange={event => setReviewOnly(event.target.checked)} />
           <span>Needs review ({pendingCount})</span>
         </label>
+        <label className={`${styles.consent} mb-6`}>
+          <input type="checkbox" checked={includeExpired} onChange={event => setIncludeExpired(event.target.checked)} />
+          <span>Include expired unpaid signups ({expiredCount})</span>
+        </label>
         <div className={styles.field}>
           <label htmlFor="patron-search">Find a patron</label>
           <input id="patron-search" name="search" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Name, email, or phone" />
         </div>
         {loadError && <p role="alert" className={`${styles.error} mt-6`}>{loadError}</p>}
         {loading ? <p className="mt-6" role="status">Loading patrons…</p> : !loadError && <>
-          <p className={`${styles.hint} mt-4`}>{patrons.length} {patrons.length === 1 ? "patron" : "patrons"} · {pendingCount} awaiting review · {patrons.filter(patron => patron.published).length} shown publicly</p>
-          {visible.length === 0 ? <p className="mt-6">{query ? "No patrons match your search." : reviewOnly ? "No signups need review." : "No patrons yet. Online signups and check entries will appear here."}</p> :
+          <p className={`${styles.hint} mt-4`}>{roster.length} {roster.length === 1 ? "patron" : "patrons"} in this view · {pendingCount} awaiting review · {roster.filter(patron => patron.published).length} shown publicly</p>
+          {!includeExpired && expiredCount > 0 && <p className={`${styles.hint} mt-2`}>{expiredCount} expired unpaid {expiredCount === 1 ? "signup is" : "signups are"} hidden. Select “Include expired unpaid signups” to view them.</p>}
+          {visible.length === 0 ? <p className="mt-6">{query ? "No patrons match your search." : reviewOnly ? "No signups need review in this view." : "No patrons in this view."}</p> :
             <div className={styles.table}><table>
               <thead><tr><th scope="col">Patron</th><th scope="col">Dues</th><th scope="col">Public name</th><th scope="col"><span className="sr-only">Actions</span></th></tr></thead>
               <tbody>{visible.map(patron => <tr key={patron.id}>

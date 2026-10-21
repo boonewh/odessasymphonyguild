@@ -10,6 +10,13 @@ be published by the administrator entering them.
 Only names are returned for public rendering. The 2025 list is historical and
 remains separate from current registrations.
 
+The admin roster hides online signups with `card_expired` dues status by default.
+Select **Include expired unpaid signups** to bring them into the list, search,
+and Needs review filter. Counts reflect the selected view, and the control shows
+how many expired entries are available. This does not delete records or alter
+payment/publication state. Paid card, recorded check and pending card entries
+remain in the default view.
+
 The public website offers **$100 one-time Patron dues through Stripe only**.
 Invitations provide check-payment instructions; the private admin still records
 checks. The old contact-only `/api/patron` submission returns HTTP 410 so a stale
