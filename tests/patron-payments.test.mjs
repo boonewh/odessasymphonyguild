@@ -54,6 +54,21 @@ test('card checkout pins $100/year, shares review roster and reuses one checkout
  assert.equal(privateResult.status,'pending');assert.ok(!JSON.stringify(privateResult).includes(first.email));assert.ok(!('owner_hash' in privateResult));
  assert.ok(await store.get(result.id));
 });
+test('autofilled legacy company fields and current forms both reach the same private Stripe checkout',async t=>{
+ const {handlers,fake,roster}=await setup(t);
+ const legacy=input({company:'Fictional Autofilled Organization'});
+ const trapped=await handlers.checkout(request({...legacy,patron_guard:'filled by bot'}));
+ assert.equal(trapped.status,400);assert.equal(fake.creates.length,0);assert.equal((await roster.list(PATRON_PERIOD)).length,0);
+ const oldForm=await handlers.checkout(request(legacy));assert.equal(oldForm.status,200);
+ const original=await oldForm.json();assert.match(original.url,/^https:\/\/checkout\.stripe\.com\//);
+ const {company,...current}=legacy;
+ const newForm=await handlers.checkout(request({...current,patron_guard:''}));assert.equal(newForm.status,200);
+ assert.equal((await newForm.json()).id,original.id);assert.equal(fake.sessions.size,1);
+ const members=await roster.list(PATRON_PERIOD);assert.equal(members.length,1);assert.equal(members[0].published,false);
+ assert.ok(!JSON.stringify(members).includes(company));
+ assert.ok(!JSON.stringify(fake.creates).includes(company));
+});
+
 test('payment verification is idempotent, never approves names and cannot regress paid records',async t=>{
  const {store,roster,fake,handlers}=await setup(t);
  const result=await (await handlers.checkout(request(input()))).json();const p=await store.get(result.id);

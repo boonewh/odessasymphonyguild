@@ -6,7 +6,10 @@ import type { PaymentMode } from "../gala/backend/payment-mode";
 import { readLoginBody, LoginBodyTooLarge } from "../gala/backend/staff-login";
 import { SECURE_HEADERS } from "../api-headers";
 const token = z.string().regex(/^[a-f0-9]{64}$/);
-const checkoutSchema = signupSchema.extend({ accessToken: token }).strict();
+// Older open forms may send an autofilled company field. Accept and discard it;
+// autofill is not evidence of a bot. The replacement trap is fully hidden and
+// has a neutral name instead of a contact-information name.
+const checkoutSchema = signupSchema.extend({ accessToken: token, company: z.string().max(200).optional(), patron_guard: z.string().max(200).optional() }).strict();
 const statusSchema = z.object({ id: z.uuid(), accessToken: token }).strict();
 const ownerHash = (value: string) => createHash("sha256").update(value).digest("hex");
 const json = (value: unknown, status = 200) => Response.json(value, { status, headers: { ...SECURE_HEADERS, "Referrer-Policy": "no-referrer" } });
@@ -37,8 +40,8 @@ export function patronPaymentHandlers(deps: Dependencies) {
         if (!deps.open()) return json({ error: "Card payments are temporarily closed. Please contact the Guild." }, 409);
         const parsed = checkoutSchema.safeParse(await readLoginBody(request));
         if (!parsed.success) return json({ error: "Please check your name, contact information and permission." }, 400);
-        if (parsed.data.company) return json({ error: "Please contact the Guild to complete your signup." }, 400);
-        const { accessToken, ...input } = parsed.data;
+        if (parsed.data.patron_guard) return json({ error: "We couldn’t submit this form. Please refresh the Patron page and try again." }, 400);
+        const { accessToken, company: _legacyCompany, patron_guard: _guard, ...input } = parsed.data;
         const config = deps.config(), { store, stripe } = await deps.backend();
         const address = (request.headers.get("x-vercel-forwarded-for") || "local").split(",")[0].trim().slice(0, 128);
         const clientHash = createHmac("sha256", config.token).update(`patron:${address}`).digest("hex");

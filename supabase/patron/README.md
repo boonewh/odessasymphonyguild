@@ -185,6 +185,11 @@ old main over the live release, or open Gala sales/invitation flags.
 
 Server-side validation, a 2 KiB request limit, same-origin writes, a honeypot,
 and a durable five-signup/15-minute limit protect the signup inbox. The
+honeypot is a fully hidden `patron_guard` field with autocomplete disabled, not
+an off-screen contact field. The former `company` field is accepted and ignored
+for older open forms because browser autofill can populate company names.
+Neither field is stored or sent to Stripe. A filled replacement trap is rejected
+before creating a signup or contacting Stripe. The
 limiter stores a keyed hash, not an IP address, and removes buckets older than a
 day on subsequent submissions. It uses Vercel's supplied
 [`x-vercel-forwarded-for` header](https://vercel.com/docs/headers/request-headers#x-vercel-forwarded-for).

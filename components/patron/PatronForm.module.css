@@ -16,7 +16,6 @@
 .secondary:hover { background:#1a1a2e08; }
 .error { padding:14px; background:#fff1ec; color:#8c321c; line-height:1.6; }
 .success { padding:18px; background:#edf4ed; border-left:3px solid #3c6c46; color:#25492c; line-height:1.6; }
-.trap { position:absolute; left:-10000px; width:1px; height:1px; overflow:hidden; }
 .adminLayout { display:grid; gap:40px; align-items:start; }
 .editor { width:100%; max-width:560px; background:white; border:1px solid #1a1a2e22; border-radius:8px; padding:24px; }
 .editor > p { margin-bottom:24px; }

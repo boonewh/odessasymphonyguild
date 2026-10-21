@@ -14,7 +14,7 @@ export default function PatronSignup() {
     try {
       const draft = paymentDraft();
       const response = await fetch("/api/patron/checkout", { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ requestId: draft.requestId, name: data.get("name"), email: data.get("email"), phone: data.get("phone"), consent: data.get("consent") === "on", company: data.get("company"), accessToken: draft.accessToken }) });
+        body: JSON.stringify({ requestId: draft.requestId, name: data.get("name"), email: data.get("email"), phone: data.get("phone"), consent: data.get("consent") === "on", patron_guard: data.get("patron_guard") || "", accessToken: draft.accessToken }) });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "We couldn’t open checkout. Please retry in this tab.");
       sessionStorage.setItem(PAYMENT_DRAFT_KEY, JSON.stringify({ ...draft, paymentId: result.id }));
@@ -27,9 +27,9 @@ export default function PatronSignup() {
       <legend className="sr-only">Patron contact information</legend>
       <ContactFields prefix="patron" emailRequired />
       <p className={styles.hint}>Pay $100 securely by card through Stripe. One payment for this membership year. No automatic renewal.</p>
-      <div className={styles.trap} aria-hidden="true">
-        <label htmlFor="patron-company">Leave this field empty</label>
-        <input id="patron-company" name="company" type="text" autoComplete="off" tabIndex={-1} maxLength={200} />
+      <div hidden aria-hidden="true">
+        <label htmlFor="patron-guard">Leave this field empty</label>
+        <input id="patron-guard" name="patron_guard" type="text" autoComplete="off" tabIndex={-1} maxLength={200} />
       </div>
       <label className={styles.consent} htmlFor="patron-consent">
         <input id="patron-consent" name="consent" type="checkbox" required />
