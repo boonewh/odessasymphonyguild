@@ -27,6 +27,14 @@ QuickBooks entry or application email is sent.
 
 ## Patron card payments — live October 20, 2026
 
+Expired-signup view: application `ef032b0` is live as
+`dpl_G78DwV6CkbPvT29gTdxjh9BnpQBp`, with immutable host
+`odessasymphonyguild-k0zck5k6c-boonewhs-projects.vercel.app`. The build and 12 hosted
+checks pass. A local sandbox expired checkout verified default hiding, inclusion,
+search combined with Needs review, view counts, and continued visibility of paid
+card/check entries. No production records, database schema or payment settings
+were changed. Expired entries are retained and can be included via the checkbox.
+
 Autofill repair: application `429c5ba` is live as
 `dpl_8dmgSmQXCJmy49rEx5pGPHa9NKdQ`, with immutable host
 `odessasymphonyguild-ipusu1ss6-boonewhs-projects.vercel.app`. The old off-screen
