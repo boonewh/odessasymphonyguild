@@ -31,7 +31,7 @@ The user authorized Patron installation and production deployment on October 20,
 `uhfxkdzhpyzuwkvmners`; before/after fingerprints confirm unchanged membership
 records and existing membership/Gala schema, grants and default privileges.
 `PATRON_ENABLED=true` is scoped to Vercel Production only. Deployment acceptance
-is recorded below when complete. Do not rerun either one-time installer, merge
+is recorded below. Do not rerun either one-time installer, merge
 old main over the live release, or open Gala sales/invitation flags.
 
 1. Apply `001_patrons.sql` **once** to the approved production membership database.
@@ -58,3 +58,42 @@ Retries use a request UUID. Matching name/email entries for the same year are
 kept without overwriting contact details or changing public visibility. Check
 entries without email are separate records; volunteers can search the roster
 before adding one and hide a duplicate if necessary.
+
+## Production acceptance — October 20, 2026
+
+Application commit `85704eb` on `codex/patron-page-design` is live at
+https://www.odessasymphonyguild.org/patron. The shared-password Patron admin is
+https://www.odessasymphonyguild.org/admin/patron. Deployment
+`dpl_CGxKc61sxDHSj3d6UnbxZrF1wriN` is Ready and aliased to the canonical domain;
+its immutable host is `odessasymphonyguild-6eaa9n3h0-boonewhs-projects.vercel.app`.
+The upload used a Git archive, excluding local credentials and test records.
+No main merge or Preview configuration changes were made.
+
+- Eight Patron tests, 177 Gala regression tests, three membership OAuth tests,
+  TypeScript checking and the production build passed.
+- 31 hosted HTTP checks passed: public signup, repeated-request protection,
+  manual check entry, one shared roster, public-name rendering, private contact
+  information, corrections, hiding/restoring, CSRF rejection and admin access.
+- All 120 Dues records remain readable. Final membership record hashes and the
+  existing membership/Gala schema, grants and default privileges match the
+  pre-install baseline. Anonymous/authenticated database access to Patron tables
+  and the write function is denied; both tables have RLS enabled.
+- Both temporary verification patrons were hidden promptly and then removed by
+  their exact UUIDs. The current-year production roster starts empty; historical
+  2025 recognition remains. Local preview names were never copied.
+- Gala checkout and invitation attempts remain rejected with closed flags.
+  The existing four-event Stripe webhook remains enabled; invalid signatures
+  are rejected and a signed harmless verification event returns HTTP 200.
+  Three automatic recovery calls returned HTTP 200, with a fresh heartbeat.
+  No charge, payout, invitation, or Gala order was created.
+- The deployed signup form was visually reviewed. Existing shared passwords
+  were unchanged; verification credentials were used only in memory.
+
+Private non-Git evidence is in `.codex-remote-attachments/live-setup/` under
+`patron-*` and `deployment-patron-85704eb.json`. Keep it out of Git.
+
+To pause Patron registration/admin, set `PATRON_ENABLED=false` in Production
+and redeploy the current compatible release; preserve the stored roster.
+To roll back this application release, the preceding compatible deployment is
+`dpl_EaK1QpeVo19n6GQ6V14ojqLjvRGS`; leave the additive Patron tables in place.
+Never deploy old main as a rollback: it lacks live Gala webhook/recovery.

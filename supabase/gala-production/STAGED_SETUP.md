@@ -1,5 +1,14 @@
 # Gala live setup and closed-sales deployment — October 20, 2026
 
+**Current application release:** Patron commit `85704eb` from
+`codex/patron-page-design` is deployed as `dpl_CGxKc61sxDHSj3d6UnbxZrF1wriN`.
+The user explicitly authorized Patron database installation/deployment while
+keeping Gala closed. The additive Patron tables, existing data/grants, shared
+Dues/admin access, closed checkout/invitations, enabled Stripe webhook and
+automatic recovery were verified. Both Gala submission flags remain false.
+See `../patron/README.md` for Patron acceptance and rollback details. Older
+deployment entries below describe the preceding releases.
+
 **Latest small follow-up:** commit `1381bc8` changes the shared footer's Admin link to `/admin`. Deployed as `dpl_EaK1QpeVo19n6GQ6V14ojqLjvRGS` (`odessasymphonyguild-kkmzndl0z-boonewhs-projects.vercel.app`). Production build passed; the live homepage, Gala and Belles & Beaux footers and protected admin entrance were checked. Both submission flags remain false. The initial full release evidence follows.
 
 The user authorized installing the database and configuring live services, then explicitly authorized deployment and verification with sales closed. Application commit **`db3ff7d`** is deployed at **https://www.odessasymphonyguild.org**. No main merge or sales activation occurred.
