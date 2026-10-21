@@ -69,7 +69,28 @@ kept without overwriting contact details or changing public visibility. Check
 entries without email are separate records; volunteers can search the roster
 before adding one and hide a duplicate if necessary.
 
-## Production acceptance — October 20, 2026
+## Approval release — October 20, 2026
+
+The user reversed automatic publication and requested review/correction before
+online names appear. Migration `002_approval.sql` is installed in production;
+do not rerun it. There were no existing online records at migration time.
+Application commit `f42c0fc` is deployed as
+`dpl_3EvnhYjJhuiSYhyQGfgZ1oZ8dp2k`, aliased to the canonical live domain.
+The immutable host is `odessasymphonyguild-4hou07z46-boonewhs-projects.vercel.app`.
+
+Ten Patron tests, TypeScript checking and the production build pass. A browser
+walkthrough confirmed Needs review filtering, saved corrections remaining
+private, and explicit approval publishing the corrected name. Forty-two hosted
+HTTP checks verified pending signups, rejected forged publication/source/approval
+fields, denied unauthenticated approval, correction without publication,
+approval, hiding, retry protection, check entries, contact privacy and shared
+Dues access to all 120 records. Temporary verification entries were removed.
+Existing membership data and membership/Gala schema/grants remain unchanged.
+Both Gala submission flags remain false; webhook processing and automatic
+recovery remain active. Private evidence uses the `patron-approval-*` prefix in
+`.codex-remote-attachments/live-setup/`.
+
+## Initial production acceptance — October 20, 2026
 
 Initial application commit `85704eb` on `codex/patron-page-design` was deployed at
 https://www.odessasymphonyguild.org/patron. The shared-password Patron admin is

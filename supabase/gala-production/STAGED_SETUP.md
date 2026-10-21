@@ -1,7 +1,9 @@
 # Gala live setup and closed-sales deployment — October 20, 2026
 
-**Current application release:** Patron commit `85704eb` from
-`codex/patron-page-design` is deployed as `dpl_CGxKc61sxDHSj3d6UnbxZrF1wriN`.
+**Current application release:** Patron approval commit `f42c0fc` from
+`codex/patron-page-design` is deployed as `dpl_3EvnhYjJhuiSYhyQGfgZ1oZ8dp2k`.
+Online Patron names now require administrator review and explicit approval;
+the production approval migration is installed and verified.
 The user explicitly authorized Patron database installation/deployment while
 keeping Gala closed. The additive Patron tables, existing data/grants, shared
 Dues/admin access, closed checkout/invitations, enabled Stripe webhook and
