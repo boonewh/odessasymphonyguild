@@ -20,6 +20,16 @@ QuickBooks entry or application email is sent.
 
 ## Patron card payments — live October 20, 2026
 
+Stripe-only website follow-up: application `e6ed1d8` is live as
+`dpl_GTkHbX3Cy4LJTbQpQ4o6eqf4tKvc`, with immutable host
+`odessasymphonyguild-lqwhb034g-boonewhs-projects.vercel.app`. Public check-payment
+directions/options are removed, including the privacy-policy wording, and the
+retired contact-only endpoint returns HTTP 410. Manual check admin remains.
+Twenty Patron tests, the build, 12 live HTTP checks and a visual production review
+pass. Both Gala submission flags remain false, navigation remains hidden, and
+payment recovery continues successfully. No database or environment changes and
+no payment were needed for this follow-up.
+
 The user explicitly authorized the payment migration, production deployment and
 Patron card activation while keeping Gala closed and public Patron navigation
 hidden. Migration `003_payments.sql` is installed in the existing production
