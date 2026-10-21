@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { clearShoppingDetails } from "@/lib/gala/cart-storage";
 import styles from "./SharedAdmin.module.css";
-export default function SharedAdminNav({ current, live = false }: { current: "home" | "dues" | "gala"; live?: boolean }) {
+export default function SharedAdminNav({ current, live = false }: { current: "home" | "dues" | "gala" | "patron"; live?: boolean }) {
   const endpoint = live ? "/api/admin/session" : "/api/admin/test-session";
   const [busy, setBusy] = useState(false), [error, setError] = useState("");
   useEffect(() => {
@@ -27,7 +27,7 @@ export default function SharedAdminNav({ current, live = false }: { current: "ho
       window.location.replace("/admin/login");
     } catch (e) { setError((e as Error).message); setBusy(false); }
   }
-  const links = <><Link href="/admin" aria-current={current === "home" ? "page" : undefined}>Admin home</Link><Link href="/admin/dues" aria-current={current === "dues" ? "page" : undefined}>Dues</Link><Link href="/admin/gala" aria-current={current === "gala" ? "page" : undefined}>Gala</Link></>;
+  const links = <><Link href="/admin" aria-current={current === "home" ? "page" : undefined}>Admin home</Link><Link href="/admin/dues" aria-current={current === "dues" ? "page" : undefined}>Dues</Link><Link href="/admin/gala" aria-current={current === "gala" ? "page" : undefined}>Gala</Link><Link href="/admin/patron" aria-current={current === "patron" ? "page" : undefined}>Patron</Link></>;
   return <header className={styles.header}><div className={styles.headerInner}>
     <Link href="/admin" className={styles.brand}>OSG Administration</Link>
     <nav className={styles.desktopNav} aria-label="Administration">{links}</nav>

@@ -30,7 +30,7 @@ test('shared admin entrance is limited to local development and the explicitly a
 });
 test('admin return destinations cannot redirect to outside sites or live dues routes',()=>{
   for(const value of ['https://evil.example','//evil.example','/admin/belles-beaux',undefined,'/admin/gala?x=1'])assert.equal(adminDestination(value),'/admin');
-  for(const path of ['/admin/dues','/admin/gala'])assert.equal(adminDestination(path),path);
+  for(const path of ['/admin/dues','/admin/gala','/admin/patron'])assert.equal(adminDestination(path),path);
 });
 test('shared admin handlers enforce throttling, isolation, CSRF, bounded input and complete logout',()=>{
   const r=spawnSync(process.execPath,['--conditions=react-server','--import','tsx','tests/helpers/shared-admin-route.mts'],{encoding:'utf8',windowsHide:true});

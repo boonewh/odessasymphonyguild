@@ -155,6 +155,10 @@ The website includes a complete membership payment system with QuickBooks Online
 
 ## Deployment
 
+Patron signup and shared administration setup are documented in
+[supabase/patron/README.md](supabase/patron/README.md). Patron development data
+stays local; production installation and release are separate steps.
+
 This is a Next.js app and can be deployed to:
 - **Vercel** (recommended) - Zero configuration deployment
 - **Netlify** - Easy static site hosting

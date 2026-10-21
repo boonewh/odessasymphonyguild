@@ -22,7 +22,7 @@ export default function Header({ theme = "default" }: { theme?: "default" | "gal
                 className="w-full h-full object-contain"
               />
             </a>
-            <a href="/" className="hidden lg:block text-sm font-light tracking-[0.2em] uppercase hover:text-[var(--header-accent)] transition-colors">
+            <a href="/" className="hidden xl:block text-sm font-light tracking-[0.2em] uppercase hover:text-[var(--header-accent)] transition-colors">
               Odessa <span className="text-[var(--header-accent)]">Symphony Guild</span>
             </a>
           </div>
@@ -46,6 +46,12 @@ export default function Header({ theme = "default" }: { theme?: "default" | "gal
               className="text-sm tracking-wider hover:text-[var(--header-accent)] transition-colors font-light"
             >
               GALA
+            </a>
+            <a
+              href="/patron"
+              className="text-sm tracking-wider hover:text-[var(--header-accent)] transition-colors font-light"
+            >
+              PATRON
             </a>
             <a
               href="/#contact"
@@ -100,6 +106,13 @@ export default function Header({ theme = "default" }: { theme?: "default" | "gal
               className="block py-3 border-b border-white/10 hover:text-[var(--header-accent)] transition-colors"
             >
               Gala
+            </a>
+            <a
+              href="/patron"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block py-3 border-b border-white/10 hover:text-[var(--header-accent)] transition-colors"
+            >
+              Patron
             </a>
             <a
               href="/#contact"

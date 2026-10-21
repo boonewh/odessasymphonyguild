@@ -93,10 +93,10 @@ export async function middleware(request: NextRequest) {
   if (pathname === "/api/admin/session") return new NextResponse(null, { status: 404 });
   // Allow the login page and login API through without a session check
   // New test-only pages authenticate on the server; never open legacy dues APIs.
-  if (sharedAdminTestEnabled(process.env) && ["/admin", "/admin/dues", "/admin/gala", "/api/admin/test-session"].includes(pathname)) {
+  if (sharedAdminTestEnabled(process.env) && ["/admin", "/admin/dues", "/admin/gala", "/admin/patron", "/api/admin/patrons", "/api/admin/test-session"].includes(pathname)) {
     return NextResponse.next();
   }
-  if (!sharedAdminTestEnabled(process.env) && ["/admin", "/admin/dues", "/admin/gala", "/api/admin/test-session"].includes(pathname)) {
+  if (!sharedAdminTestEnabled(process.env) && ["/admin", "/admin/dues", "/admin/gala", "/admin/patron", "/api/admin/patrons", "/api/admin/test-session"].includes(pathname)) {
     return new NextResponse("Not found", { status: 404 });
   }
   if (pathname === "/admin/login" || pathname === "/api/admin/login") {

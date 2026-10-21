@@ -43,6 +43,13 @@ export default function PrivacyPolicy() {
                 <li>Membership type and dues payment status</li>
               </ul>
               <p className="mt-3">
+                Patron signups collect your display name, email address, and optional phone number.
+                The Patron thank-you section displays your name with your permission; your email
+                and phone number are available only to authorized Guild administrators.
+                Administrators may also enter patrons who contribute by check. Contact the Guild
+                to correct your information or remove your name from public recognition.
+              </p>
+              <p className="mt-3">
                 We do not collect or store credit card numbers or payment account information.
                 Payment is processed securely through QuickBooks Payments, subject to Intuit&apos;s
                 own privacy policy.

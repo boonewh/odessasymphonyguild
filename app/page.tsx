@@ -2,6 +2,7 @@ import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { BELLES_BEAUX_CONFIG } from "@/lib/belles-beaux/config";
+import { PATRONS_2025 } from "@/lib/patrons";
 
 export default function Home() {
   return (
@@ -162,6 +163,11 @@ export default function Home() {
                   ensuring that world-class musical experiences remain accessible to
                   our community.
                 </p>
+                <p className="mt-6">
+                  <a href="/patron" className="inline-flex min-h-12 items-center gap-2 text-[#1a1a2e] underline decoration-[#d4af37] underline-offset-8 hover:decoration-[#1a1a2e]">
+                    Explore patron membership <span aria-hidden="true">→</span>
+                  </a>
+                </p>
               </div>
 
               <div className="relative h-80 lg:h-96 rounded-lg overflow-hidden shadow-xl group order-1 lg:order-2">
@@ -184,27 +190,7 @@ export default function Home() {
                 <div className="h-1 w-20 bg-[#d4af37] mx-auto" />
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-3 max-w-4xl mx-auto text-center">
-                {[
-                  "Dana Ashton",
-                  "Lois Ballard",
-                  "Erin Berridge",
-                  "Kathy Bobbitt",
-                  "Susie Davis",
-                  "Cary Dobbs",
-                  "Vanessa Dunn",
-                  "Sondra Eoff",
-                  "Rhonda Gilliam",
-                  "Amanda George",
-                  "Jacqui Gore",
-                  "Carla Haston",
-                  "Carolina Keith",
-                  "Stephanie Latimer",
-                  "JoLynn Logan",
-                  "Anne Mackey",
-                  "Carla Pradon",
-                  "Libby Sibert",
-                  "Ann Volker",
-                ].map((name) => (
+                {PATRONS_2025.map((name) => (
                   <p key={name} className="text-gray-700 text-base">
                     {name}
                   </p>

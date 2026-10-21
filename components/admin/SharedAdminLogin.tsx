@@ -16,7 +16,7 @@ export default function SharedAdminLogin({ destination, live = false }: { destin
     } catch (e) { setError((e as Error).message); setBusy(false); }
   }
   return <main className={styles.loginPage}><section className={styles.loginPanel} aria-labelledby="admin-login-title">
-    <p className={styles.eyebrow}>Odessa Symphony Guild{!live && " · Test site"}</p><h1 id="admin-login-title">Admin sign-in</h1><p>One password for Dues and Gala.</p>
+    <p className={styles.eyebrow}>Odessa Symphony Guild{!live && " · Test site"}</p><h1 id="admin-login-title">Admin sign-in</h1><p>One password for Dues, Gala, and Patron.</p>
     <form onSubmit={submit} className={styles.loginForm}><label htmlFor="shared-password">Password</label>
       <input id="shared-password" name="password" type="password" autoComplete="current-password" required maxLength={256} value={password} onChange={e => setPassword(e.target.value)} aria-describedby={error ? "login-error" : undefined} />
       {error && <p id="login-error" role="alert" className={styles.error}>{error}</p>}
