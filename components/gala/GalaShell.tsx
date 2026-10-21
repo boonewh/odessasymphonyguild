@@ -9,7 +9,7 @@ import { CartLink } from "./GalaCart";
 import { liveSiteEnabled } from "@/lib/gala/live-release";
 import { GalaRuntime } from "./GalaRuntime";
 
-const links = [["tables", "Tables & tickets"], ["gifts", "Celebration gifts"], ["invitations", "Request invitations"], ["preview/admin", "Gala admin"]];
+const links = [["tables", "Tables & tickets"], ["gifts", "Celebration gifts"], ["invitations", "Request invitations"]];
 export default function GalaShell({ current, title, intro, children, clientReview = false, sandbox = false }: {
   current: string; title: string; intro: string; children: React.ReactNode; clientReview?: boolean; sandbox?: boolean;
 }) {
@@ -24,7 +24,7 @@ export default function GalaShell({ current, title, intro, children, clientRevie
       {sandbox&&current!=="invitations"&&<details><summary>Test card details</summary><p>Card: <strong>4242 4242 4242 4242</strong> · Expiration: <strong>12/34</strong> · Security code: <strong>123</strong>. Never enter a real card.</p></details>}
     </aside>}
     <nav className={styles.nav} aria-label="Gala pages">
-      {links.filter(([path]) => !clientReview || path !== "preview/admin").map(([path, label]) => <Link key={path} href={`/gala/${path}`} aria-current={current === path ? "page" : undefined}>{label}</Link>)}
+      {links.map(([path, label]) => <Link key={path} href={`/gala/${path}`} aria-current={current === path ? "page" : undefined}>{label}</Link>)}
       {sandbox && <CartLink summary current={current === "cart"} />}
     </nav>
     <div className={compact ? "" : styles.flyerStage}>
