@@ -20,6 +20,20 @@ QuickBooks entry or application email is sent.
 
 ## Patron card payments — live October 20, 2026
 
+Autofill repair: application `429c5ba` is live as
+`dpl_8dmgSmQXCJmy49rEx5pGPHa9NKdQ`, with immutable host
+`odessasymphonyguild-ipusu1ss6-boonewhs-projects.vercel.app`. The old off-screen
+`company` trap caused false rejection when autofilled. Its replacement is fully
+hidden with a neutral `patron_guard` name and autocomplete disabled; legacy
+company values are accepted but discarded. Twenty-one Patron tests and the build
+pass. Twenty-eight hosted checks verified that a filled replacement trap fails
+before payment creation while legacy autofill and the new form share one live
+$100 checkout. That fictional checkout was expired unpaid, automatically
+reconciled, and removed with its private test patron. No card was charged. The
+production DOM confirms the new input has no rendered rectangles and the former
+company input is gone. Name approval, closed Gala submissions and hidden public
+navigation remain unchanged. Private evidence uses `patron-autofill-*`.
+
 Stripe-only website follow-up: application `e6ed1d8` is live as
 `dpl_GTkHbX3Cy4LJTbQpQ4o6eqf4tKvc`, with immutable host
 `odessasymphonyguild-lqwhb034g-boonewhs-projects.vercel.app`. Public check-payment
