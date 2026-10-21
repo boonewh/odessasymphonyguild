@@ -1,7 +1,9 @@
 # Gala live setup and closed-sales deployment — October 20, 2026
 
-**Current application release:** Patron approval commit `f42c0fc` from
-`codex/patron-page-design` is deployed as `dpl_3EvnhYjJhuiSYhyQGfgZ1oZ8dp2k`.
+**Current application release:** navigation follow-up `4234be9` from
+`codex/patron-page-design` is deployed as `dpl_GjSSNtZxdyHhrye5stmZEECViuf5`.
+It hides the public Patron navigation link until requested, with the plural
+label ready for restoration. Live headers, closed flags and recovery pass.
 Online Patron names now require administrator review and explicit approval;
 the production approval migration is installed and verified.
 The user explicitly authorized Patron database installation/deployment while

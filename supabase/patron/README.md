@@ -71,6 +71,13 @@ before adding one and hide a duplicate if necessary.
 
 ## Approval release — October 20, 2026
 
+Navigation follow-up: commit `4234be9`, deployment
+`dpl_GjSSNtZxdyHhrye5stmZEECViuf5`, hides the public header link on desktop and
+mobile at the user's request. `SHOW_PATRONS_NAV=false` controls both; when
+restored the label is PATRONS/Patrons. The page and admin remain available.
+TypeScript checking and the hosted build pass; live homepage, Gala and Patron
+headers were checked. Gala submissions remain closed and recovery is current.
+
 The user reversed automatic publication and requested review/correction before
 online names appear. Migration `002_approval.sql` is installed in production;
 do not rerun it. There were no existing online records at migration time.
