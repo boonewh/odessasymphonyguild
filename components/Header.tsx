@@ -4,6 +4,9 @@ import Image from "next/image";
 import { useState } from "react";
 import { BELLES_BEAUX_CONFIG } from "@/lib/belles-beaux/config";
 
+// Temporarily hidden at the Guild's request; restore with the plural label.
+const SHOW_PATRONS_NAV = false;
+
 export default function Header({ theme = "default" }: { theme?: "default" | "gala" }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -47,12 +50,12 @@ export default function Header({ theme = "default" }: { theme?: "default" | "gal
             >
               GALA
             </a>
-            <a
+            {SHOW_PATRONS_NAV && <a
               href="/patron"
               className="text-sm tracking-wider hover:text-[var(--header-accent)] transition-colors font-light"
             >
-              PATRON
-            </a>
+              PATRONS
+            </a>}
             <a
               href="/#contact"
               className="text-sm tracking-wider hover:text-[var(--header-accent)] transition-colors font-light"
@@ -107,13 +110,13 @@ export default function Header({ theme = "default" }: { theme?: "default" | "gal
             >
               Gala
             </a>
-            <a
+            {SHOW_PATRONS_NAV && <a
               href="/patron"
               onClick={() => setMobileMenuOpen(false)}
               className="block py-3 border-b border-white/10 hover:text-[var(--header-accent)] transition-colors"
             >
-              Patron
-            </a>
+              Patrons
+            </a>}
             <a
               href="/#contact"
               onClick={() => setMobileMenuOpen(false)}
