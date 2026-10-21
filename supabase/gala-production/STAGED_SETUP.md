@@ -1,5 +1,13 @@
 # Gala live setup and closed-sales deployment — October 20, 2026
 
+## October 21: public Gala navigation follow-up
+
+Application `b18b593` is live as `dpl_3jEfJZHuP95xcJ4LAEeh9zZp49TW`.
+The public Gala navigation no longer includes Gala admin. Footer Admin still
+links to `/admin`. Vercel build passed and hosted HTML checks passed on tables,
+gifts, invitations and cart pages, confirming buyer links and footer access.
+No database, credentials, payment settings or submission flags were changed.
+
 ## October 21: Gala buyer-page updates deployed
 
 User-authorized application release `aae0a69` on `codex/patron-page-design`
