@@ -1,5 +1,18 @@
 # Gala live setup and closed-sales deployment — October 20, 2026
 
+## October 22: simplified buyer instructions
+
+User-approved application `ba41d02` is live as
+`dpl_GjpwkSRaXfGTvfKxT3zsoAGDQBuv`. The table selection guidance now explains
+membership tickets, separate date tickets, eight guests and Guild-assigned
+locations. The table/gift add-to-cart summaries use three short paragraphs about
+adding selections, entering details once, staying in the same tab and payment
+confirmation. The repeated table-confirmation paragraph is omitted in cart mode.
+Vercel build passed. Published form assets contain all six approved sentences;
+four public Gala pages retain buyer navigation and footer Admin access. Both
+production Gala submission flags were verified false. No payment or database
+configuration changed. Hosted verification used HTTP and delivered assets.
+
 ## October 21: public Gala navigation follow-up
 
 Application `b18b593` is live as `dpl_3jEfJZHuP95xcJ4LAEeh9zZp49TW`.
