@@ -9,7 +9,7 @@ import { TABLES, contactSchema, giftsSchema, recipientsSchema, quotePurchase, qu
   type Product, type Purchase, type Gift, type Recipient, type DemoOrder } from "@/lib/gala/model";
 import { useDemoOrders } from "@/lib/gala/use-demo-orders";
 import styles from "./gala-sales.module.css";
-import { SAME_TAB_NOTICE, type CartAddition } from "@/lib/gala/cart";
+import { type CartAddition } from "@/lib/gala/cart";
 
 type Kind = DemoOrder["kind"];
 export type PaidFormDetails = { kind: "tables"; contact: DemoOrder["contact"]; allSalesFinal: true; purchase: { product: Product; quantity: number; extraSeats: number } }
@@ -151,7 +151,7 @@ export function OrderFormContent({ kind, store, clientReview = false, checkout, 
         <div>
           {kind === "tables" && <fieldset className={styles.formSection}><legend>{multiple ? "Your selections" : "Your selection"}</legend>
             {multiple ? <>
-              {selections.length === 0 && <p>Choose the tables and tickets you would like above.</p>}
+              {selections.length === 0 && <p>Select your tables and tickets above.</p>}
               {selections.map(item => {
                 const selectedTable = TABLES.find(tier => tier.id === item.product);
                 return <div className={styles.selectionOptions} key={item.product}>
@@ -161,7 +161,8 @@ export function OrderFormContent({ kind, store, clientReview = false, checkout, 
               })}
             </> : table ? <Quantity name="extraSeats" label="Additional seats" value={extraSeats} max={2} onChange={setExtraSeats} />
               : <Quantity name="quantity" label={product === "couples" ? "Number of couples tickets" : "Number of student date tickets"} value={quantity} min={1} max={10} onChange={setQuantity} />}
-            <p className={styles.fine}>Table location is assigned by the Guild. Each table includes eight purchased seats; Belle and Beau attendance does not reduce that number.</p>
+            <p className={styles.fine}>Belle and Beau tickets are included with membership. Dates require a separate ticket purchase.</p>
+            <p className={styles.fine}>Tables seat eight guests, and locations are assigned by the Guild.</p>
           </fieldset>}
           {kind === "gifts" && <fieldset className={styles.formSection}><legend>Celebrate your students</legend>
             {gifts.map((gift, index) => <div key={index} className={styles.repeat}>
@@ -207,10 +208,13 @@ export function OrderFormContent({ kind, store, clientReview = false, checkout, 
           </dl>
           {!addToCart && kind !== "invitations" && <label className={styles.agreement}><input disabled={clientReview} name="refundAcknowledgment" type="checkbox" required checked={agreed} onChange={(event) => setAgreed(event.target.checked)} /><span>I understand that all sales are final and no refunds are offered.</span></label>}
           <button type="submit" className={styles.primary} disabled={clientReview || (!checkout && !invite && !addToCart && !store?.ready) || !!saved || busy || (multiple && selections.length === 0)}>{multiple ? "Add selections to cart" : addToCart ? "Add to cart" : clientReview ? "Not open yet" : invite ? (busy ? "Saving request…" : live ? "Submit invitation request" : "Submit test invitation request") : checkout ? (busy ? "Opening checkout…" : live ? "Continue to secure checkout" : "Continue to Stripe test checkout") : kind === "invitations" ? "Save preview request" : "Create preview order"}</button>
-          <p className={styles.fine}>{addToCart ? SAME_TAB_NOTICE : clientReview ? "Design review only. No information is saved or submitted, and no payment can be made." : invite ? live ? "Send these addresses to the Guild for invitation mailing. No payment is required. An invitation does not reserve a seat." : "Test only. Use fictional names and addresses. Requests appear in Gala admin; no invitation is actually mailed and no payment is required." : checkout ? live ? "Enter your payment details securely on Stripe’s website. Your order is confirmed after payment." : "Test only. Use fictional details and the test card shown above. Payment details are entered on Stripe’s website. A table is temporarily reserved while checkout is open." : kind === "invitations" ? "Preview only. No request is sent to the Guild and no invitation is mailed." : "Preview only. This creates an unpaid sample order for review in Gala admin."}</p>
-          {addToCart && <p className={styles.fine}>Enter your contact information once at checkout. Tables are reserved only when checkout opens.</p>}
+          {addToCart ? <>
+            <p className={styles.fine}>Add all your selections to your cart before checking out.</p>
+            <p className={styles.fine}>You’ll only need to enter your contact and payment information once at checkout.</p>
+            <p className={styles.fine}>Please keep everything in the same browser tab. Reservations are confirmed once payment is complete.</p>
+          </> : <p className={styles.fine}>{clientReview ? "Design review only. No information is saved or submitted, and no payment can be made." : invite ? live ? "Send these addresses to the Guild for invitation mailing. No payment is required. An invitation does not reserve a seat." : "Test only. Use fictional names and addresses. Requests appear in Gala admin; no invitation is actually mailed and no payment is required." : checkout ? live ? "Enter your payment details securely on Stripe’s website. Your order is confirmed after payment." : "Test only. Use fictional details and the test card shown above. Payment details are entered on Stripe’s website. A table is temporarily reserved while checkout is open." : kind === "invitations" ? "Preview only. No request is sent to the Guild and no invitation is mailed." : "Preview only. This creates an unpaid sample order for review in Gala admin."}</p>}
           {added && <div role="status" className={`${styles.success} ${styles.cartConfirmation}`}><p>{added} added to your cart.</p><Link href="/gala/cart">Review cart and checkout</Link><Link href={kind === "tables" ? "/gala/gifts" : "/gala/tables"}>{kind === "tables" ? "Add celebration gifts" : "Add tables or tickets"}</Link></div>}
-          {kind === "tables" && <p className={styles.fine}>{clientReview ? "Table availability will be announced when sales open." : live ? "Tables are confirmed only after payment. Unpaid checkouts expire." : "Tables are confirmed only after payment. Unpaid checkouts expire. This is a test site; no real purchases are made."}</p>}
+          {kind === "tables" && !addToCart && <p className={styles.fine}>{clientReview ? "Table availability will be announced when sales open." : live ? "Tables are confirmed only after payment. Unpaid checkouts expire." : "Tables are confirmed only after payment. Unpaid checkouts expire. This is a test site; no real purchases are made."}</p>}
           {kind === "gifts" && !live && <p className={styles.fine}>The exact deadline time is awaiting confirmation. This preview does not enforce a sales cutoff.</p>}
         </aside>
       </div>
