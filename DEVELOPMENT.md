@@ -1,5 +1,31 @@
 # Development Guide
 
+## Deferred Dues rebuild with Stripe — October 21, 2026
+
+The user reports that OSG wants the Dues pages rebuilt to use Stripe before
+their next use. Keep the current Dues roster, database permissions and membership
+QuickBooks integration unchanged until that work is authorized.
+
+The user explicitly defers Supabase's October 30 permissions maintenance to this
+rebuild. The change affects newly created tables, including tables recreated in
+a fresh installation or reset. Existing tables keep their grants; adding student
+records to an existing roster table does not trigger this change. It is not an
+immediate live-site fix or a Gala launch blocker.
+
+During the rebuild:
+
+- Add explicit grants alongside every new table, with RLS and any required
+  sequence permissions. Grant only the operations and roles the application needs.
+- Address reliance on automatic grants in the older Dues creation scripts:
+  `supabase/migrations/001_create_students.sql`, `002_create_qb_tokens.sql`, and
+  `004_create_settings.sql`. Do not rerun these creation scripts against production.
+- Verify fresh database setup with automatic grants disabled, roster/admin access,
+  and continued denial of browser access to private student and token records.
+  Gala and Patron migrations already contain explicit access grants; preserve them.
+
+Source: [Supabase's Data API permissions announcement](https://github.com/orgs/supabase/discussions/45329).
+No database, payment integration or deployment change is part of recording this decision.
+
 ## Quick Start
 
 1. **Install dependencies** (if not already done):

@@ -1,5 +1,6 @@
 # Project working agreements
 
+- October 21 Dues decision: OSG intends to rebuild the Dues pages with Stripe before their next use. Defer Supabase's October 30 explicit-grants maintenance to that rebuild; leave the existing Dues database, roster and membership QuickBooks integration unchanged for now. Existing tables retain their grants, including access to new roster records. During the rebuild, add explicit least-privilege grants for new/recreated tables and cover the older Dues setup scripts; see `DEVELOPMENT.md`. This is a future-work decision, not authorization to start the rebuild or migrate production.
 - For small, ordinary updates, work on `main` unless the user requests otherwise. Use feature branches for involved work.
 - Gala sales, table inventory, Stripe integration, and the new Gala admin are involved work. Continue on the Gala feature branch and keep it off `main` and production until the release requirements are met.
 - Read `GALA_2027_PLAN.md` and `GALA_RELEASE_CHECKLIST.md` before changing or releasing the sales feature.
