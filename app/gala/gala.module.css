@@ -27,12 +27,21 @@
 .heroDate { margin-top: 24px; font-size: 19px; font-weight: 500; font-variant-numeric: tabular-nums; }
 .heroVenue { margin-top: 2px; font-family: var(--font-tangerine), cursive; font-size: 45px; }
 .heroActions { display: flex; align-items: center; justify-content: center; gap: 26px; margin-top: 23px; font-size: 14px; }
-.primaryLink { display: inline-flex; align-items: center; gap: 20px; min-height: 48px; background: var(--ink); color: var(--ivory); padding: 14px 18px 14px 22px; }
-.primaryLink:hover { background: var(--teal); }
 .textLink { display: inline-flex; align-items: center; justify-content: center; gap: 14px; min-height: 48px; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 6px; }
 .textLink:hover { color: var(--teal); }
 .arrow { width: 22px; height: 22px; flex-shrink: 0; }
-.heroRibbon { background: var(--tiffany); padding: 20px 24px; text-align: center; font-family: Georgia, serif; font-size: 17px; }
+.bookingStrip { background: var(--tiffany); }
+.bookingLinks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding-block: 20px; }
+.bookingLinks > a { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 22px 24px; min-height: 108px; }
+.bookingLinks > a > div { min-width: 0; }
+.bookingLinks > a:last-child { border-left: 1px solid #17191830; }
+.bookingLinks > a:hover { background: #ffffff30; }
+.bookingLinks > .bookingPrimary { background: var(--ink); color: var(--ivory); }
+.bookingLinks > .bookingPrimary:hover { background: var(--teal); }
+.bookingTitle { font-family: Georgia, serif; font-size: 24px; }
+.bookingNote { margin-top: 8px; font-size: 14px; line-height: 1.5; }
+.bookingPrimary .bookingNote { color: var(--tiffany); }
+.bookingLinks > a:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; position: relative; z-index: 1; }
 .details { padding-block: 88px 72px; scroll-margin-top: 100px; }
 .eyebrow { color: var(--teal); font-size: 14px; font-weight: 500; letter-spacing: .025em; }
 .page h2 { max-width: 30ch; margin-top: 19px; font-family: Georgia, serif; font-size: clamp(36px, 3.7vw, 52px); font-weight: 400; letter-spacing: -.04em; text-wrap: balance; }
@@ -86,7 +95,10 @@
   .title { margin-top: 22px; font-size: clamp(30px, 8.6vw, 48px); }
   .heroDate { font-size: 18px; margin-top: 22px; }
   .heroActions { gap: 12px; flex-direction: column; font-size: 16px; margin-top: 18px; }
-  .heroRibbon { font-size: 16px; padding-inline: 30px; }
+  .bookingLinks { grid-template-columns: 1fr; padding-block: 16px; }
+  .bookingLinks > a { min-height: 96px; padding: 18px 20px; }
+  .bookingLinks > a:last-child { border-left: 0; border-top: 1px solid #17191830; }
+  .bookingNote { font-size: 16px; }
   .details, .story, .presentation, .closing { padding-block: 56px; }
   .eyebrow, .eventDetails dt, .detailNote, .detailsNote, .storyLink, .closingActions, .presentationCopy > .familyNote { font-size: 16px; }
   .eventDetails, .split { grid-template-columns: 1fr; gap: 32px; }

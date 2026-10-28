@@ -1,14 +1,31 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BELLES_BEAUX_CONFIG } from "@/lib/belles-beaux/config";
 
 // Public Patron navigation restored for the October 28 launch.
 const SHOW_PATRONS_NAV = true;
+const GALA_LINKS = [
+  { href: "/gala/tables", label: "Tables & tickets" },
+  { href: "/gala/gifts", label: "Celebration gifts" },
+  { href: "/gala/invitations", label: "Request invitations" },
+];
 
 export default function Header({ theme = "default" }: { theme?: "default" | "gala" }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [galaMenuOpen, setGalaMenuOpen] = useState(false);
+  const galaMenu = useRef<HTMLDivElement>(null);
+  const galaToggle = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!galaMenuOpen) return;
+    function closeOutside(event: PointerEvent) {
+      if (event.target instanceof Node && !galaMenu.current?.contains(event.target)) setGalaMenuOpen(false);
+    }
+    document.addEventListener("pointerdown", closeOutside);
+    return () => document.removeEventListener("pointerdown", closeOutside);
+  }, [galaMenuOpen]);
 
   return (
     <header className={`sticky top-0 z-50 text-white shadow-lg ${theme === "gala" ? "bg-[#171918] [--header-accent:#82cfcc] [--header-accent-hover:#a5dfdc] [--header-border:#82cfccb3]" : "bg-gradient-to-r from-[#1a1a2e] to-[#2d3748] [--header-accent:#d4af37] [--header-accent-hover:#c19b2e] [--header-border:#d4af37b3]"}`}>
@@ -44,12 +61,37 @@ export default function Header({ theme = "default" }: { theme?: "default" | "gal
             >
               BELLES & BEAUX
             </a>
-            <a
-              href="/gala"
-              className="text-sm tracking-wider hover:text-[var(--header-accent)] transition-colors font-light"
+            <div
+              ref={galaMenu}
+              className="relative text-sm"
+              onBlur={(event) => {
+                if (!event.currentTarget.contains(event.relatedTarget)) setGalaMenuOpen(false);
+              }}
+              onKeyDown={(event) => {
+                if (event.key === "Escape") {
+                  setGalaMenuOpen(false);
+                  galaToggle.current?.focus();
+                }
+              }}
             >
-              GALA
-            </a>
+              <button
+                ref={galaToggle}
+                type="button"
+                onClick={() => setGalaMenuOpen(!galaMenuOpen)}
+                aria-expanded={galaMenuOpen}
+                aria-controls="gala-navigation"
+                className="flex min-h-12 items-center gap-2 tracking-wider font-light hover:text-[var(--header-accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--header-accent)]"
+              >
+                GALA <span aria-hidden="true">▾</span>
+              </button>
+              {galaMenuOpen && (
+                <div id="gala-navigation" className="absolute left-0 top-full w-60 rounded-lg bg-white p-2 text-[#171918] shadow-xl ring-1 ring-black/10">
+                  {[{ href: "/gala", label: "Gala overview" }, ...GALA_LINKS].map(({ href, label }) => (
+                    <a key={href} href={href} onClick={() => setGalaMenuOpen(false)} className="flex min-h-12 items-center rounded px-3 hover:bg-[#edf5f4] focus-visible:bg-[#edf5f4] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#286a68]">{label}</a>
+                  ))}
+                </div>
+              )}
+            </div>
             {SHOW_PATRONS_NAV && <a
               href="/patron"
               className="text-sm tracking-wider hover:text-[var(--header-accent)] transition-colors font-light"
@@ -75,7 +117,7 @@ export default function Header({ theme = "default" }: { theme?: "default" | "gal
               {BELLES_BEAUX_CONFIG.registrationOpen ? "JOIN" : "PROGRAM INFO"}
             </a>
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              onClick={() => { setMobileMenuOpen(!mobileMenuOpen); setGalaMenuOpen(false); }}
               className="lg:hidden p-2 text-2xl hover:text-[var(--header-accent)] transition-colors"
               aria-label="Toggle menu"
               aria-expanded={mobileMenuOpen}
@@ -88,7 +130,7 @@ export default function Header({ theme = "default" }: { theme?: "default" | "gal
 
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <nav id="mobile-navigation" className="lg:hidden pb-4 space-y-2">
+          <nav id="mobile-navigation" className="lg:hidden max-h-[calc(100dvh-5rem)] overflow-y-auto pb-4 space-y-2">
             <a
               href="/about"
               onClick={() => setMobileMenuOpen(false)}
@@ -110,6 +152,11 @@ export default function Header({ theme = "default" }: { theme?: "default" | "gal
             >
               Gala
             </a>
+            <div className="border-l border-[var(--header-border)] pl-4 text-base">
+              {GALA_LINKS.map(({ href, label }) => (
+                <a key={href} href={href} onClick={() => setMobileMenuOpen(false)} className="flex min-h-12 items-center py-2 hover:text-[var(--header-accent)]">{label}</a>
+              ))}
+            </div>
             {SHOW_PATRONS_NAV && <a
               href="/patron"
               onClick={() => setMobileMenuOpen(false)}

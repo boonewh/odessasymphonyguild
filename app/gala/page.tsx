@@ -40,15 +40,29 @@ export default function GalaPage() {
               <p className={styles.heroDate}><time dateTime="2027-02-27">February 27, 2027</time></p>
               <p className={styles.heroVenue}>La Hacienda</p>
               <div className={styles.heroActions}>
-                <Link href="/gala/tables" className={styles.primaryLink}>Tables &amp; tickets <Arrow /></Link>
+                <a href="#the-evening" className={styles.textLink}>Explore the evening <Arrow /></a>
                 <a href="/symphony-ball-2027.ics" download className={styles.textLink}>Add to calendar</a>
               </div>
             </div>
           </div>
-          <div className={styles.heroRibbon}>
-            <p>An evening inspired by the timeless style of the 1961 film.</p>
-          </div>
         </section>
+
+        <nav className={styles.bookingStrip} aria-label="Gala reservations and requests">
+          <div className={`${styles.container} ${styles.bookingLinks}`}>
+            <Link href="/gala/tables" className={styles.bookingPrimary}>
+              <div><p className={styles.bookingTitle}>Tables &amp; tickets</p><p className={styles.bookingNote}>Choose your place at the Ball.</p></div>
+              <Arrow />
+            </Link>
+            <Link href="/gala/gifts">
+              <div><p className={styles.bookingTitle}>Celebration gifts</p><p className={styles.bookingNote}>Roses &amp; cookies for your student.</p></div>
+              <Arrow />
+            </Link>
+            <Link href="/gala/invitations">
+              <div><p className={styles.bookingTitle}>Request invitations</p><p className={styles.bookingNote}>Beautifully addressed &amp; mailed.</p></div>
+              <Arrow />
+            </Link>
+          </div>
+        </nav>
 
         <section id="the-evening" className={styles.details} aria-labelledby="details-title">
           <div className={styles.container}>
@@ -70,11 +84,6 @@ export default function GalaPage() {
                 <dd>Symphony Ball<span className={styles.detailNote}>&amp; Belles and Beaux Presentation</span></dd>
               </div>
             </dl>
-            <nav className={styles.closingActions} aria-label="Plan your Gala evening">
-              <Link href="/gala/tables" className={styles.primaryLink}>Buy tables &amp; tickets <Arrow /></Link>
-              <Link href="/gala/gifts" className={styles.textLink}>Order celebration gifts <Arrow /></Link>
-              <Link href="/gala/invitations" className={styles.textLink}>Request mailed invitations <Arrow /></Link>
-            </nav>
             <p className={styles.detailsNote}>Tables, tickets, and celebration gifts are available now. Gift orders are due January 29, 2027. Invitation requests are free. Event time will be announced here.</p>
           </div>
         </section>
@@ -121,7 +130,7 @@ export default function GalaPage() {
             <p className={styles.closingScript}>Be part of ours.</p>
             <p className={styles.closingDate}>February 27, 2027 <span aria-hidden="true">·</span> La Hacienda</p>
             <div className={styles.closingActions}>
-              <Link href="/gala/tables" className={styles.primaryLink}>Buy tables &amp; tickets <Arrow /></Link>
+              <Link href="/gala/tables" className={styles.textLink}>Buy tables &amp; tickets <Arrow /></Link>
               <a href="https://www.facebook.com/odessasymphonyguild/" target="_blank" rel="noopener noreferrer" className={styles.textLink}>Follow the Guild for updates <Arrow /></a>
               <a href="/images/symphony-ball-2027-flyer.jpeg" download className={styles.textLink}>Download the invitation</a>
             </div>
