@@ -1,5 +1,9 @@
 # Gala 2027: decisions, payment research, and implementation handoff
 
+### October 28: Gala and Patrons publicly launched
+
+The user explicitly authorized live tables, gifts, invitations and Patrons with live Stripe payments. Application `b5dc0b7` is deployed, both Gala submission flags are true, and Patron card payments remain enabled. The Gala landing page now links to tables/tickets, gifts and free invitation requests; desktop/mobile PATRONS navigation is restored. Payment/name-review safeguards, unlimited table capacities, active webhook/recovery, manual bookkeeping and Dues are preserved. See [launch acceptance and pause boundaries](supabase/gala-production/LAUNCH_2026-10-28.md). Earlier closed-state and awaiting-activation notes are historical.
+
 ### October 20: deployed and verified; awaiting sales activation only
 
 The user explicitly authorized production deployment and notification/recovery verification with sales closed. Commit `db3ff7d` is deployed to `https://www.odessasymphonyguild.org` from the Gala branch, without merging main. Both routing gates are now enabled; both database submission flags remain **false**. Preview sandbox settings/deployment remain unchanged.

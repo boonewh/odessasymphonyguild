@@ -1,5 +1,9 @@
 # Gala live setup and closed-sales deployment — October 20, 2026
 
+## October 28: public sales activated
+
+Application `b5dc0b7` is live and both sales/invitation submission flags are **true**, following explicit user activation. Patron card payments remain enabled, public PATRONS navigation is restored, and Gala purchase/invitation links are published. [Current launch evidence and pause boundaries](LAUNCH_2026-10-28.md) supersede the closed-state and remaining-activation notes below. Live webhook/recovery remain active; no installer was rerun and no membership data/schema/grants were changed.
+
 ## October 22: simplified buyer instructions
 
 User-approved application `ba41d02` is live as

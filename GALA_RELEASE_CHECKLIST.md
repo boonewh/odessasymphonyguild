@@ -1,4 +1,14 @@
-# Gala sales: release preparation — production remains closed
+# Gala sales: released October 28, 2026
+
+## October 28: explicitly authorized public activation completed
+
+- [x] User authorizes live tables, gifts, invitations and Patrons with live Stripe payments.
+- [x] Deploy tested application `b5dc0b7` from the current feature branch; restore public Patrons navigation and link all Gala buyer pages from the Gala landing page.
+- [x] Open both production database submission flags, retaining unlimited inventory and active payment processing/recovery.
+- [x] Pass 177 Gala, 22 Patron and 3 membership security tests, production build, 82 built-app isolation checks and 29 hosted checks. Verify live unpaid Gala/Patron checkout, retries, automatic expiration/table release, invitation requests/retries, privacy and shared admin/Dues access.
+- [x] Remove only the exact fictional verification records after confirmed unpaid expiration; verify unchanged membership hashes and 120 readable students. No real charge, refund or payout.
+
+Current release evidence and pause instructions: [October 28 launch](supabase/gala-production/LAUNCH_2026-10-28.md). Older unchecked items below are historical; the activation authorization has now been fulfilled. First genuine paid-order settlement has not yet been observed.
 
 ## October 20: production deployed and verified; submissions still closed
 

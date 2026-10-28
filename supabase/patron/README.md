@@ -1,5 +1,9 @@
 # Patron registration and recognition
 
+## October 28 public launch
+
+The user explicitly authorized all Gala/Patron pages live. Application `b5dc0b7` restores public **PATRONS** navigation on desktop/mobile. Existing live Stripe Patron checkout remains enabled; payment still requires separate name review/approval. Live unpaid $100 checkout/retry, automatic expiration, private unpublished names and shared admin/Dues checks pass. Both Gala submission flags are now true. See [launch evidence](../gala-production/LAUNCH_2026-10-28.md); older hidden-navigation/closed-Gala statements below are historical.
+
 The public form at `/patron` and the shared-password admin at `/admin/patron`
 use one current-year roster. Online signups require a name, email, and explicit
 permission to display the name. Phone is optional. Check entries require only a
