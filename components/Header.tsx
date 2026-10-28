@@ -4,8 +4,8 @@ import Image from "next/image";
 import { useState } from "react";
 import { BELLES_BEAUX_CONFIG } from "@/lib/belles-beaux/config";
 
-// Temporarily hidden at the Guild's request; restore with the plural label.
-const SHOW_PATRONS_NAV = false;
+// Public Patron navigation restored for the October 28 launch.
+const SHOW_PATRONS_NAV = true;
 
 export default function Header({ theme = "default" }: { theme?: "default" | "gala" }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
