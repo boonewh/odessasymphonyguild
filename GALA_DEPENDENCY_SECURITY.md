@@ -17,6 +17,8 @@ The approved fresh npm audit decreased from **5 affected package entries (1 crit
 
 Local/hosted validation and release status are recorded in `UPGRADE_2026-10-28.md`. Older dated sections below are historical and do not describe the current audit count or reopen the deferred Dues work.
 
+Authorized release completed: application `a5631ed` is live as `dpl_EYdcVqdYc89ZZASBacD7bq8DbitW`, confirmed on Node 24.x. 205 local tests, build/types/lint, 36 built-app HTTP checks, 38 hosted checks and 10 live desktop/mobile page checks pass. Webhook/flags, unlimited inventory, admin/roster access and advancing automatic recovery are preserved. No database/Dues change or real order/charge was made. The three moderate Intuit-chain entries remain documented; this is not a zero-findings claim.
+
 ## October 20: release dependency review completed with recorded residual findings
 
 This is the current dependency-review result. It supersedes the October 19 instruction to investigate the 13-entry audit. It is not a full application security audit or production launch approval. No provider settings, deployed application or membership behavior changed.

@@ -1,5 +1,14 @@
 # Gala sales: released October 28, 2026
 
+## October 28 dependency security release completed
+
+- [x] User explicitly approves production deployment of tested application `a5631ed`.
+- [x] Deploy as `dpl_EYdcVqdYc89ZZASBacD7bq8DbitW`, preserving existing live payments, webhook/recovery and sales/invitation/Patron flags; verify Node 24.x and Next.js 16.4.3.
+- [x] Pass 205 local tests, build/types/lint, 36 built-app checks, 38 hosted HTTP checks and 10 live desktop/mobile page checks. Confirm 120 readable membership records, protected administration, unlimited tables and advancing recovery.
+- [x] Preserve Dues/QuickBooks until the Stripe rebuild before further collection. No database change, order, charge or main merge.
+
+Current upgrade source, acceptance and rollback: [October 28 dependency upgrade](UPGRADE_2026-10-28.md). Older deployment IDs below are historical.
+
 ## October 28: explicitly authorized public activation completed
 
 - [x] User authorizes live tables, gifts, invitations and Patrons with live Stripe payments.
