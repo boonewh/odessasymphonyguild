@@ -24,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${tangerine.variable} ${inter.variable}`}>
+    <html lang="en" data-release="osg-20261028-refresh-1" className={`${tangerine.variable} ${inter.variable}`}>
       <body className="antialiased">
         {children}
       </body>
