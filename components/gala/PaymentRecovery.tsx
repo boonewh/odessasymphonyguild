@@ -5,25 +5,27 @@ type Entry={id:string;description:string;created_at:string;stripe_session_id:str
 type Dashboard={lastPollAt:string|null;total:number;entries:Entry[]};
 const labels:Record<string,string>={waiting:'Waiting for first check',pending:'Awaiting provider confirmation',creation_needs_review:'Checkout link needs investigation',retry_required:'Verification failed — retry scheduled'};
 const time=(value:string|null)=>value?new Date(value).toLocaleString():'Not yet';
-function Retry({entry,saved}:{entry:Entry;saved:()=>Promise<void>}){
+function Retry({entry,saved,now}:{entry:Entry;saved:()=>Promise<void>;now:number}){
   const [reason,setReason]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState('');
   async function submit(event:FormEvent){event.preventDefault();if(busy||error)return;setBusy(true);
     try{const r=await fetch('/api/gala/recovery',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({orderId:entry.id,reason})});
       if(!r.ok)throw new Error('Retry not confirmed. Refresh before trying again.');await saved();setReason('');
     }catch(e){setError((e as Error).message);}finally{setBusy(false);}}
   return <form onSubmit={submit} className={styles.assignmentForm}><label>Review reason for {entry.id.slice(0,8)}<input value={reason} onChange={e=>setReason(e.target.value)} minLength={3} maxLength={300} required disabled={busy||!!error}/></label>
-    <button disabled={busy||!!error||reason.trim().length<3||(!!entry.lease_until&&Date.parse(entry.lease_until)>Date.now())}>Queue another check</button>
+    <button disabled={busy||!!error||reason.trim().length<3||(!!entry.lease_until&&Date.parse(entry.lease_until)>now)}>Queue another check</button>
     {error&&<p role="alert" className={styles.error}>{error}</p>}</form>;
 }
 export default function PaymentRecovery({onAttention}:{onAttention?:(message:string)=>void}){
   const [data,setData]=useState<Dashboard|null>(null),[error,setError]=useState(''),[notice,setNotice]=useState(''),[generation,setGeneration]=useState(0),[busy,setBusy]=useState(false);
+  const [now,setNow]=useState(()=>Date.now());
+  useEffect(()=>{const timer=setInterval(()=>setNow(Date.now()),5_000);return()=>clearInterval(timer);},[]);
   const refresh=useCallback(async(resetEditors=true)=>{setBusy(true);try{const r=await fetch('/api/gala/recovery',{cache:'no-store'});
     if(!r.ok)throw new Error(r.status===401?'Your session expired. Reload and sign in again.':'Payment checks are unavailable. Contact the site administrator.');
     setData(await r.json());setError('');if(resetEditors)setGeneration(g=>g+1);
   }catch(e){setError((e as Error).message);throw e;}finally{setBusy(false);}},[]);
   useEffect(()=>{void refresh().catch(()=>{});},[refresh]);
   useEffect(()=>{const timer=setInterval(()=>{void refresh(false).catch(()=>{});},60_000);return()=>clearInterval(timer);},[refresh]);
-  const recent=!!data?.lastPollAt&&Date.now()-Date.parse(data.lastPollAt)<180_000;
+  const recent=!!data?.lastPollAt&&now-Date.parse(data.lastPollAt)<180_000;
   const attention=error?'Payment status could not be checked. Contact the site administrator.'
     :!data?'':data.total>0?`${data.total} payment${data.total===1?' is':'s are'} awaiting confirmation. See payment checks in Orders.`
     :!recent?'Automatic payment checks are paused. Contact the site administrator before accepting new purchases.':'';
@@ -40,7 +42,7 @@ export default function PaymentRecovery({onAttention}:{onAttention?:(message:str
       <td data-label="Order">{entry.description}<small>{entry.id}</small><small>Created: {time(entry.created_at)}</small><small>Checkout: {entry.stripe_session_id||'Not linked'}</small></td>
       <td data-label="Payment check status">{labels[entry.outcome]||entry.outcome}<small>{entry.attempts} checks · {entry.failures} consecutive failures</small><small>Last check: {time(entry.last_checked_at)}</small><small>Next eligible: {time(entry.next_check_at)}</small></td>
       <td data-label="Staff review">{!entry.stripe_session_id?<p>Investigate the original request in Stripe before retrying. A check cannot recreate a missing checkout or release this hold.</p>:<p>Check Stripe and the connection, then queue another verification if needed. Never infer payment from a receipt screenshot or return URL.</p>}
-        <Retry key={`${entry.id}-${generation}`} entry={entry} saved={async()=>{await refresh();setNotice('Another check is queued. The running worker will pick it up; payment and inventory are unchanged.');}}/>
+        <Retry key={`${entry.id}-${generation}`} entry={entry} now={now} saved={async()=>{await refresh();setNotice('Another check is queued. The running worker will pick it up; payment and inventory are unchanged.');}}/>
       </td></tr>)}</tbody></table></div>}
     <p className={styles.note}>Review reasons are saved with each change. Showing up to 100 orders needing attention.</p>
     </details>

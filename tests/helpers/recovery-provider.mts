@@ -4,8 +4,8 @@ export const fixture = {
   account: "acct_1UPo5fKdKFOoaTnc",
   accountReads: 0, sessionReads: 0, paymentReads: 0, expires: 0,
   providerDown: false,
-  session: {} as Record<string, any>,
-  payment: {} as Record<string, any>,
+  session: {} as Record<string, unknown>,
+  payment: {} as Record<string, unknown>,
 };
 export default class FictionalStripe {
   constructor(key: string) { assert.equal(key, "sk_live_offline"); }

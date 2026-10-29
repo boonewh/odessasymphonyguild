@@ -5,7 +5,7 @@ import type { RecoveryOutcome, RecoveryStore } from "./recovery";
 export class SupabaseRecoveryStore implements RecoveryStore {
   private db;
   staffSession?:string;
-  constructor(url:string,key:string,transport=databaseFetch()){this.db=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false},global:{fetch:transport}});}
+  constructor(url:string,key:string,transport=databaseFetch()){this.db=createClient(url,key,{db:{retry:false},auth:{persistSession:false,autoRefreshToken:false},global:{fetch:transport}});}
   private async rpc(name:string,args:Record<string,unknown>={}){
     const {data,error}=await this.db.rpc(name,args);if(error)throw new Error('Recovery database operation unavailable.');return data;
   }

@@ -26,7 +26,7 @@ export default function Terms() {
               <h2 className="text-xl font-semibold text-[#1a1a2e] mb-3">1. Acceptance of Terms</h2>
               <p>
                 By accessing or using the Odessa Symphony Guild website and Belles &amp; Beaux
-                enrollment application ("the Service"), you agree to be bound by these Terms of
+                enrollment application (&quot;the Service&quot;), you agree to be bound by these Terms of
                 Use. If you do not agree, please do not use the Service.
               </p>
             </div>
@@ -94,7 +94,7 @@ export default function Terms() {
             <div>
               <h2 className="text-xl font-semibold text-[#1a1a2e] mb-3">7. Disclaimer</h2>
               <p>
-                The Service is provided "as is" without warranties of any kind. The Odessa Symphony
+                The Service is provided &quot;as is&quot; without warranties of any kind. The Odessa Symphony
                 Guild is not liable for any damages arising from your use of the Service.
               </p>
             </div>

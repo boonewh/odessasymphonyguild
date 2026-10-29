@@ -18,7 +18,7 @@ const request = (token = secret, method = "POST") => new Request(origin + "/api/
   method, headers: { authorization: `Bearer ${token}`, cookie: "osg_test_admin_session=irrelevant" },
 });
 let marker = "osg-gala-production", calls = 0, claims = 0, applies = 0, failSave = false;
-let queued = false, outcome = "", order: Record<string, any>, lease = "";
+let queued = false, outcome = "", order: Record<string, unknown>, lease = "";
 globalThis.fetch = async (input, init) => {
   const url = new URL(input instanceof Request ? input.url : String(input)); calls++;
   assert.equal(url.origin, db, "Unexpected network request blocked");

@@ -41,6 +41,6 @@ declare module "intuit-oauth" {
     authorizeUri(options: AuthorizeUriOptions): string;
     createToken(authCode: string): Promise<TokenResponse>;
     refresh(): Promise<TokenResponse>;
-    setToken(token: any): void;
+    setToken(token: object): void;
   }
 }

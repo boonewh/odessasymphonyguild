@@ -25,7 +25,7 @@ export default function PrivacyPolicy() {
             <div>
               <h2 className="text-xl font-semibold text-[#1a1a2e] mb-3">1. Who We Are</h2>
               <p>
-                The Odessa Symphony Guild ("OSG," "we," "us," or "our") is a nonprofit organization
+                The Odessa Symphony Guild (&quot;OSG,&quot; &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) is a nonprofit organization
                 located in Odessa, Texas. This privacy policy applies to information collected through
                 our website at <strong>odessasymphonyguild.com</strong>, including the Belles &amp;
                 Beaux membership enrollment application.

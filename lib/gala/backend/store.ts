@@ -49,7 +49,7 @@ export class SupabaseOrderStore implements OrderStore {
     if (error) throw new Error("Duplicate decision conflict.");
   }
   constructor(url: string, secret: string, transport = databaseFetch()) {
-    this.db = createClient(url, secret, { auth: { persistSession: false, autoRefreshToken: false }, global: { fetch: transport } });
+    this.db = createClient(url, secret, { db: { retry: false }, auth: { persistSession: false, autoRefreshToken: false }, global: { fetch: transport } });
   }
   async verifyEnvironment(mode: PaymentMode = "sandbox") {
     const expected = paymentEnvironment(mode).database;

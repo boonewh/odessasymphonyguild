@@ -1,5 +1,22 @@
 # Dependency security review
 
+## October 28: framework and compatible dependency upgrade
+
+The upgrade branch starts from the current Gala/Patron application at `9c414b1`, not old `main`. Next.js and eslint-config-next are 16.4.3; React/React DOM remain on the 19.2 minor at 19.2.9; Zod is 4.6.7. Compatible Supabase, form, Stripe and build/test-tool patches/minors are recorded in the lockfile. Local verification uses the checksum-verified Node 24.22.1 binary; `.nvmrc` and `.node-version` pin that version and `engines.node` selects Node 24 on supported hosting. The machine-wide Node installation is unchanged.
+
+The approved fresh npm audit decreased from **5 affected package entries (1 critical, 1 high, 3 moderate)** to **3 moderate entries, 0 high, 0 critical**. The remaining entries are one chain: `intuit-oauth` → `query-string` → `decode-uri-component`. npm reports no compatible fix for it. Preserve the existing bounded/native callback normalization and SDK-level decoder tests. This is not a clean-audit or full application-security claim; npm audit does not cover the runtime itself or source-level authorization issues.
+
+**Dues scope:** the user reaffirmed that the entire Dues flow will be rebuilt with Stripe before more Dues are collected. Leave its existing QuickBooks routes, tokens, roster, schema and permissions unchanged. The known OAuth state-validation gap belongs to that rebuild/retirement. The candidate OAuth hardening and migration were excluded from this upgrade; no database change is required or applied.
+
+### Compatibility changes
+
+- Supabase 2.118 enables automatic transient retries. Existing tests caught a stalled request being retried, extending the intended database deadline. The Gala and Patron adapters explicitly use `db.retry=false` so existing idempotent checkout/recovery logic continues owning retries. The original stalled-header/partial-body/committed-claim tests pass without relaxing their assertions.
+- ESLint uses its CLI and flat config instead of removed `next lint`. Fixes include JSX text escaping, supported internal links and explicit types. Existing mount effects that hydrate browser storage/start asynchronous reads retain visible performance warnings in the named components; hook ordering/dependency checks remain enabled. ESLint remains on 9.39.5 because the installed React/accessibility plugins declare peers only through ESLint 9; forcing ESLint 10 would break the supported dependency graph. Its upstream support status remains a maintenance limitation.
+- The payment-recovery panel samples time from a timer into state rather than calling `Date.now()` during render. Heartbeat age and retry-lease availability update every five seconds; server-side lease/payment checks remain authoritative.
+- Zod boundary tests cover oversized invalid cart/invitation/guardian collections and ordinary checkout limits. Existing price, idempotency, settlement, privacy and database-permission suites remain the payment acceptance criteria.
+
+Local/hosted validation and release status are recorded in `UPGRADE_2026-10-28.md`. Older dated sections below are historical and do not describe the current audit count or reopen the deferred Dues work.
+
 ## October 20: release dependency review completed with recorded residual findings
 
 This is the current dependency-review result. It supersedes the October 19 instruction to investigate the 13-entry audit. It is not a full application security audit or production launch approval. No provider settings, deployed application or membership behavior changed.

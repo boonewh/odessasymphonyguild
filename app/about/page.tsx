@@ -34,7 +34,7 @@ export default function About() {
                 The Odessa Symphony Guild is a volunteer-driven, Texas-based 501(c)(3) 
                 non-profit organization. We operate without a paid staff, relying 
                 entirely on the passion and engagement of community members who believe 
-                that classical music is a vital pillar of our region's culture.
+                that classical music is a vital pillar of our region&apos;s culture.
               </p>
               <p className="text-lg leading-relaxed font-light">
                 Our mission is to promote cultural and musical appreciation through 
@@ -49,7 +49,7 @@ export default function About() {
               <ul className="space-y-4">
                 <li className="flex gap-4">
                   <span className="text-[#d4af37]">✦</span>
-                  <p className="text-sm">Fundraising for the West Texas Symphony's professional performances.</p>
+                  <p className="text-sm">Fundraising for the West Texas Symphony&apos;s professional performances.</p>
                 </li>
                 <li className="flex gap-4">
                   <span className="text-[#d4af37]">✦</span>

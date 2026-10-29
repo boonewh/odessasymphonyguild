@@ -3,7 +3,7 @@ import type { AccountingJob, AccountingStore, Receipt } from "./accounting";
 
 export class AccountingDatabase implements AccountingStore {
   private db;
-  constructor(url: string, key: string) { this.db = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } }); }
+  constructor(url: string, key: string) { this.db = createClient(url, key, { db: { retry: false }, auth: { persistSession: false, autoRefreshToken: false } }); }
   private async rpc(name: string, args: Record<string, unknown>) {
     const { data, error } = await this.db.rpc(name, args);
     if (error) throw new Error("Development accounting database operation failed.");

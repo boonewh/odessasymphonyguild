@@ -387,7 +387,7 @@ export default function Home() {
             Belles & Beaux Program
           </h2>
           <p className="text-center text-xl text-[#d4af37] max-w-2xl mx-auto mb-20">
-            Developing tomorrow's leaders through service and appreciation of the
+            Developing tomorrow&apos;s leaders through service and appreciation of the
             arts
           </p>
 
@@ -445,7 +445,7 @@ export default function Home() {
                 </div>
                 <p className="text-sm opacity-90 leading-relaxed">
                   Our Belles and Beaux program shapes young leaders who carry
-                  forward the Guild's mission, ensuring that appreciation for the
+                  forward the Guild&apos;s mission, ensuring that appreciation for the
                   arts and commitment to service continue for generations to
                   come.
                 </p>
@@ -507,7 +507,7 @@ export default function Home() {
             Join Us
           </h2>
           <p className="text-lg sm:text-xl leading-relaxed mb-12 opacity-95">
-            Whether you're interested in becoming a member, supporting as a
+            Whether you&apos;re interested in becoming a member, supporting as a
             patron, or enrolling a student in our Belles and Beaux program, we
             welcome you to be part of our mission to bring exceptional music to
             West Texas.

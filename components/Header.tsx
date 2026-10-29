@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
@@ -33,7 +34,7 @@ export default function Header({ theme = "default" }: { theme?: "default" | "gal
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <div className="flex items-center gap-4">
-            <a href="/" className="w-16 h-16 bg-white rounded-lg shadow-xl p-2 hover:scale-105 transition-transform">
+            <Link href="/" className="w-16 h-16 bg-white rounded-lg shadow-xl p-2 hover:scale-105 transition-transform">
               <Image
                 src="/images/osg-logo.png"
                 alt="Odessa Symphony Guild Logo"
@@ -41,10 +42,10 @@ export default function Header({ theme = "default" }: { theme?: "default" | "gal
                 height={64}
                 className="w-full h-full object-contain"
               />
-            </a>
-            <a href="/" className="hidden xl:block text-sm font-light tracking-[0.2em] uppercase hover:text-[var(--header-accent)] transition-colors">
+            </Link>
+            <Link href="/" className="hidden xl:block text-sm font-light tracking-[0.2em] uppercase hover:text-[var(--header-accent)] transition-colors">
               Odessa <span className="text-[var(--header-accent)]">Symphony Guild</span>
-            </a>
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
@@ -98,12 +99,12 @@ export default function Header({ theme = "default" }: { theme?: "default" | "gal
             >
               PATRONS
             </a>}
-            <a
+            <Link
               href="/#contact"
               className="text-sm tracking-wider hover:text-[var(--header-accent)] transition-colors font-light"
             >
               CONTACT
-            </a>
+            </Link>
           </nav>
 
           {/* Join button (desktop) + mobile menu button */}
@@ -164,13 +165,13 @@ export default function Header({ theme = "default" }: { theme?: "default" | "gal
             >
               Patrons
             </a>}
-            <a
+            <Link
               href="/#contact"
               onClick={() => setMobileMenuOpen(false)}
               className="block py-3 border-b border-white/10 hover:text-[var(--header-accent)] transition-colors"
             >
               Contact
-            </a>
+            </Link>
             <a
               href="/belles-beaux/join"
               onClick={() => setMobileMenuOpen(false)}

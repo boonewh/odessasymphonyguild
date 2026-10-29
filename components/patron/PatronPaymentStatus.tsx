@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { PAYMENT_DRAFT_KEY, type PaymentDraft } from "./payment-browser";
 import styles from "./PatronForm.module.css";
@@ -30,7 +31,7 @@ export default function PatronPaymentStatus() {
       {state.status === "expired" && <button className={styles.button} onClick={startAgain}>Start a new payment</button>}
     </>}
     {state?.status !== "paid" && <button className={styles.secondary} disabled={busy} onClick={() => void load()}>Check payment status</button>}
-    <a href="/#contact" className="underline underline-offset-4">Contact the Guild for help</a>
+    <Link href="/#contact" className="underline underline-offset-4">Contact the Guild for help</Link>
     <a href="/patron" className="underline underline-offset-4">Back to Patrons</a>
   </div>;
 }

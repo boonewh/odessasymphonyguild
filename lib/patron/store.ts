@@ -13,7 +13,7 @@ export async function getPatronStore(): Promise<PatronStore> {
 
 export function supabasePatronStore(url: string, key: string, transport: typeof fetch = fetch): PatronStore {
   const db = createClient(url, key, {
-    auth: { persistSession: false, autoRefreshToken: false }, global: { fetch: databaseFetch(20_000, transport) },
+    db: { retry: false }, auth: { persistSession: false, autoRefreshToken: false }, global: { fetch: databaseFetch(20_000, transport) },
   });
   // Explicit paging avoids silently truncating the public or admin roster at
   // Supabase's response limit. Only the public-name column is read for visitors.

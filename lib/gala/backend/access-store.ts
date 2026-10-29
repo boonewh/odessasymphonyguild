@@ -6,7 +6,7 @@ import type { LoginAdmission } from "./staff-login";
 export class AccessStore {
   private db;
   constructor(url: string, key: string, transport = databaseFetch()) {
-    this.db = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false }, global: { fetch: transport } });
+    this.db = createClient(url, key, { db: { retry: false }, auth: { persistSession: false, autoRefreshToken: false }, global: { fetch: transport } });
   }
   async staff(hash: string, accounting = false) {
     const { data, error } = await this.db.rpc("gala_staff_identity", { p_session: hash, p_accounting: accounting });

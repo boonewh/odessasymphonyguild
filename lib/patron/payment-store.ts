@@ -15,7 +15,7 @@ export function localPatronPayments(db: PGlite): PatronPaymentStore {
   };
 }
 export function hostedPatronPayments(url: string, key: string, transport: typeof fetch = fetch): PatronPaymentStore {
-  const db = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false }, global: { fetch: databaseFetch(20_000, transport) } });
+  const db = createClient(url, key, { db: { retry: false }, auth: { persistSession: false, autoRefreshToken: false }, global: { fetch: databaseFetch(20_000, transport) } });
   return {
     async start(input) { const { data, error } = await db.rpc("patron_payment_start", { p_input: input }).single(); if (error) throw error; return data as PatronPayment; },
     async get(id) { const { data, error } = await db.from("patron_payments").select("*").eq("id", id).maybeSingle(); if (error) throw error; return data as PatronPayment | null; },

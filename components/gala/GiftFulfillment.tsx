@@ -53,7 +53,7 @@ export default function GiftFulfillment() {
   }catch(e){setError((e as Error).message);}finally{setBusy(false);}}
   const shown=filterGifts(rows||[],filter),totals=giftTotals(shown);
   return <section className={styles.panel} aria-label="Paid gift fulfillment"><h2>Paid gift fulfillment</h2>
-    <p className={styles.note}>Prepare and hand out each student's complete bundle of roses and cookie bags. Only verified paid orders appear. Same-name entries remain separate purchases; do not merge them. Each cookie bag contains two cookies.</p>
+    <p className={styles.note}>Prepare and hand out each student&apos;s complete bundle of roses and cookie bags. Only verified paid orders appear. Same-name entries remain separate purchases; do not merge them. Each cookie bag contains two cookies.</p>
     <div className={styles.tools}><label>Gift fulfillment status<select value={filter} onChange={e=>{setFilter(e.target.value);setNotice("");}}>
       <option value="all">All paid gifts</option>{states.map(s=><option key={s} value={s}>{giftLabels[s]}</option>)}
     </select></label>

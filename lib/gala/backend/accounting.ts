@@ -48,10 +48,10 @@ export function receiptFor(order: Order, mapping: AccountingMapping, paidAt: num
 }
 
 export function verifyReceipt(raw: unknown, expected: Receipt): string {
-  const r = raw as Record<string, any> | null;
-  const lines = r?.Line?.filter((l: any) => l.DetailType === "SalesItemLineDetail");
+  const r = raw as (Partial<Receipt> & { Id?: string; TotalAmt?: number; TxnTaxDetail?: { TotalTax?: number } }) | null;
+  const lines = r?.Line?.filter(line => line.DetailType === "SalesItemLineDetail");
   const moneyEquals = (a: unknown, b: number) => typeof a === "number" && Math.abs(a * 100 - Math.round(b * 100)) < 0.001;
-  if (!r || !/^\d+$/.test(r.Id) || r.DocNumber !== expected.DocNumber || r.TxnDate !== expected.TxnDate
+  if (!r || typeof r.Id !== "string" || !/^\d+$/.test(r.Id) || r.DocNumber !== expected.DocNumber || r.TxnDate !== expected.TxnDate
     || r.PrivateNote !== expected.PrivateNote || r.CurrencyRef?.value !== "USD"
     || r.CustomerRef?.value !== expected.CustomerRef.value || r.DepositToAccountRef?.value !== expected.DepositToAccountRef.value
     || !moneyEquals(r.TotalAmt, expected.Line[0].Amount) || lines?.length !== 1
